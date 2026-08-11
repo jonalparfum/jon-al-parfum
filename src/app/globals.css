@@ -196,14 +196,78 @@ body {
   }
 
   @media (max-width: 768px) {
+    .hero-section {
+      background-image:
+        radial-gradient(
+          ellipse 100% 60% at 50% 28%,
+          rgba(201, 169, 98, 0.24) 0%,
+          transparent 68%
+        ),
+        radial-gradient(
+          ellipse 70% 45% at 50% 100%,
+          rgba(201, 169, 98, 0.08) 0%,
+          transparent 70%
+        );
+    }
+
+    .hero-aurora {
+      animation: none;
+      opacity: 0.95;
+    }
+
     .hero-orb-a,
     .hero-orb-b {
       filter: none;
-      opacity: 0.35;
+      opacity: 0.3;
+      animation: none;
     }
 
     .hero-light-sweep {
       display: none;
+    }
+
+    .hero-logo-ring {
+      animation: none;
+    }
+
+    .landing-reveal {
+      opacity: 1;
+      transform: translateY(18px);
+      filter: none;
+      transition:
+        transform 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+        opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+      will-change: transform;
+    }
+
+    .landing-reveal-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .landing-section-ambient {
+      animation: none;
+    }
+
+    .landing-marquee-track {
+      animation-duration: 28s;
+    }
+
+    .landing-marquee-text {
+      animation: none;
+      opacity: 0.45;
+    }
+
+    .landing-value-card:hover {
+      transform: none;
+      box-shadow: none;
+    }
+  }
+
+  @media (max-width: 768px) and (hover: hover) {
+    .landing-value-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(201, 169, 98, 0.06);
     }
   }
 
@@ -403,11 +467,13 @@ body {
 
   @media (max-width: 768px) {
     .fragrance-glow {
-      height: 180px;
-      opacity: 0.6;
+      top: 38%;
+      height: 200px;
+      opacity: 0.58;
+      animation: scent-breathe-mobile 6s ease-in-out infinite;
     }
 
-    .fragrance-mist-hero .fragrance-wisp-b,
+    .fragrance-mist-hero .fragrance-wisp,
     .fragrance-mist-hero .fragrance-particle-c,
     .fragrance-mist-hero .fragrance-particle-d,
     .fragrance-mist-hero .fragrance-particle-e,
@@ -415,10 +481,17 @@ body {
       display: none;
     }
 
-    .fragrance-mist-hero .fragrance-particle-a,
+    .fragrance-mist-hero .fragrance-particle-a {
+      left: 22%;
+      bottom: 34%;
+      animation: scent-drift-mobile 8s ease-in-out infinite;
+    }
+
     .fragrance-mist-hero .fragrance-particle-b {
-      animation-duration: 7s;
-      opacity: 0.45;
+      left: 68%;
+      bottom: 38%;
+      animation: scent-drift-mobile 9s ease-in-out infinite;
+      animation-delay: 1.5s;
     }
   }
 
@@ -602,6 +675,30 @@ body {
   }
   50% {
     opacity: 0.55;
+  }
+}
+
+@keyframes scent-breathe-mobile {
+  0%,
+  100% {
+    transform: translateX(-50%) scale(1);
+    opacity: 0.52;
+  }
+  50% {
+    transform: translateX(-50%) scale(1.03);
+    opacity: 0.62;
+  }
+}
+
+@keyframes scent-drift-mobile {
+  0%,
+  100% {
+    transform: translateY(-24px) translateX(0) scale(1);
+    opacity: 0.38;
+  }
+  50% {
+    transform: translateY(-52px) translateX(4px) scale(1.08);
+    opacity: 0.52;
   }
 }
 

@@ -24,22 +24,22 @@ export default async function HomePage() {
           <div className="absolute inset-0 grain-overlay opacity-25 hidden md:block" />
           <FragranceMist variant="hero" />
 
-          <div className="hero-orb hero-orb-a animate-orb-drift" />
-          <div className="hero-orb hero-orb-b animate-orb-drift [animation-delay:5s]" />
+          <div className="hero-orb hero-orb-a max-md:animate-none md:animate-orb-drift" />
+          <div className="hero-orb hero-orb-b max-md:animate-none md:animate-orb-drift [animation-delay:5s]" />
 
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-radial-gold opacity-70" />
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] max-md:w-full h-[600px] max-md:h-[420px] bg-radial-gold opacity-70 max-md:opacity-55" />
 
           <div className="absolute left-8 md:left-16 top-1/4 bottom-1/4 w-px bg-gradient-to-b from-transparent via-gold/20 to-transparent hidden lg:block" />
           <div className="absolute right-8 md:right-16 top-1/3 bottom-1/3 w-px bg-gradient-to-b from-transparent via-gold/15 to-transparent hidden lg:block" />
         </div>
 
-        <div className="hero-content relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-20 md:pt-32">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-8 items-center">
+        <div className="hero-content relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-16 max-md:pt-[5.5rem] max-md:pb-14 md:pt-32 md:pb-20">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-md:gap-6 lg:gap-8 items-center">
             {/* Logo */}
             <div className="flex justify-center lg:justify-end order-1 lg:order-none">
-              <div className="relative min-h-[200px] sm:min-h-[240px] md:min-h-0 max-md:scale-[1.35] md:scale-100 origin-center max-md:mb-6 animate-hero-float">
+              <div className="relative min-h-[180px] sm:min-h-[220px] md:min-h-0 max-md:scale-[1.22] md:scale-100 origin-center max-md:mb-4 md:mb-0 max-md:animate-none md:animate-hero-float">
                 <BrandLogo size="hero" priority className="mx-auto" />
-                <div className="hero-logo-ring absolute inset-0 -z-10 blur-3xl bg-gold/10 scale-75 rounded-full" />
+                <div className="hero-logo-ring absolute inset-0 -z-10 max-md:blur-xl max-md:opacity-50 md:blur-3xl bg-gold/10 scale-75 rounded-full" />
               </div>
             </div>
 
@@ -59,7 +59,7 @@ export default async function HomePage() {
 
               <h1 className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-cream leading-[1.1] mb-6">
                 La esencia del
-                <span className="block luxury-gradient-text animate-gradient-shimmer mt-1">lujo olfativo</span>
+                <span className="block luxury-gradient-text max-md:animate-none md:animate-gradient-shimmer mt-1">lujo olfativo</span>
               </h1>
 
               <p className="text-cream/75 text-base md:text-lg max-w-lg mx-auto lg:mx-0 mb-4 leading-relaxed font-light">
@@ -140,9 +140,9 @@ export default async function HomePage() {
 
       {/* Featured */}
       <section className="py-28 md:py-36 relative bg-luxury-panel/20 overflow-hidden">
-        <div className="landing-section-ambient pointer-events-none" aria-hidden="true" />
-        <FragranceMist variant="section" className="opacity-50" />
-        <div className="absolute inset-0 grain-overlay opacity-15" />
+        <div className="landing-section-ambient pointer-events-none max-md:opacity-80" aria-hidden="true" />
+        <FragranceMist variant="section" className="opacity-50 max-md:hidden" />
+        <div className="absolute inset-0 grain-overlay opacity-15 max-md:hidden" />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <RevealOnScroll className="text-center mb-16">
             <p className="text-gold uppercase tracking-[0.4em] text-[10px] mb-5">
