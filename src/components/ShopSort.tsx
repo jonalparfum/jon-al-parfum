@@ -55,14 +55,3 @@ export default function ShopSort({ activeSort }: ShopSortProps) {
     </div>
   );
 }
-
-export function parseProductSort(value?: string | null): ProductSort {
-  if (
-    value === "bestsellers" ||
-    value === "name-asc" ||
-    value === "price-desc"
-  ) {
-    return value;
-  }
-  return "newest";
-}

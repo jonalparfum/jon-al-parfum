@@ -2,9 +2,9 @@ import Link from "next/link";
 import { Suspense } from "react";
 import ProductCard from "@/components/ProductCard";
 import ShopSearch from "@/components/ShopSearch";
-import ShopSort, { parseProductSort } from "@/components/ShopSort";
+import ShopSort from "@/components/ShopSort";
 import ShopSubcategoryFilters from "@/components/ShopSubcategoryFilters";
-import { getProductsFromDb } from "@/lib/products";
+import { getProductsFromDb, parseProductSort } from "@/lib/products";
 import { getCatalogCategories, getShopSubcategories } from "@/lib/catalog";
 
 export const dynamic = "force-dynamic";

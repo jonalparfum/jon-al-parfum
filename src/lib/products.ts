@@ -8,6 +8,17 @@ export type ProductSort =
   | "name-asc"
   | "price-desc";
 
+export function parseProductSort(value?: string | null): ProductSort {
+  if (
+    value === "bestsellers" ||
+    value === "name-asc" ||
+    value === "price-desc"
+  ) {
+    return value;
+  }
+  return "newest";
+}
+
 const paidStatuses = ["PAID", "PROCESSING", "SHIPPED", "DELIVERED"] as const;
 
 function buildWhere(options?: {
