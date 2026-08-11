@@ -5,6 +5,9 @@ import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
+const inputClass =
+  "w-full bg-luxury-black border border-gold/20 px-3 py-2.5 text-sm text-cream placeholder:text-cream/30 focus:outline-none focus:border-gold transition-colors";
+
 export default function RegisterPage() {
   const router = useRouter();
   const [name, setName] = useState("");
@@ -46,68 +49,79 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-[70vh] flex items-center justify-center px-4">
+    <div className="min-h-[70vh] flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-md">
-        <h1 className="font-serif text-3xl text-center mb-2">Crear cuenta</h1>
-        <p className="text-center text-charcoal/60 mb-8 text-sm">
+        <h1 className="font-display text-3xl text-center mb-2 text-cream">
+          Crear cuenta
+        </h1>
+        <p className="text-center text-cream/50 mb-8 text-sm">
           Únete a Jon Al Parfum
         </p>
 
         <form
           onSubmit={handleSubmit}
-          className="bg-white rounded-lg shadow-sm border border-gold/10 p-8 space-y-4"
+          className="bg-luxury-panel border border-gold/10 p-8 space-y-4 gold-border-glow"
         >
           {error && (
-            <p className="text-red-600 text-sm text-center bg-red-50 py-2 rounded">
+            <p className="text-red-400 text-sm text-center bg-red-950/50 border border-red-900/50 py-2">
               {error}
             </p>
           )}
 
           <div>
-            <label className="block text-sm font-medium mb-1">Nombre</label>
+            <label className="block text-sm font-medium mb-1 text-cream/80">
+              Nombre
+            </label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full border border-gray-200 rounded px-3 py-2.5 text-sm focus:outline-none focus:border-gold"
+              className={inputClass}
+              placeholder="Tu nombre"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1">Email</label>
+            <label className="block text-sm font-medium mb-1 text-cream/80">
+              Email
+            </label>
             <input
               type="email"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full border border-gray-200 rounded px-3 py-2.5 text-sm focus:outline-none focus:border-gold"
+              className={inputClass}
+              placeholder="tu@email.com"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1">Contraseña</label>
+            <label className="block text-sm font-medium mb-1 text-cream/80">
+              Contraseña
+            </label>
             <input
               type="password"
               required
               minLength={6}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full border border-gray-200 rounded px-3 py-2.5 text-sm focus:outline-none focus:border-gold"
+              className={inputClass}
+              placeholder="Mínimo 6 caracteres"
             />
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-charcoal text-white py-3 text-sm uppercase tracking-widest hover:bg-gold transition-colors disabled:opacity-50"
+            className="w-full bg-gold text-luxury-black py-3 text-sm uppercase tracking-widest hover:bg-gold-light transition-colors disabled:opacity-50 font-medium"
           >
             {loading ? "Creando cuenta..." : "Registrarse"}
           </button>
         </form>
 
-        <p className="text-center text-sm text-charcoal/60 mt-6">
+        <p className="text-center text-sm text-cream/50 mt-6">
           ¿Ya tienes cuenta?{" "}
-          <Link href="/login" className="text-gold hover:text-charcoal">
+          <Link href="/login" className="text-gold hover:text-gold-light">
             Inicia sesión
           </Link>
         </p>
