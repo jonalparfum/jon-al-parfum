@@ -12,6 +12,13 @@ set -euo pipefail
 REPO="jonalparfum/jon-al-parfum"
 BRANCH="${1:-main}"
 
+if [ -z "${GITHUB_TOKEN:-}" ] && [ -f ".env.local" ]; then
+  set -a
+  # shellcheck disable=SC1091
+  source .env.local
+  set +a
+fi
+
 if [ -z "${GITHUB_TOKEN:-}" ]; then
   echo "Error: define GITHUB_TOKEN con un Personal Access Token de la cuenta jonalparfum."
   echo "  GITHUB_TOKEN='ghp_...' ./scripts/push-jonalparfum.sh"
