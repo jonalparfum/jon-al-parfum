@@ -2,16 +2,41 @@
 
 import Link from "next/link";
 import BrandLogo from "@/components/BrandLogo";
+import HeaderCategoryNav from "@/components/HeaderCategoryNav";
 import { useState, useEffect, useRef } from "react";
-import { useSession } from "next-auth/react";
+import { useSession, signOut } from "next-auth/react";
 import { useCart } from "@/context/CartContext";
+import type { CatalogCategory } from "@/lib/catalog";
+
+const staticNavLinks = [
+  { href: "/", label: "Inicio" },
+  { href: "/tienda", label: "Tienda" },
+  { href: "/#contacto", label: "Contacto" },
+  { href: "/#faq", label: "FAQ" },
+];
+
+const adminLinks = [
+  { href: "/admin", label: "Resumen" },
+  { href: "/admin/productos", label: "Productos" },
+  { href: "/admin/catalogos", label: "Categorías" },
+  { href: "/admin/pedidos", label: "Pedidos" },
+];
 
 export default function Header() {
   const { data: session } = useSession();
   const { totalItems, openCart } = useCart();
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [categories, setCategories] = useState<CatalogCategory[]>([]);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
+  const isAdmin = session?.user?.role === "ADMIN";
+
+  useEffect(() => {
+    fetch("/api/categories")
+      .then((r) => r.json())
+      .then(setCategories)
+      .catch(() => setCategories([]));
+  }, []);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -53,14 +78,7 @@ export default function Header() {
     };
   }, [menuOpen]);
 
-  const navLinks = [
-    { href: "/", label: "Inicio" },
-    { href: "/tienda", label: "Tienda" },
-    { href: "/tienda?categoria=hombre", label: "Hombre" },
-    { href: "/tienda?categoria=mujer", label: "Mujer" },
-    { href: "/#contacto", label: "Contacto" },
-    { href: "/#faq", label: "FAQ" },
-  ];
+  const closeMenu = () => setMenuOpen(false);
 
   return (
     <header
@@ -82,7 +100,7 @@ export default function Header() {
 
       <div className="relative z-50 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 md:h-20">
-          <Link href="/" className="flex items-center gap-3 group">
+          <Link href="/" className="flex items-center gap-3 group shrink-0">
             <BrandLogo
               size="sm"
               priority
@@ -93,38 +111,65 @@ export default function Header() {
             </span>
           </Link>
 
-          <nav className="hidden md:flex items-center gap-8">
-            {navLinks.map((link) => (
+          <nav className="hidden lg:flex items-center gap-6 xl:gap-8">
+            {staticNavLinks.slice(0, 2).map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
-                className="text-xs uppercase tracking-[0.2em] text-cream/70 hover:text-gold transition-colors duration-300 relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-px after:bg-gold hover:after:w-full after:transition-all after:duration-300"
+                className="text-xs uppercase tracking-[0.2em] text-cream/70 hover:text-gold transition-colors duration-300"
+              >
+                {link.label}
+              </Link>
+            ))}
+            <HeaderCategoryNav categories={categories} />
+            {staticNavLinks.slice(2).map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="text-xs uppercase tracking-[0.2em] text-cream/70 hover:text-gold transition-colors duration-300"
               >
                 {link.label}
               </Link>
             ))}
           </nav>
 
-          <div className="flex items-center gap-2 md:gap-3">
-            {session?.user?.role === "ADMIN" && (
-              <Link
-                href="/admin"
-                className="hidden sm:inline-flex text-[10px] uppercase tracking-[0.2em] text-luxury-black bg-gold hover:bg-gold-light px-3 py-1.5 font-medium transition-colors"
-              >
-                Admin
-              </Link>
+          <div className="flex items-center gap-2 md:gap-3 shrink-0">
+            {isAdmin && (
+              <nav className="hidden lg:flex items-center gap-2 xl:gap-3 mr-1">
+                {adminLinks.map((link) => (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    className="text-[10px] uppercase tracking-[0.15em] text-cream/50 hover:text-gold transition-colors whitespace-nowrap"
+                  >
+                    {link.label}
+                  </Link>
+                ))}
+              </nav>
             )}
+
             {session ? (
-              <Link
-                href="/cuenta"
-                className="hidden sm:block text-xs uppercase tracking-wider text-cream/60 hover:text-gold transition-colors"
-              >
-                {session.user.name || "Mi cuenta"}
-              </Link>
+              <>
+                {!isAdmin && (
+                  <Link
+                    href="/cuenta"
+                    className="hidden sm:block text-xs uppercase tracking-wider text-cream/60 hover:text-gold transition-colors"
+                  >
+                    Mi cuenta
+                  </Link>
+                )}
+                <button
+                  type="button"
+                  onClick={() => signOut({ callbackUrl: "/" })}
+                  className="text-[10px] uppercase tracking-[0.15em] text-luxury-black bg-gold hover:bg-gold-light px-3 py-1.5 font-medium transition-colors whitespace-nowrap"
+                >
+                  Cerrar sesión
+                </button>
+              </>
             ) : (
               <Link
                 href="/login"
-                className="hidden sm:block text-xs uppercase tracking-wider text-cream/60 hover:text-gold transition-colors"
+                className="hidden sm:inline-flex text-[10px] uppercase tracking-[0.15em] text-luxury-black bg-gold hover:bg-gold-light px-3 py-1.5 font-medium transition-colors"
               >
                 Entrar
               </Link>
@@ -159,7 +204,7 @@ export default function Header() {
             <button
               onClick={() => setMenuOpen(!menuOpen)}
               data-mobile-menu-toggle
-              className="md:hidden p-2 text-cream"
+              className="lg:hidden p-2 text-cream"
               aria-label={menuOpen ? "Cerrar menú" : "Abrir menú"}
               aria-expanded={menuOpen}
             >
@@ -183,37 +228,66 @@ export default function Header() {
 
         <div
           ref={mobileMenuRef}
-          className={`md:hidden overflow-hidden transition-all duration-500 ${
-            menuOpen ? "max-h-96 border-t border-gold/10" : "max-h-0"
+          className={`lg:hidden overflow-hidden transition-all duration-500 ${
+            menuOpen ? "max-h-[85svh] overflow-y-auto border-t border-gold/10" : "max-h-0"
           }`}
         >
           <nav className="py-4">
-            {navLinks.map((link) => (
+            {staticNavLinks.slice(0, 2).map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
-                onClick={() => setMenuOpen(false)}
+                onClick={closeMenu}
                 className="block py-3 text-xs uppercase tracking-[0.2em] text-cream/70 hover:text-gold transition-colors"
               >
                 {link.label}
               </Link>
             ))}
-            {session?.user?.role === "ADMIN" && (
+
+            <HeaderCategoryNav
+              categories={categories}
+              onNavigate={closeMenu}
+              variant="mobile"
+            />
+
+            {staticNavLinks.slice(2).map((link) => (
               <Link
-                href="/admin"
-                onClick={() => setMenuOpen(false)}
-                className="block py-3 text-xs uppercase tracking-[0.2em] text-gold font-medium"
+                key={link.href}
+                href={link.href}
+                onClick={closeMenu}
+                className="block py-3 text-xs uppercase tracking-[0.2em] text-cream/70 hover:text-gold transition-colors"
               >
-                Panel Admin
+                {link.label}
+              </Link>
+            ))}
+
+            {isAdmin && (
+              <div className="mt-4 pt-4 border-t border-gold/10">
+                <p className="px-0 py-1 text-[10px] uppercase tracking-[0.25em] text-gold/60 mb-2">
+                  Administración
+                </p>
+                {adminLinks.map((link) => (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    onClick={closeMenu}
+                    className="block py-2.5 text-xs uppercase tracking-[0.2em] text-gold hover:text-gold-light transition-colors"
+                  >
+                    {link.label}
+                  </Link>
+                ))}
+              </div>
+            )}
+
+            {!session && (
+              <Link
+                href="/login"
+                onClick={closeMenu}
+                className="block py-3 text-xs uppercase tracking-[0.2em] text-cream/70 hover:text-gold transition-colors"
+              >
+                Entrar
               </Link>
             )}
-            <Link
-              href={session ? "/cuenta" : "/login"}
-              onClick={() => setMenuOpen(false)}
-              className="block py-3 text-xs uppercase tracking-[0.2em] text-cream/70 hover:text-gold transition-colors"
-            >
-              {session ? "Mi cuenta" : "Entrar"}
-            </Link>
           </nav>
         </div>
       </div>

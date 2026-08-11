@@ -4,6 +4,7 @@ import { Product } from "@/types";
 
 export async function getProductsFromDb(options?: {
   category?: string;
+  subcategory?: string;
   featured?: boolean;
 }): Promise<Product[]> {
   const products = await prisma.product.findMany({
@@ -12,9 +13,12 @@ export async function getProductsFromDb(options?: {
       ...(options?.category && options.category !== "all"
         ? { category: { slug: options.category } }
         : {}),
+      ...(options?.subcategory && options.subcategory !== "all"
+        ? { subcategory: { slug: options.subcategory } }
+        : {}),
       ...(options?.featured ? { featured: true } : {}),
     },
-    include: { category: true },
+    include: { category: true, subcategory: true },
     orderBy: { createdAt: "desc" },
   });
 
