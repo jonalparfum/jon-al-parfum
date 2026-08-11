@@ -4,6 +4,7 @@ import Footer from "@/components/Footer";
 import CartDrawer from "@/components/CartDrawer";
 import CookieConsent from "@/components/CookieConsent";
 import WhatsAppButton from "@/components/WhatsAppButton";
+import ScrollToTop from "@/components/ScrollToTop";
 
 export default function StoreLayout({
   children,
@@ -12,6 +13,7 @@ export default function StoreLayout({
 }) {
   return (
     <CartProvider>
+      <ScrollToTop />
       <Header />
       <main className="min-h-screen bg-luxury-black">{children}</main>
       <Footer />
