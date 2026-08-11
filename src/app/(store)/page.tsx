@@ -93,12 +93,6 @@ export default async function HomePage() {
               </div>
             </div>
           </div>
-
-          {/* Scroll hint */}
-          <div className="absolute bottom-10 left-1/2 -translate-x-1/2 hidden md:flex flex-col items-center gap-3 opacity-40">
-            <span className="text-[9px] uppercase tracking-[0.4em] text-cream/60">Descubre</span>
-            <div className="w-px h-10 bg-gradient-to-b from-gold/50 to-transparent animate-pulse" />
-          </div>
         </div>
       </section>
 
