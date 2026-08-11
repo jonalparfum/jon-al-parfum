@@ -103,6 +103,48 @@ body {
     opacity: 1;
   }
 
+  .hero-section {
+    background-color: #080808;
+    background-image:
+      radial-gradient(
+        ellipse 90% 55% at 50% 32%,
+        rgba(201, 169, 98, 0.2) 0%,
+        transparent 72%
+      ),
+      radial-gradient(
+        ellipse 50% 35% at 85% 18%,
+        rgba(201, 169, 98, 0.1) 0%,
+        transparent 65%
+      );
+  }
+
+  .hero-ambient {
+    z-index: 0;
+  }
+
+  .hero-content {
+    z-index: 1;
+  }
+
+  @media (max-width: 768px) {
+    .hero-section .hero-content .animate-fade-in-up,
+    .hero-section .hero-content .daily-perfume-tip {
+      animation: none !important;
+      transform: none !important;
+      opacity: 1 !important;
+    }
+
+    .hero-section .fragrance-mist .fragrance-particle,
+    .hero-section .fragrance-mist .fragrance-wisp {
+      display: none;
+    }
+
+    .hero-section .fragrance-glow {
+      animation: none !important;
+      opacity: 0.7 !important;
+    }
+  }
+
   .animate-marquee {
     animation: marquee 30s linear infinite;
   }
