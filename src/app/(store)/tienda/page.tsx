@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import ProductCard from "@/components/ProductCard";
 import ShopSearch from "@/components/ShopSearch";
 import { getProductsFromDb } from "@/lib/products";
-import { getCatalogCategories } from "@/lib/catalog";
+import { getCatalogCategories, getShopSubcategories } from "@/lib/catalog";
 
 export const dynamic = "force-dynamic";
 
@@ -17,17 +17,19 @@ export default async function ShopPage({ searchParams }: PageProps) {
   const activeSubcategory = subcategoria || "all";
   const searchQuery = q?.trim() || "";
 
-  const [products, categories] = await Promise.all([
+  const [products, categories, subcategories] = await Promise.all([
     getProductsFromDb({
       category: activeCategory,
       subcategory: activeSubcategory,
       search: searchQuery,
     }),
     getCatalogCategories(),
+    activeCategory !== "all"
+      ? getShopSubcategories(activeCategory)
+      : Promise.resolve([]),
   ]);
 
   const currentCategory = categories.find((cat) => cat.slug === activeCategory);
-  const subcategories = currentCategory?.subcategories ?? [];
 
   const filterClass = (active: boolean) =>
     active

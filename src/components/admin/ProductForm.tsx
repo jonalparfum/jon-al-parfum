@@ -78,16 +78,23 @@ export default function ProductForm({
   const [subcategories, setSubcategories] = useState<Subcategory[]>([]);
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [loadingSubs, setLoadingSubs] = useState(false);
 
-  useEffect(() => {
-    if (!form.categoryId) {
+  const loadSubcategories = (categoryId: string) => {
+    if (!categoryId) {
       setSubcategories([]);
       return;
     }
-    fetch(`/api/admin/subcategories?categoryId=${form.categoryId}`)
+    setLoadingSubs(true);
+    fetch(`/api/admin/subcategories?categoryId=${categoryId}`)
       .then((r) => r.json())
       .then((data: Subcategory[]) => setSubcategories(data))
-      .catch(() => setSubcategories([]));
+      .catch(() => setSubcategories([]))
+      .finally(() => setLoadingSubs(false));
+  };
+
+  useEffect(() => {
+    loadSubcategories(form.categoryId);
   }, [form.categoryId]);
 
   useEffect(() => {
@@ -237,15 +244,29 @@ export default function ProductForm({
           </select>
         </div>
         <div>
-          <label className={adminLabel}>Subcategoría</label>
+          <div className="flex items-center justify-between gap-2 mb-1">
+            <label className={adminLabel}>Subcategoría</label>
+            <button
+              type="button"
+              onClick={() => loadSubcategories(form.categoryId)}
+              className="text-[10px] uppercase tracking-wider text-gold hover:text-gold-light"
+            >
+              {loadingSubs ? "Actualizando…" : "Actualizar lista"}
+            </button>
+          </div>
           <select
             value={form.subcategoryId || ""}
             onChange={(e) =>
               update("subcategoryId", e.target.value || undefined)
             }
+            onFocus={() => loadSubcategories(form.categoryId)}
             className={adminInput}
           >
-            <option value="">Sin subcategoría</option>
+            <option value="">
+              {subcategories.length === 0
+                ? "Sin subcategorías — créalas en Categorías"
+                : "Sin subcategoría"}
+            </option>
             {subcategories.map((sub) => (
               <option key={sub.id} value={sub.id}>
                 {sub.name}
