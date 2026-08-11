@@ -56,43 +56,53 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     return NextResponse.json({ error: "Body inválido" }, { status: 400 });
   }
 
-  const product = await prisma.product.update({
-    where: { id },
-    data: {
-      ...(body.name !== undefined && { name: body.name }),
-      ...(body.slug !== undefined && { slug: body.slug }),
-      ...(body.name !== undefined &&
-        body.slug === undefined && { slug: slugify(body.name) }),
-      ...(body.brand !== undefined && { brand: body.brand }),
-      ...(body.description !== undefined && { description: body.description }),
-      ...(body.price !== undefined && { price: body.price }),
-      ...(body.originalPrice !== undefined && {
-        originalPrice: body.originalPrice,
-      }),
-      ...(body.image !== undefined && { image: body.image }),
-      ...(body.size !== undefined && { size: body.size }),
-      ...(body.notesTop !== undefined && {
-        notesTop: serializeNotes(body.notesTop),
-      }),
-      ...(body.notesHeart !== undefined && {
-        notesHeart: serializeNotes(body.notesHeart),
-      }),
-      ...(body.notesBase !== undefined && {
-        notesBase: serializeNotes(body.notesBase),
-      }),
-      ...(body.featured !== undefined && { featured: body.featured }),
-      ...(body.isNew !== undefined && { isNew: body.isNew }),
-      ...(body.stock !== undefined && { stock: body.stock }),
-      ...(body.active !== undefined && { active: body.active }),
-      ...(body.categoryId !== undefined && { categoryId: body.categoryId }),
-      ...(body.subcategoryId !== undefined && {
-        subcategoryId: body.subcategoryId,
-      }),
-    },
-    include: { category: true, subcategory: true },
-  });
+  try {
+    const product = await prisma.product.update({
+      where: { id },
+      data: {
+        ...(body.name !== undefined && { name: body.name }),
+        ...(body.slug !== undefined && { slug: body.slug }),
+        ...(body.name !== undefined &&
+          body.slug === undefined && { slug: slugify(body.name) }),
+        ...(body.brand !== undefined && { brand: body.brand }),
+        ...(body.description !== undefined && {
+          description: body.description,
+        }),
+        ...(body.price !== undefined && { price: body.price }),
+        ...(body.originalPrice !== undefined && {
+          originalPrice: body.originalPrice,
+        }),
+        ...(body.image !== undefined && { image: body.image }),
+        ...(body.size !== undefined && { size: body.size }),
+        ...(body.notesTop !== undefined && {
+          notesTop: serializeNotes(body.notesTop),
+        }),
+        ...(body.notesHeart !== undefined && {
+          notesHeart: serializeNotes(body.notesHeart),
+        }),
+        ...(body.notesBase !== undefined && {
+          notesBase: serializeNotes(body.notesBase),
+        }),
+        ...(body.featured !== undefined && { featured: body.featured }),
+        ...(body.isNew !== undefined && { isNew: body.isNew }),
+        ...(body.stock !== undefined && { stock: body.stock }),
+        ...(body.active !== undefined && { active: body.active }),
+        ...(body.categoryId !== undefined && { categoryId: body.categoryId }),
+        ...(body.subcategoryId !== undefined && {
+          subcategoryId: body.subcategoryId || null,
+        }),
+      },
+      include: { category: true, subcategory: true },
+    });
 
-  return NextResponse.json(product);
+    return NextResponse.json(product);
+  } catch (error) {
+    console.error("Error updating product:", error);
+    return NextResponse.json(
+      { error: "No se pudo actualizar el producto" },
+      { status: 500 }
+    );
+  }
 }
 
 export async function DELETE(_request: NextRequest, { params }: RouteParams) {

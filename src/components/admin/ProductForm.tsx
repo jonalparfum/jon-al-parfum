@@ -8,36 +8,19 @@ import {
   adminLabel,
   adminMuted,
   adminPanelPadding,
-  adminSelect,
 } from "@/lib/admin-styles";
+import {
+  prepareProductPayload,
+  type ProductFormPayload,
+} from "@/lib/product-utils";
 
 type Category = { id: string; name: string; slug: string };
 type Subcategory = { id: string; name: string; categoryId: string };
 
-type ProductFormData = {
-  name: string;
-  slug: string;
-  brand: string;
-  description: string;
-  price: number;
-  originalPrice?: number;
-  image: string;
-  size: string;
-  notesTop: string[];
-  notesHeart: string[];
-  notesBase: string[];
-  featured: boolean;
-  isNew: boolean;
-  stock: number;
-  active: boolean;
-  categoryId: string;
-  subcategoryId?: string;
-};
-
 type ProductFormProps = {
   categories: Category[];
-  initial?: Partial<ProductFormData>;
-  onSubmit: (data: ProductFormData) => Promise<void>;
+  initial?: Partial<ProductFormPayload>;
+  onSubmit: (data: ReturnType<typeof prepareProductPayload>) => Promise<void>;
 };
 
 function notesToString(notes: string[]): string {
@@ -56,7 +39,7 @@ export default function ProductForm({
   initial,
   onSubmit,
 }: ProductFormProps) {
-  const [form, setForm] = useState<ProductFormData>({
+  const [form, setForm] = useState<ProductFormPayload>({
     name: initial?.name || "",
     slug: initial?.slug || "",
     brand: initial?.brand || "Jon Al Parfum",
@@ -107,7 +90,7 @@ export default function ProductForm({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [subcategories]);
 
-  const update = (field: keyof ProductFormData, value: unknown) => {
+  const update = (field: keyof ProductFormPayload, value: unknown) => {
     setForm((prev) => ({ ...prev, [field]: value }));
   };
 
@@ -133,8 +116,13 @@ export default function ProductForm({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
-    await onSubmit(form);
-    setSaving(false);
+    try {
+      await onSubmit(prepareProductPayload(form));
+    } catch {
+      alert("Error al guardar el producto. Intenta de nuevo.");
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (

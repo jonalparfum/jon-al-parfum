@@ -44,7 +44,12 @@ export async function POST(request: NextRequest) {
   if (!session) return unauthorized();
 
   const body = await parseJsonBody<ProductBody>(request);
-  if (!body?.name || !body.description || !body.price || !body.categoryId) {
+  if (
+    !body?.name ||
+    !body.description ||
+    body.price == null ||
+    !body.categoryId
+  ) {
     return NextResponse.json(
       { error: "Faltan campos obligatorios" },
       { status: 400 }
@@ -53,28 +58,36 @@ export async function POST(request: NextRequest) {
 
   const slug = body.slug || slugify(body.name);
 
-  const product = await prisma.product.create({
-    data: {
-      name: body.name,
-      slug,
-      brand: body.brand || "Jon Al Parfum",
-      description: body.description,
-      price: body.price,
-      originalPrice: body.originalPrice ?? null,
-      image: body.image || "/uploads/products/placeholder.jpg",
-      size: body.size || "100ml",
-      notesTop: serializeNotes(body.notesTop || []),
-      notesHeart: serializeNotes(body.notesHeart || []),
-      notesBase: serializeNotes(body.notesBase || []),
-      featured: body.featured ?? false,
-      isNew: body.isNew ?? false,
-      stock: body.stock ?? 100,
-      active: body.active ?? true,
-      categoryId: body.categoryId,
-      subcategoryId: body.subcategoryId || null,
-    },
-    include: { category: true, subcategory: true },
-  });
+  try {
+    const product = await prisma.product.create({
+      data: {
+        name: body.name,
+        slug,
+        brand: body.brand || "Jon Al Parfum",
+        description: body.description,
+        price: body.price,
+        originalPrice: body.originalPrice ?? null,
+        image: body.image || "/uploads/products/placeholder.jpg",
+        size: body.size || "100ml",
+        notesTop: serializeNotes(body.notesTop || []),
+        notesHeart: serializeNotes(body.notesHeart || []),
+        notesBase: serializeNotes(body.notesBase || []),
+        featured: body.featured ?? false,
+        isNew: body.isNew ?? false,
+        stock: body.stock ?? 100,
+        active: body.active ?? true,
+        categoryId: body.categoryId,
+        subcategoryId: body.subcategoryId || null,
+      },
+      include: { category: true, subcategory: true },
+    });
 
-  return NextResponse.json(product, { status: 201 });
+    return NextResponse.json(product, { status: 201 });
+  } catch (error) {
+    console.error("Error creating product:", error);
+    return NextResponse.json(
+      { error: "No se pudo crear el producto" },
+      { status: 500 }
+    );
+  }
 }

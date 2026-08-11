@@ -52,3 +52,32 @@ export function formatPrice(price: number): string {
     currency: "MXN",
   }).format(price);
 }
+
+export type ProductFormPayload = {
+  name: string;
+  slug: string;
+  brand: string;
+  description: string;
+  price: number;
+  originalPrice?: number;
+  image: string;
+  size: string;
+  notesTop: string[];
+  notesHeart: string[];
+  notesBase: string[];
+  featured: boolean;
+  isNew: boolean;
+  stock: number;
+  active: boolean;
+  categoryId: string;
+  subcategoryId?: string;
+};
+
+export function prepareProductPayload(form: ProductFormPayload) {
+  return {
+    ...form,
+    slug: form.slug.trim() || undefined,
+    subcategoryId: form.subcategoryId?.trim() ? form.subcategoryId : null,
+    originalPrice: form.originalPrice ?? null,
+  };
+}

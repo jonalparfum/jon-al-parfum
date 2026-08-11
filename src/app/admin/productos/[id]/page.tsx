@@ -59,12 +59,15 @@ export default function EditProductPage({
       body: JSON.stringify(data),
     });
 
-    if (res.ok) {
-      router.push("/admin/productos");
-    } else {
-      const err = await res.json();
-      alert(err.error || "Error al actualizar producto");
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      alert(
+        (err as { error?: string }).error || "Error al actualizar producto"
+      );
+      throw new Error("update failed");
     }
+
+    router.replace("/admin/productos");
   };
 
   if (!product) {

@@ -24,12 +24,15 @@ export default function NewProductPage() {
       body: JSON.stringify(data),
     });
 
-    if (res.ok) {
-      router.push("/admin/productos");
-    } else {
-      const err = await res.json();
-      alert(err.error || "Error al crear producto");
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      alert(
+        (err as { error?: string }).error || "Error al crear producto"
+      );
+      throw new Error("create failed");
     }
+
+    router.replace("/admin/productos");
   };
 
   return (
