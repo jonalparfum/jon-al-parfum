@@ -155,7 +155,7 @@ export default function Header() {
             ) : (
               <Link
                 href="/login"
-                className="hidden sm:inline-flex text-[10px] uppercase tracking-[0.15em] text-luxury-black bg-gold hover:bg-gold-light px-3 py-1.5 font-medium transition-colors"
+                className="inline-flex text-[10px] uppercase tracking-[0.15em] text-luxury-black bg-gold hover:bg-gold-light px-2.5 sm:px-3 py-1.5 font-medium transition-colors whitespace-nowrap"
               >
                 Entrar
               </Link>
@@ -247,15 +247,6 @@ export default function Header() {
               </Link>
             ))}
 
-            {!session && (
-              <Link
-                href="/login"
-                onClick={closeMenu}
-                className="block py-3 text-xs uppercase tracking-[0.2em] text-cream/70 hover:text-gold transition-colors"
-              >
-                Entrar
-              </Link>
-            )}
           </nav>
         </div>
       </div>
