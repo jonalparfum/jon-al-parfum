@@ -1,22 +1,22 @@
 /** Jon Al Parfum — Admin panel design system (white luxury theme). */
 
 export const adminPageTitle =
-  "font-display text-2xl md:text-3xl text-charcoal tracking-wide";
+  "font-display text-2xl md:text-3xl text-charcoal font-semibold tracking-wide";
 export const adminSectionTitle =
   "font-display text-lg text-charcoal tracking-wide";
 export const adminMuted = "text-sm text-charcoal/55 leading-relaxed";
-export const adminSubtitle = "text-sm text-charcoal/60 mt-1.5 max-w-2xl leading-relaxed";
+export const adminSubtitle = "text-sm text-charcoal/70 mt-1.5 max-w-2xl leading-relaxed";
 
-export const adminShell = "min-h-screen bg-[#f8f7f5] text-charcoal flex";
+export const adminShell = "min-h-screen bg-white text-charcoal flex";
 export const adminSidebar =
-  "w-[260px] shrink-0 bg-white flex flex-col shadow-[4px_0_24px_rgba(0,0,0,0.04)] border-r border-stone-200/80";
+  "w-[260px] shrink-0 bg-white flex flex-col shadow-[4px_0_24px_rgba(0,0,0,0.04)] border-r border-stone-200";
 export const adminSidebarMobile =
   "fixed inset-y-0 left-0 z-50 w-[280px] bg-white shadow-2xl flex flex-col md:hidden border-r border-stone-200";
-export const adminMain = "flex-1 min-w-0 flex flex-col";
+export const adminMain = "flex-1 min-w-0 flex flex-col bg-white";
 export const adminTopbar =
-  "sticky top-0 z-20 bg-white border-b border-stone-200/80 px-4 md:px-8 py-5 shadow-[0_1px_0_rgba(201,169,98,0.12)]";
+  "sticky top-0 z-20 bg-white border-b border-stone-200 px-4 md:px-8 py-5";
 export const adminContent =
-  "flex-1 px-4 md:px-8 py-8 md:py-10 max-w-7xl w-full mx-auto";
+  "flex-1 px-4 md:px-8 py-8 md:py-10 max-w-7xl w-full mx-auto bg-white";
 
 export const adminPanel =
   "bg-white border border-stone-200/90 rounded-2xl overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.04)]";
@@ -34,7 +34,7 @@ export const adminStatValue =
   "text-2xl md:text-[1.75rem] font-semibold text-gold-dark mt-1 tabular-nums";
 
 export const adminPageHeader =
-  "flex flex-wrap justify-between items-start gap-4 mb-8 pb-6 border-b border-stone-200/80";
+  "flex flex-wrap justify-between items-start gap-4 mb-8 pb-6 border-b border-stone-200 bg-white";
 export const adminToolbar =
   "flex flex-col lg:flex-row lg:items-end gap-4 mb-6 p-5 md:p-6 rounded-2xl border border-stone-200/90 bg-white shadow-[0_1px_3px_rgba(0,0,0,0.04)]";
 export const adminFilterGroup = "flex flex-wrap items-center gap-2";

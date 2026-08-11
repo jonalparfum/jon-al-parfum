@@ -16,6 +16,7 @@ import {
   adminStatCardAccent,
   adminStatLabel,
   adminTopbar,
+  adminMain,
 } from "@/lib/admin-styles";
 
 const links = [
@@ -137,7 +138,7 @@ export function AdminShell({ children, email, stats }: AdminShellProps) {
         </>
       )}
 
-      <div className="flex-1 min-w-0 flex flex-col">
+      <div className={adminMain}>
         <header className={adminTopbar}>
           <div className="flex items-center justify-between gap-4 mb-5">
             <div className="flex items-center gap-3">

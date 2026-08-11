@@ -442,3 +442,24 @@ body {
     opacity: 0;
   }
 }
+
+/* Admin panel — override store dark theme on body */
+html.admin-panel-active,
+body.admin-panel-active {
+  background: #ffffff !important;
+  color: #1a1816 !important;
+  color-scheme: light;
+}
+
+body.admin-panel-active select,
+body.admin-panel-active input,
+body.admin-panel-active textarea {
+  color-scheme: light;
+  background-color: #ffffff;
+  color: #1a1816;
+}
+
+body.admin-panel-active option {
+  background-color: #ffffff;
+  color: #1a1816;
+}

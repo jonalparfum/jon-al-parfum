@@ -2,6 +2,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { AdminShell } from "@/components/admin/AdminShell";
 import { AdminToastProvider } from "@/components/admin/AdminToast";
+import AdminBodyTheme from "@/components/admin/AdminBodyTheme";
 import { NO_INDEX_METADATA } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
@@ -34,6 +35,7 @@ export default async function AdminLayout({
 
   return (
     <AdminToastProvider>
+      <AdminBodyTheme />
       <AdminShell email={session?.user?.email} stats={stats}>
         {children}
       </AdminShell>
