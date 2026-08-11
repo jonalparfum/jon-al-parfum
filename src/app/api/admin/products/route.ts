@@ -1,0 +1,78 @@
+import { prisma } from "@/lib/prisma";
+import { NextRequest, NextResponse } from "next/server";
+import {
+  requireAdmin,
+  unauthorized,
+  parseJsonBody,
+} from "@/lib/api-auth";
+import { serializeNotes, slugify } from "@/lib/product-utils";
+
+type ProductBody = {
+  name: string;
+  slug?: string;
+  brand?: string;
+  description: string;
+  price: number;
+  originalPrice?: number;
+  image: string;
+  size?: string;
+  notesTop?: string[];
+  notesHeart?: string[];
+  notesBase?: string[];
+  featured?: boolean;
+  isNew?: boolean;
+  stock?: number;
+  active?: boolean;
+  categoryId: string;
+};
+
+export async function GET() {
+  const session = await requireAdmin();
+  if (!session) return unauthorized();
+
+  const products = await prisma.product.findMany({
+    include: { category: true },
+    orderBy: { createdAt: "desc" },
+  });
+
+  return NextResponse.json(products);
+}
+
+export async function POST(request: NextRequest) {
+  const session = await requireAdmin();
+  if (!session) return unauthorized();
+
+  const body = await parseJsonBody<ProductBody>(request);
+  if (!body?.name || !body.description || !body.price || !body.categoryId) {
+    return NextResponse.json(
+      { error: "Faltan campos obligatorios" },
+      { status: 400 }
+    );
+  }
+
+  const slug = body.slug || slugify(body.name);
+
+  const product = await prisma.product.create({
+    data: {
+      name: body.name,
+      slug,
+      brand: body.brand || "Jon Al Parfum",
+      description: body.description,
+      price: body.price,
+      originalPrice: body.originalPrice ?? null,
+      image: body.image || "/uploads/products/placeholder.jpg",
+      size: body.size || "100ml",
+      notesTop: serializeNotes(body.notesTop || []),
+      notesHeart: serializeNotes(body.notesHeart || []),
+      notesBase: serializeNotes(body.notesBase || []),
+      featured: body.featured ?? false,
+      isNew: body.isNew ?? false,
+      stock: body.stock ?? 100,
+      active: body.active ?? true,
+      categoryId: body.categoryId,
+    },
+    include: { category: true },
+  });
+
+  return NextResponse.json(product, { status: 201 });
+}
