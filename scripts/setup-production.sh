@@ -10,13 +10,14 @@ if [ -z "${DB_PASSWORD:-}" ]; then
 fi
 
 PROJECT_REF="qsbckliglejhyzeoymym"
+REGION="us-east-2"
 AUTH_SECRET="${AUTH_SECRET:-zhDgf8QJMeNDrzws96jkPDMXFS56iMV4lJF0YgTl8so=}"
 ANON_KEY="${ANON_KEY:-eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFzYmNrbGlnbGVqaHl6ZW95bXltIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY0MTMyNjcsImV4cCI6MjEwMTk4OTI2N30.u_gWuOuojVA_ql8QauRUCud7Ib3_8eXaX6N4lEW3bBk}"
 
 ENC_PASS=$(python3 -c "import urllib.parse,sys; print(urllib.parse.quote(sys.argv[1], safe=''))" "$DB_PASSWORD")
 
-DATABASE_URL="postgresql://postgres.${PROJECT_REF}:${ENC_PASS}@aws-0-us-east-1.pooler.supabase.com:6543/postgres?pgbouncer=true"
-DIRECT_URL="postgresql://postgres:${ENC_PASS}@db.${PROJECT_REF}.supabase.co:5432/postgres"
+DATABASE_URL="postgresql://postgres.${PROJECT_REF}:${ENC_PASS}@aws-0-${REGION}.pooler.supabase.com:6543/postgres?pgbouncer=true&connection_limit=1"
+DIRECT_URL="postgresql://postgres.${PROJECT_REF}:${ENC_PASS}@aws-0-${REGION}.pooler.supabase.com:5432/postgres"
 
 echo "→ Creando tablas en Supabase..."
 export DATABASE_URL DIRECT_URL
