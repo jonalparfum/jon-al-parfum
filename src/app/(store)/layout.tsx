@@ -5,6 +5,7 @@ import CartDrawer from "@/components/CartDrawer";
 import CookieConsent from "@/components/CookieConsent";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import ScrollToTop from "@/components/ScrollToTop";
+import ScrollLockReset from "@/components/ScrollLockReset";
 
 export default function StoreLayout({
   children,
@@ -14,6 +15,7 @@ export default function StoreLayout({
   return (
     <CartProvider>
       <ScrollToTop />
+      <ScrollLockReset />
       <Header />
       <main className="min-h-screen bg-luxury-black overflow-x-hidden">{children}</main>
       <Footer />

@@ -6,6 +6,7 @@ import {
   useReducer,
   useEffect,
   useState,
+  useCallback,
   ReactNode,
 } from "react";
 import { Product, CartItem } from "@/types";
@@ -110,6 +111,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
     0
   );
 
+  const openCart = useCallback(() => setIsOpen(true), []);
+  const closeCart = useCallback(() => setIsOpen(false), []);
+
   return (
     <CartContext.Provider
       value={{
@@ -123,8 +127,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
         totalItems,
         totalPrice,
         isOpen,
-        openCart: () => setIsOpen(true),
-        closeCart: () => setIsOpen(false),
+        openCart,
+        closeCart,
       }}
     >
       {children}

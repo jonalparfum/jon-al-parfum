@@ -1,16 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import { useCart } from "@/context/CartContext";
 import { formatPrice } from "@/lib/product-utils";
 import ProductImage from "@/components/ProductImage";
+import { lockScroll, unlockScroll } from "@/lib/scroll-lock";
 
 export default function CartDrawer() {
   const { data: session } = useSession();
   const router = useRouter();
+  const pathname = usePathname();
   const {
     items,
     isOpen,
@@ -22,6 +24,16 @@ export default function CartDrawer() {
   } = useCart();
   const [checkingOut, setCheckingOut] = useState(false);
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    closeCart();
+  }, [pathname, closeCart]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    lockScroll();
+    return () => unlockScroll();
+  }, [isOpen]);
 
   if (!isOpen) return null;
 

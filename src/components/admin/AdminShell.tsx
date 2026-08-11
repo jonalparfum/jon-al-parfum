@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { lockScroll, unlockScroll } from "@/lib/scroll-lock";
 import {
   adminBtnPrimary,
   adminContent,
@@ -103,14 +104,13 @@ export function AdminShell({ children, email, stats }: AdminShellProps) {
 
   useEffect(() => {
     if (!mobileOpen) return;
-    const prevOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
+    lockScroll();
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") setMobileOpen(false);
     };
     window.addEventListener("keydown", onKeyDown);
     return () => {
-      document.body.style.overflow = prevOverflow;
+      unlockScroll();
       window.removeEventListener("keydown", onKeyDown);
     };
   }, [mobileOpen]);

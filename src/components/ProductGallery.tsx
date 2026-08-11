@@ -9,6 +9,7 @@ import {
   useState,
 } from "react";
 import ProductImage from "@/components/ProductImage";
+import { lockScroll, unlockScroll } from "@/lib/scroll-lock";
 
 type ProductGalleryProps = {
   images: string[];
@@ -318,11 +319,11 @@ export default function ProductGallery({
       }
     };
 
-    document.body.style.overflow = "hidden";
+    lockScroll();
     window.addEventListener("keydown", handleKeyDown);
 
     return () => {
-      document.body.style.overflow = "";
+      unlockScroll();
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, [lightboxOpen, closeLightbox]);

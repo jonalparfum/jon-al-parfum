@@ -8,6 +8,7 @@ import LoadingSpinner from "@/components/LoadingSpinner";
 import { useState, useEffect, useRef } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { useCart } from "@/context/CartContext";
+import { lockScroll, unlockScroll } from "@/lib/scroll-lock";
 import type { CatalogCategory } from "@/lib/catalog";
 
 const authBtnClass =
@@ -51,7 +52,18 @@ export default function Header() {
 
   useEffect(() => {
     setNavAction(null);
+    setMenuOpen(false);
   }, [pathname]);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 1024px)");
+    const closeOnDesktop = () => {
+      if (mq.matches) setMenuOpen(false);
+    };
+    closeOnDesktop();
+    mq.addEventListener("change", closeOnDesktop);
+    return () => mq.removeEventListener("change", closeOnDesktop);
+  }, []);
 
   useEffect(() => {
     fetch("/api/categories")
@@ -69,8 +81,7 @@ export default function Header() {
   useEffect(() => {
     if (!menuOpen) return;
 
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
+    lockScroll();
 
     function handleOutside(event: MouseEvent | TouchEvent) {
       const target = event.target as Node;
@@ -96,7 +107,7 @@ export default function Header() {
       document.removeEventListener("mousedown", handleOutside);
       document.removeEventListener("touchstart", handleOutside);
       document.removeEventListener("keydown", handleEscape);
-      document.body.style.overflow = previousOverflow;
+      unlockScroll();
     };
   }, [menuOpen]);
 
