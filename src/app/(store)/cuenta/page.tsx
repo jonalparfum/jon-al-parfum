@@ -1,8 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import Link from "next/link";
+import LoadingSpinner from "@/components/LoadingSpinner";
 import { formatPrice } from "@/lib/product-utils";
 
 type Order = {
@@ -34,8 +36,10 @@ const adminLinks = [
 ];
 
 export default function AccountPage() {
+  const router = useRouter();
   const { data: session } = useSession();
   const [orders, setOrders] = useState<Order[]>([]);
+  const [navAction, setNavAction] = useState<"panel" | "logout" | null>(null);
 
   useEffect(() => {
     fetch("/api/orders")
@@ -44,6 +48,11 @@ export default function AccountPage() {
   }, []);
 
   const isAdmin = session?.user?.role === "ADMIN";
+
+  const handleSignOut = async () => {
+    setNavAction("logout");
+    await signOut({ callbackUrl: "/" });
+  };
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-12">
@@ -71,21 +80,42 @@ export default function AccountPage() {
               </Link>
             ))}
           </div>
-          <Link
-            href="/admin"
-            className="inline-flex btn-luxury-primary text-[10px]"
+          <button
+            type="button"
+            disabled={navAction !== null}
+            onClick={() => {
+              setNavAction("panel");
+              router.push("/admin");
+            }}
+            className="inline-flex items-center justify-center gap-2 btn-luxury-primary text-[10px] disabled:opacity-70 disabled:cursor-wait min-w-[10rem]"
           >
-            Ir al panel admin
-          </Link>
+            {navAction === "panel" ? (
+              <>
+                <LoadingSpinner className="w-3.5 h-3.5" />
+                Cargando...
+              </>
+            ) : (
+              "Ir al panel admin"
+            )}
+          </button>
         </section>
       )}
 
       <div className="flex gap-4 mb-8">
         <button
-          onClick={() => signOut({ callbackUrl: "/" })}
-          className="text-sm text-cream/50 hover:text-gold transition-colors"
+          type="button"
+          disabled={navAction !== null}
+          onClick={handleSignOut}
+          className="inline-flex items-center gap-2 text-sm text-cream/50 hover:text-gold transition-colors disabled:opacity-70 disabled:cursor-wait"
         >
-          Cerrar sesión
+          {navAction === "logout" ? (
+            <>
+              <LoadingSpinner className="w-3.5 h-3.5 text-gold" />
+              Saliendo...
+            </>
+          ) : (
+            "Cerrar sesión"
+          )}
         </button>
       </div>
 

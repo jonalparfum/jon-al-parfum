@@ -1,12 +1,19 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter, usePathname } from "next/navigation";
 import BrandLogo from "@/components/BrandLogo";
 import HeaderCategoryNav from "@/components/HeaderCategoryNav";
+import LoadingSpinner from "@/components/LoadingSpinner";
 import { useState, useEffect, useRef } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { useCart } from "@/context/CartContext";
 import type { CatalogCategory } from "@/lib/catalog";
+
+const authBtnClass =
+  "inline-flex items-center justify-center gap-1.5 text-[10px] uppercase tracking-[0.15em] text-luxury-black bg-gold hover:bg-gold-light px-3 py-1.5 font-medium transition-colors whitespace-nowrap disabled:opacity-70 disabled:cursor-wait min-w-[5.5rem]";
+
+type NavAction = "panel" | "account" | "login" | "logout";
 
 const staticNavLinks = [
   { href: "/", label: "Inicio" },
@@ -16,13 +23,30 @@ const staticNavLinks = [
 ];
 
 export default function Header() {
+  const router = useRouter();
+  const pathname = usePathname();
   const { data: session } = useSession();
   const { totalItems, openCart } = useCart();
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [categories, setCategories] = useState<CatalogCategory[]>([]);
+  const [navAction, setNavAction] = useState<NavAction | null>(null);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
   const isAdmin = session?.user?.role === "ADMIN";
+
+  const goTo = (href: string, action: NavAction) => {
+    setNavAction(action);
+    router.push(href);
+  };
+
+  const handleSignOut = async () => {
+    setNavAction("logout");
+    await signOut({ callbackUrl: "/" });
+  };
+
+  useEffect(() => {
+    setNavAction(null);
+  }, [pathname]);
 
   useEffect(() => {
     fetch("/api/categories")
@@ -130,35 +154,70 @@ export default function Header() {
             {session ? (
               <>
                 {isAdmin ? (
-                  <Link
-                    href="/admin"
-                    className="text-[10px] uppercase tracking-[0.15em] text-luxury-black bg-gold hover:bg-gold-light px-3 py-1.5 font-medium transition-colors whitespace-nowrap"
+                  <button
+                    type="button"
+                    disabled={navAction !== null}
+                    onClick={() => goTo("/admin", "panel")}
+                    className={authBtnClass}
                   >
-                    Mi panel
-                  </Link>
+                    {navAction === "panel" ? (
+                      <>
+                        <LoadingSpinner />
+                        Cargando...
+                      </>
+                    ) : (
+                      "Mi panel"
+                    )}
+                  </button>
                 ) : (
-                  <Link
-                    href="/cuenta"
-                    className="hidden sm:block text-xs uppercase tracking-wider text-cream/60 hover:text-gold transition-colors"
+                  <button
+                    type="button"
+                    disabled={navAction !== null}
+                    onClick={() => goTo("/cuenta", "account")}
+                    className="hidden sm:inline-flex items-center gap-1.5 text-xs uppercase tracking-wider text-cream/60 hover:text-gold transition-colors disabled:opacity-70 disabled:cursor-wait"
                   >
-                    Mi cuenta
-                  </Link>
+                    {navAction === "account" ? (
+                      <>
+                        <LoadingSpinner className="w-3 h-3 text-gold" />
+                        Cargando...
+                      </>
+                    ) : (
+                      "Mi cuenta"
+                    )}
+                  </button>
                 )}
                 <button
                   type="button"
-                  onClick={() => signOut({ callbackUrl: "/" })}
-                  className="text-[10px] uppercase tracking-[0.15em] text-luxury-black bg-gold hover:bg-gold-light px-3 py-1.5 font-medium transition-colors whitespace-nowrap"
+                  disabled={navAction !== null}
+                  onClick={handleSignOut}
+                  className={authBtnClass}
                 >
-                  Cerrar sesión
+                  {navAction === "logout" ? (
+                    <>
+                      <LoadingSpinner />
+                      Saliendo...
+                    </>
+                  ) : (
+                    "Cerrar sesión"
+                  )}
                 </button>
               </>
             ) : (
-              <Link
-                href="/login"
-                className="inline-flex text-[10px] uppercase tracking-[0.15em] text-luxury-black bg-gold hover:bg-gold-light px-2.5 sm:px-3 py-1.5 font-medium transition-colors whitespace-nowrap"
+              <button
+                type="button"
+                disabled={navAction !== null}
+                onClick={() => goTo("/login", "login")}
+                className={`${authBtnClass} px-2.5 sm:px-3`}
               >
-                Entrar
-              </Link>
+                {navAction === "login" ? (
+                  <>
+                    <LoadingSpinner />
+                    Cargando...
+                  </>
+                ) : (
+                  "Entrar"
+                )}
+              </button>
             )}
 
             <button

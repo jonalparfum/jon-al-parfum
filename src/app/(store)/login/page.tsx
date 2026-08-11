@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { signIn, getSession, useSession } from "next-auth/react";
 import Link from "next/link";
+import LoadingSpinner from "@/components/LoadingSpinner";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 
@@ -71,7 +72,8 @@ function LoginForm() {
 
   if (redirecting) {
     return (
-      <div className="min-h-[70vh] flex items-center justify-center px-4">
+      <div className="min-h-[70vh] flex flex-col items-center justify-center gap-3 px-4">
+        <LoadingSpinner className="w-8 h-8 text-gold" />
         <p className="text-cream/60 text-sm">Entrando...</p>
       </div>
     );
@@ -120,9 +122,16 @@ function LoginForm() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-gold text-luxury-black py-3 text-sm uppercase tracking-widest hover:bg-gold-light transition-colors disabled:opacity-50 font-medium"
+            className="w-full inline-flex items-center justify-center gap-2 bg-gold text-luxury-black py-3 text-sm uppercase tracking-widest hover:bg-gold-light transition-colors disabled:opacity-50 disabled:cursor-wait font-medium"
           >
-            {loading ? "Entrando..." : "Entrar"}
+            {loading ? (
+              <>
+                <LoadingSpinner className="w-4 h-4" />
+                Entrando...
+              </>
+            ) : (
+              "Entrar"
+            )}
           </button>
         </form>
 
