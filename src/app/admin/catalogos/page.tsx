@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { slugify } from "@/lib/product-utils";
 import { useAdminToast } from "@/components/admin/AdminToast";
+import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import { fetchJsonArray } from "@/lib/admin-fetch";
 import {
   adminBtnDanger,
@@ -11,6 +12,8 @@ import {
   adminBtnPrimary,
   adminBtnSuccess,
   adminCard,
+  adminChip,
+  adminChipGold,
   adminEmptyState,
   adminFilterGroup,
   adminFilterPill,
@@ -19,12 +22,12 @@ import {
   adminInput,
   adminLabel,
   adminLink,
+  adminLinkDanger,
   adminLoading,
   adminMuted,
-  adminPageTitle,
   adminPanelPadding,
+  adminSectionTitle,
   adminSelect,
-  adminSubtitle,
 } from "@/lib/admin-styles";
 
 type Category = {
@@ -265,17 +268,14 @@ export default function AdminCategoriesPage() {
 
   return (
     <div className="space-y-8">
-      <div className="flex flex-wrap justify-between items-start gap-4">
-        <div>
-          <h1 className={adminPageTitle}>Categorías y subcategorías</h1>
-          <p className={adminSubtitle}>
-            {categories.length} categorías · {subcategories.length} subcategorías
-          </p>
-        </div>
+      <AdminPageHeader
+        title="Categorías y subcategorías"
+        subtitle={`${categories.length} categorías · ${subcategories.length} subcategorías`}
+      >
         <Link href="/admin/productos/nuevo" className={adminBtnGhost}>
           + Crear producto
         </Link>
-      </div>
+      </AdminPageHeader>
 
       <form
         onSubmit={handleCreateCategory}
@@ -339,7 +339,7 @@ export default function AdminCategoriesPage() {
 
       {visibleCategories.length === 0 ? (
         <div className={adminEmptyState}>
-          <p className="text-cream/70 mb-2">No hay categorías todavía.</p>
+          <p className="text-charcoal/70 mb-2">No hay categorías todavía.</p>
           <p className={adminMuted}>Crea la primera categoría arriba.</p>
         </div>
       ) : (
@@ -350,7 +350,7 @@ export default function AdminCategoriesPage() {
 
             return (
               <article key={cat.id} className={adminCard}>
-                <div className="flex flex-wrap justify-between gap-3 mb-4 pb-4 border-b border-gold/10">
+                <div className="flex flex-wrap justify-between gap-3 mb-4 pb-4 border-b border-stone-200">
                   <div className="flex-1 min-w-0">
                     {isEditing ? (
                       <div className="space-y-2">
@@ -368,7 +368,7 @@ export default function AdminCategoriesPage() {
                       </div>
                     ) : (
                       <>
-                        <h2 className="font-medium text-lg text-cream">{cat.name}</h2>
+                        <h2 className="font-medium text-lg text-charcoal">{cat.name}</h2>
                         <p className={`${adminMuted} mt-1`}>
                           /{cat.slug}
                           {cat.description ? ` · ${cat.description}` : ""}
@@ -377,10 +377,10 @@ export default function AdminCategoriesPage() {
                     )}
                   </div>
                   <div className="flex flex-wrap gap-2 text-xs">
-                    <span className="px-2 py-1 rounded-full bg-gold/10 text-gold border border-gold/20">
+                    <span className={adminChipGold}>
                       {cat._count.products} productos
                     </span>
-                    <span className="px-2 py-1 rounded-full bg-luxury-black/50 text-cream/60 border border-gold/10">
+                    <span className={adminChip}>
                       {subs.length} subcategorías
                     </span>
                   </div>
@@ -435,7 +435,7 @@ export default function AdminCategoriesPage() {
                       {subs.map((sub) => (
                         <li
                           key={sub.id}
-                          className="flex flex-wrap items-center justify-between gap-2 p-3 rounded-lg bg-luxury-black/40 border border-gold/10"
+                          className="flex flex-wrap items-center justify-between gap-2 p-3 rounded-lg bg-stone-50 border border-stone-200"
                         >
                           {editingSubId === sub.id ? (
                             <div className="flex-1 space-y-2 w-full">
@@ -485,10 +485,10 @@ export default function AdminCategoriesPage() {
                           ) : (
                             <>
                               <div>
-                                <p className="text-sm font-medium text-cream">
+                                <p className="text-sm font-medium text-charcoal">
                                   {sub.name}
                                 </p>
-                                <p className="text-xs text-cream/45">
+                                <p className="text-xs text-charcoal/50">
                                   /{sub.slug} · {sub._count.products} productos
                                   {sub.description ? ` · ${sub.description}` : ""}
                                 </p>
@@ -506,7 +506,7 @@ export default function AdminCategoriesPage() {
                                   onClick={() =>
                                     deleteSubcategory(sub.id, sub.name)
                                   }
-                                  className="text-red-400 hover:text-red-300 text-sm"
+                                  className={adminLinkDanger}
                                 >
                                   Eliminar
                                 </button>
@@ -521,7 +521,7 @@ export default function AdminCategoriesPage() {
 
                 <form
                   onSubmit={(e) => handleCreateSubcategory(e, cat.id)}
-                  className="pt-4 border-t border-gold/10 grid grid-cols-1 sm:grid-cols-[1fr_1fr_auto] gap-2 items-end"
+                  className="pt-4 border-t border-stone-200 grid grid-cols-1 sm:grid-cols-[1fr_1fr_auto] gap-2 items-end"
                 >
                   <div>
                     <label className={adminLabel}>Nueva subcategoría</label>
@@ -552,7 +552,7 @@ export default function AdminCategoriesPage() {
       )}
 
       <section className={adminPanelPadding}>
-        <h2 className="text-sm font-medium text-gold mb-3">
+        <h2 className={`${adminSectionTitle} mb-4`}>
           Crear subcategoría (selector manual)
         </h2>
         <form

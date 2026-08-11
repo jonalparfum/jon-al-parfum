@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useAdminToast } from "@/components/admin/AdminToast";
+import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import { fetchJsonArray } from "@/lib/admin-fetch";
 import {
   adminBadgeActive,
@@ -14,10 +15,7 @@ import {
   adminInput,
   adminLabel,
   adminLoading,
-  adminMuted,
-  adminPageTitle,
   adminPanel,
-  adminSubtitle,
   adminTableHead,
   adminTd,
   adminTdMuted,
@@ -75,12 +73,10 @@ export default function AdminUsersPage() {
 
   return (
     <div>
-      <div className="mb-6">
-        <h1 className={adminPageTitle}>Usuarios</h1>
-        <p className={adminSubtitle}>
-          {filtered.length} de {users.length} registrados
-        </p>
-      </div>
+      <AdminPageHeader
+        title="Usuarios"
+        subtitle={`${filtered.length} de ${users.length} registrados en la tienda`}
+      />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6 max-w-2xl">
         <div>
@@ -120,7 +116,7 @@ export default function AdminUsersPage() {
 
       {filtered.length === 0 ? (
         <div className={adminEmptyState}>
-          <p className="text-cream/70">
+          <p className="text-charcoal/70">
             {users.length === 0
               ? "Aún no hay usuarios registrados."
               : "Ningún usuario coincide con la búsqueda."}
@@ -143,7 +139,7 @@ export default function AdminUsersPage() {
                 {filtered.map((user) => (
                   <tr key={user.id} className={adminTr}>
                     <td className={adminTd}>
-                      <span className="font-medium text-cream">
+                      <span className="font-medium text-charcoal">
                         {user.name || "—"}
                       </span>
                     </td>

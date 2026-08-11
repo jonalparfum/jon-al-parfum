@@ -7,10 +7,11 @@ import { fetchJsonArray } from "@/lib/admin-fetch";
 import {
   adminBtnGhost,
   adminBtnPrimary,
-  adminCard,
+  adminFormSection,
   adminInput,
   adminLabel,
   adminLink,
+  adminLinkDanger,
   adminMuted,
   adminSectionTitle,
   adminSelect,
@@ -51,7 +52,7 @@ function FormSection({
   children: React.ReactNode;
 }) {
   return (
-    <section className={adminCard}>
+    <section className={adminFormSection}>
       <h2 className={adminSectionTitle}>{title}</h2>
       {description && <p className={`${adminMuted} mb-5`}>{description}</p>}
       {!description && <div className="mb-5" />}
@@ -247,7 +248,7 @@ export default function ProductForm({
   };
 
   const checkboxClass =
-    "h-4 w-4 rounded border-gold/30 bg-luxury-black text-gold focus:ring-gold/30";
+    "h-4 w-4 rounded border-stone-300 bg-white text-gold focus:ring-gold/30";
 
   return (
     <form onSubmit={handleSubmit} className="max-w-4xl space-y-6">
@@ -438,7 +439,7 @@ export default function ProductForm({
             {form.images.map((url, index) => (
               <div
                 key={`${url}-${index}`}
-                className="relative rounded-lg overflow-hidden border border-gold/20 bg-luxury-black/50"
+                className="relative rounded-lg overflow-hidden border border-stone-200 bg-stone-50"
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
@@ -451,7 +452,7 @@ export default function ProductForm({
                     Principal
                   </span>
                 )}
-                <div className="flex flex-wrap gap-2 p-2 bg-luxury-black/90 border-t border-gold/10">
+                <div className="flex flex-wrap gap-2 p-2 bg-white border-t border-stone-200">
                   {index !== 0 && (
                     <button
                       type="button"
@@ -464,7 +465,7 @@ export default function ProductForm({
                   <button
                     type="button"
                     onClick={() => removeImage(index)}
-                    className="text-[9px] uppercase tracking-wider text-red-400 hover:text-red-300"
+                    className={adminLinkDanger}
                   >
                     Quitar
                   </button>
@@ -557,7 +558,7 @@ export default function ProductForm({
 
       <FormSection title="Visibilidad">
         <div className="flex flex-wrap gap-6">
-          <label className="flex items-center gap-2.5 text-sm text-cream/80 cursor-pointer">
+          <label className="flex items-center gap-2.5 text-sm text-charcoal/80 cursor-pointer">
             <input
               type="checkbox"
               checked={form.featured}
@@ -566,7 +567,7 @@ export default function ProductForm({
             />
             Destacado en tienda
           </label>
-          <label className="flex items-center gap-2.5 text-sm text-cream/80 cursor-pointer">
+          <label className="flex items-center gap-2.5 text-sm text-charcoal/80 cursor-pointer">
             <input
               type="checkbox"
               checked={form.isNew}
@@ -575,7 +576,7 @@ export default function ProductForm({
             />
             Marcar como nuevo
           </label>
-          <label className="flex items-center gap-2.5 text-sm text-cream/80 cursor-pointer">
+          <label className="flex items-center gap-2.5 text-sm text-charcoal/80 cursor-pointer">
             <input
               type="checkbox"
               checked={form.active}

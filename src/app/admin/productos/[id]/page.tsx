@@ -4,14 +4,14 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import ProductForm from "@/components/admin/ProductForm";
 import { useAdminToast } from "@/components/admin/AdminToast";
+import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import { fetchJson, fetchJsonArray } from "@/lib/admin-fetch";
 import { parseNotes, resolveProductImages } from "@/lib/product-utils";
 import {
+  adminBtnGhost,
   adminEmptyState,
   adminLink,
   adminLoading,
-  adminPageTitle,
-  adminSubtitle,
 } from "@/lib/admin-styles";
 
 type Category = { id: string; name: string; slug: string };
@@ -119,7 +119,7 @@ export default function EditProductPage({
   if (loadError || !product) {
     return (
       <div className={adminEmptyState}>
-        <p className="text-cream/70 mb-4">{loadError || "Producto no encontrado"}</p>
+        <p className="text-charcoal/70 mb-4">{loadError || "Producto no encontrado"}</p>
         <Link href="/admin/productos" className={adminLink}>
           ← Volver a productos
         </Link>
@@ -129,13 +129,12 @@ export default function EditProductPage({
 
   return (
     <div>
-      <Link href="/admin/productos" className={`${adminLink} text-xs uppercase tracking-wider`}>
-        ← Volver a productos
-      </Link>
-      <div className="mt-4 mb-8">
-        <h1 className={adminPageTitle}>Editar producto</h1>
-        <p className={adminSubtitle}>{product.name}</p>
-      </div>
+      <AdminPageHeader title="Editar producto" subtitle={product.name}>
+        <Link href="/admin/productos" className={adminBtnGhost}>
+          ← Volver
+        </Link>
+      </AdminPageHeader>
+
       <ProductForm
         key={`${product.id}-${product.updatedAt ?? product.image}`}
         categories={categories}

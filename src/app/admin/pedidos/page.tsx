@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { formatPrice } from "@/lib/product-utils";
 import { useAdminToast } from "@/components/admin/AdminToast";
+import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import { fetchJsonArray } from "@/lib/admin-fetch";
 import {
   adminCard,
@@ -15,9 +16,8 @@ import {
   adminLabel,
   adminLoading,
   adminMuted,
-  adminPageTitle,
+  adminOrderStatus,
   adminSelect,
-  adminSubtitle,
 } from "@/lib/admin-styles";
 
 type Order = {
@@ -51,15 +51,6 @@ const statusLabels: Record<string, string> = {
   SHIPPED: "Enviado",
   DELIVERED: "Entregado",
   CANCELLED: "Cancelado",
-};
-
-const statusColors: Record<string, string> = {
-  PENDING: "text-amber-300 border-amber-700/40 bg-amber-950/30",
-  PAID: "text-green-300 border-green-700/40 bg-green-950/30",
-  PROCESSING: "text-blue-300 border-blue-700/40 bg-blue-950/30",
-  SHIPPED: "text-purple-300 border-purple-700/40 bg-purple-950/30",
-  DELIVERED: "text-emerald-300 border-emerald-700/40 bg-emerald-950/30",
-  CANCELLED: "text-red-300 border-red-700/40 bg-red-950/30",
 };
 
 export default function AdminOrdersPage() {
@@ -119,12 +110,10 @@ export default function AdminOrdersPage() {
 
   return (
     <div>
-      <div className="mb-6">
-        <h1 className={adminPageTitle}>Pedidos</h1>
-        <p className={adminSubtitle}>
-          {filtered.length} de {orders.length} pedidos
-        </p>
-      </div>
+      <AdminPageHeader
+        title="Pedidos"
+        subtitle={`${filtered.length} de ${orders.length} pedidos registrados`}
+      />
 
       <div className="mb-6 max-w-md">
         <label className={adminLabel}>Buscar cliente</label>
@@ -156,7 +145,7 @@ export default function AdminOrdersPage() {
 
       {filtered.length === 0 ? (
         <div className={adminEmptyState}>
-          <p className="text-cream/70">
+          <p className="text-charcoal/70">
             {orders.length === 0
               ? "No hay pedidos todavía."
               : "Ningún pedido coincide con los filtros."}
@@ -168,7 +157,7 @@ export default function AdminOrdersPage() {
             <article key={order.id} className={adminCard}>
               <div className="flex flex-wrap justify-between gap-4 mb-4">
                 <div>
-                  <p className="font-medium text-cream text-lg">
+                  <p className="font-medium text-charcoal text-lg">
                     {order.user.name || order.user.email}
                   </p>
                   {order.user.name && (
@@ -183,8 +172,8 @@ export default function AdminOrdersPage() {
                 </div>
                 <div className="flex flex-wrap items-center gap-3">
                   <span
-                    className={`text-[10px] uppercase tracking-wider px-2.5 py-1 rounded-full border ${
-                      statusColors[order.status] || ""
+                    className={`text-[10px] uppercase tracking-wider px-2.5 py-1 rounded-full border font-medium ${
+                      adminOrderStatus[order.status] || "bg-stone-100 text-charcoal border-stone-200"
                     }`}
                   >
                     {statusLabels[order.status]}
@@ -207,16 +196,16 @@ export default function AdminOrdersPage() {
                   </select>
                 </div>
               </div>
-              <ul className="space-y-2 pt-3 border-t border-gold/10">
+              <ul className="space-y-2 pt-3 border-t border-stone-200">
                 {order.items.map((item, i) => (
                   <li
                     key={i}
-                    className="flex justify-between text-sm text-cream/75"
+                    className="flex justify-between text-sm text-charcoal/70"
                   >
                     <span>
                       {item.product.name} × {item.quantity}
                     </span>
-                    <span className="text-cream font-medium">
+                    <span className="text-charcoal font-medium">
                       {formatPrice(item.price * item.quantity)}
                     </span>
                   </li>

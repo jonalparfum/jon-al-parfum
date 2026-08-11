@@ -5,19 +5,26 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import {
   adminBtnPrimary,
+  adminContent,
   adminNavLink,
   adminNavLinkActive,
   adminNavLinkInactive,
+  adminShell,
+  adminSidebar,
+  adminSidebarMobile,
+  adminStatCard,
+  adminStatCardAccent,
   adminStatLabel,
+  adminTopbar,
 } from "@/lib/admin-styles";
 
 const links = [
-  { href: "/admin", label: "Resumen", exact: true, icon: "◆" },
-  { href: "/admin/productos", label: "Productos", icon: "◇" },
-  { href: "/admin/catalogos", label: "Categorías", icon: "◈" },
-  { href: "/admin/pedidos", label: "Pedidos", icon: "◉" },
-  { href: "/admin/usuarios", label: "Usuarios", icon: "○" },
-  { href: "/admin/perfil", label: "Mi perfil", icon: "◎" },
+  { href: "/admin", label: "Resumen", exact: true },
+  { href: "/admin/productos", label: "Productos" },
+  { href: "/admin/catalogos", label: "Categorías" },
+  { href: "/admin/pedidos", label: "Pedidos" },
+  { href: "/admin/usuarios", label: "Usuarios" },
+  { href: "/admin/perfil", label: "Mi perfil" },
 ];
 
 type AdminSidebarProps = {
@@ -25,28 +32,32 @@ type AdminSidebarProps = {
   onNavigate?: () => void;
 };
 
-export default function AdminSidebar({ email, onNavigate }: AdminSidebarProps) {
+function AdminSidebar({ email, onNavigate }: AdminSidebarProps) {
   const pathname = usePathname();
 
   return (
     <div className="flex flex-col h-full">
-      <div className="p-5 border-b border-gold/10">
+      <div className="relative px-6 py-6 border-b border-stone-100">
+        <div className="absolute left-0 top-0 bottom-0 w-1 bg-gold" aria-hidden="true" />
         <Link
           href="/admin"
           onClick={onNavigate}
-          className="font-display text-xl text-cream hover:text-gold transition-colors tracking-wide block"
+          className="font-display text-[1.35rem] text-charcoal hover:text-gold-dark transition-colors tracking-wide block leading-tight"
         >
           Jon Al Parfum
         </Link>
-        <p className={`${adminStatLabel} mt-2`}>Panel administrativo</p>
+        <p className={`${adminStatLabel} mt-2.5`}>Panel administrativo</p>
         {email && (
-          <p className="text-xs text-cream/40 mt-1 truncate" title={email}>
+          <p
+            className="text-xs text-charcoal/40 mt-1.5 truncate max-w-[200px]"
+            title={email}
+          >
             {email}
           </p>
         )}
       </div>
 
-      <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
+      <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
         {links.map((link) => {
           const active = link.exact
             ? pathname === link.href
@@ -61,22 +72,19 @@ export default function AdminSidebar({ email, onNavigate }: AdminSidebarProps) {
                 active ? adminNavLinkActive : adminNavLinkInactive
               }`}
             >
-              <span className="text-gold/70 text-xs" aria-hidden="true">
-                {link.icon}
-              </span>
               {link.label}
             </Link>
           );
         })}
       </nav>
 
-      <div className="p-4 border-t border-gold/10">
+      <div className="px-6 py-5 border-t border-stone-100 bg-[#fafaf9]">
         <Link
           href="/"
           onClick={onNavigate}
-          className="text-xs uppercase tracking-[0.14em] text-gold/80 hover:text-gold transition-colors"
+          className="text-xs uppercase tracking-[0.14em] text-gold-dark hover:text-gold font-semibold transition-colors"
         >
-          ← Ver tienda
+          ← Ver tienda pública
         </Link>
       </div>
     </div>
@@ -107,8 +115,8 @@ export function AdminShell({ children, email, stats }: AdminShellProps) {
   }, [mobileOpen]);
 
   return (
-    <div className="min-h-screen bg-luxury-black text-cream flex">
-      <aside className="hidden md:flex w-64 shrink-0 border-r border-gold/10 bg-luxury-panel/30">
+    <div className={adminShell}>
+      <aside className={`hidden md:flex ${adminSidebar}`}>
         <AdminSidebar email={email} />
       </aside>
 
@@ -116,11 +124,11 @@ export function AdminShell({ children, email, stats }: AdminShellProps) {
         <>
           <button
             type="button"
-            className="fixed inset-0 z-40 bg-black/60 md:hidden"
+            className="fixed inset-0 z-40 bg-charcoal/30 backdrop-blur-[2px] md:hidden"
             aria-label="Cerrar menú"
             onClick={() => setMobileOpen(false)}
           />
-          <aside className="fixed inset-y-0 left-0 z-50 w-72 border-r border-gold/10 bg-luxury-panel md:hidden">
+          <aside className={adminSidebarMobile}>
             <AdminSidebar
               email={email}
               onNavigate={() => setMobileOpen(false)}
@@ -130,35 +138,34 @@ export function AdminShell({ children, email, stats }: AdminShellProps) {
       )}
 
       <div className="flex-1 min-w-0 flex flex-col">
-        <header className="sticky top-0 z-20 border-b border-gold/10 bg-luxury-black/90 backdrop-blur-md px-4 md:px-8 py-4">
-          <div className="flex items-center justify-between gap-4 mb-4 md:mb-5">
-            <button
-              type="button"
-              className="md:hidden px-3 py-2 border border-gold/20 rounded-lg text-xs uppercase tracking-wider text-gold"
-              onClick={() => setMobileOpen(true)}
-            >
-              Menú
-            </button>
-            <p className={`${adminStatLabel} hidden md:block`}>
-              Gestión del catálogo
-            </p>
+        <header className={adminTopbar}>
+          <div className="flex items-center justify-between gap-4 mb-5">
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                className="md:hidden px-3.5 py-2 border border-stone-300 rounded-xl text-xs uppercase tracking-wider text-charcoal bg-white font-medium"
+                onClick={() => setMobileOpen(true)}
+              >
+                Menú
+              </button>
+              <p className={`${adminStatLabel} hidden md:block text-charcoal/50`}>
+                Gestión del catálogo
+              </p>
+            </div>
             <Link
               href="/admin/productos/nuevo"
-              className={`${adminBtnPrimary} hidden sm:inline-flex py-2`}
+              className={`${adminBtnPrimary} hidden sm:inline-flex`}
             >
-              + Producto
+              + Nuevo producto
             </Link>
           </div>
 
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
             {stats.map((stat) => (
-              <Link
-                key={stat.label}
-                href={stat.href}
-                className="rounded-xl border border-gold/10 bg-luxury-panel/50 px-4 py-3 hover:border-gold/25 hover:bg-luxury-panel/80 transition-all"
-              >
+              <Link key={stat.label} href={stat.href} className={adminStatCard}>
+                <span className={adminStatCardAccent} aria-hidden="true" />
                 <p className={adminStatLabel}>{stat.label}</p>
-                <p className="text-xl font-semibold text-gold mt-1">
+                <p className="text-2xl font-semibold text-gold-dark mt-1 tabular-nums">
                   {stat.value}
                 </p>
               </Link>
@@ -166,7 +173,7 @@ export function AdminShell({ children, email, stats }: AdminShellProps) {
           </div>
         </header>
 
-        <main className="flex-1 px-4 md:px-8 py-6 md:py-8">{children}</main>
+        <main className={adminContent}>{children}</main>
       </div>
     </div>
   );

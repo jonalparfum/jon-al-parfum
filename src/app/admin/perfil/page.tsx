@@ -3,14 +3,15 @@
 import { useEffect, useState } from "react";
 import { signOut } from "next-auth/react";
 import { fetchJson } from "@/lib/admin-fetch";
+import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import {
   adminBtnPrimary,
   adminInput,
   adminLabel,
   adminLoading,
   adminMuted,
-  adminPageTitle,
   adminPanelPadding,
+  adminSectionTitle,
 } from "@/lib/admin-styles";
 import { PASSWORD_REQUIREMENTS_HINT } from "@/lib/password-policy";
 
@@ -99,24 +100,22 @@ export default function AdminProfilePage() {
 
   return (
     <div>
-      <div className="mb-6">
-        <h1 className={adminPageTitle}>Mi perfil</h1>
-        <p className={`${adminMuted} mt-2`}>
-          Personaliza tu nombre, email y contraseña de administrador.
-        </p>
-      </div>
+      <AdminPageHeader
+        title="Mi perfil"
+        subtitle="Personaliza tu nombre, email y contraseña de administrador."
+      />
 
       <form
         onSubmit={handleSubmit}
-        className={`${adminPanelPadding} max-w-lg space-y-5`}
+        className={`${adminPanelPadding} max-w-xl space-y-5`}
       >
         {error && (
-          <p className="text-red-400 text-sm bg-red-950/40 border border-red-900/50 px-3 py-2 rounded">
+          <p className="text-red-700 text-sm bg-red-50 border border-red-200 px-3 py-2 rounded">
             {error}
           </p>
         )}
         {message && (
-          <p className="text-green-300 text-sm bg-green-950/40 border border-green-800/50 px-3 py-2 rounded">
+          <p className="text-green-800 text-sm bg-green-50 border border-green-200 px-3 py-2 rounded">
             {message}
           </p>
         )}
@@ -143,8 +142,8 @@ export default function AdminProfilePage() {
           />
         </div>
 
-        <div className="pt-4 border-t border-gold/10 space-y-4">
-          <p className="text-sm text-gold">Cambiar contraseña</p>
+        <div className="pt-6 border-t border-stone-200 space-y-4">
+          <p className={`${adminSectionTitle} text-base`}>Cambiar contraseña</p>
           <p className={adminMuted}>
             Déjalo en blanco si no quieres cambiarla.
           </p>
@@ -170,7 +169,7 @@ export default function AdminProfilePage() {
               autoComplete="new-password"
               minLength={8}
             />
-            <p className="mt-1 text-xs text-cream/40">{PASSWORD_REQUIREMENTS_HINT}</p>
+            <p className="mt-1 text-xs text-charcoal/45">{PASSWORD_REQUIREMENTS_HINT}</p>
           </div>
 
           <div>

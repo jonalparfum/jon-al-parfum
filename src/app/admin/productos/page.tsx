@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { formatPrice } from "@/lib/product-utils";
 import { useAdminToast } from "@/components/admin/AdminToast";
+import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import { fetchJsonArray } from "@/lib/admin-fetch";
 import {
   adminBadgeActive,
@@ -22,10 +23,8 @@ import {
   adminLinkDanger,
   adminLoading,
   adminMuted,
-  adminPageTitle,
   adminPanel,
   adminSelect,
-  adminSubtitle,
   adminTableHead,
   adminTd,
   adminTdMuted,
@@ -183,18 +182,14 @@ export default function AdminProductsPage() {
 
   return (
     <div>
-      <div className="flex flex-wrap justify-between items-start gap-4 mb-6">
-        <div>
-          <h1 className={adminPageTitle}>Productos</h1>
-          <p className={adminSubtitle}>
-            {filtered.length} de {products.length} productos
-            {hasFilters ? " · filtros activos" : ""}
-          </p>
-        </div>
+      <AdminPageHeader
+        title="Productos"
+        subtitle={`${filtered.length} de ${products.length} productos${hasFilters ? " · filtros activos" : ""}`}
+      >
         <Link href="/admin/productos/nuevo" className={adminBtnPrimary}>
           + Nuevo producto
         </Link>
-      </div>
+      </AdminPageHeader>
 
       <div className={adminToolbar}>
         <div className="flex-1 min-w-[200px]">
@@ -293,7 +288,7 @@ export default function AdminProductsPage() {
 
       {filtered.length === 0 ? (
         <div className={adminEmptyState}>
-          <p className="text-cream/70 mb-2">
+          <p className="text-charcoal/70 mb-2">
             {products.length === 0
               ? "Aún no hay productos en el catálogo."
               : "No hay productos con estos filtros."}
@@ -328,7 +323,7 @@ export default function AdminProductsPage() {
                   <tr key={product.id} className={adminTr}>
                     <td className={adminTd}>
                       <div className="flex items-center gap-3">
-                        <div className="w-11 h-11 bg-luxury-black border border-gold/10 rounded-lg overflow-hidden relative shrink-0">
+                        <div className="w-11 h-11 bg-stone-100 border border-stone-200 rounded-lg overflow-hidden relative shrink-0">
                           {product.image && (
                             // eslint-disable-next-line @next/next/no-img-element
                             <img
@@ -339,7 +334,7 @@ export default function AdminProductsPage() {
                           )}
                         </div>
                         <div>
-                          <p className="font-medium text-cream">{product.name}</p>
+                          <p className="font-medium text-charcoal">{product.name}</p>
                           <div className="flex flex-wrap gap-1.5 mt-1">
                             {product.featured && (
                               <span className={adminBadgeFeatured}>Destacado</span>
@@ -363,7 +358,7 @@ export default function AdminProductsPage() {
                         className={
                           product.stock <= 10
                             ? "text-red-400 font-medium"
-                            : "text-cream"
+                            : "text-charcoal"
                         }
                       >
                         {product.stock}

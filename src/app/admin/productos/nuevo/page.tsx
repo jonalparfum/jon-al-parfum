@@ -5,13 +5,9 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import ProductForm from "@/components/admin/ProductForm";
 import { useAdminToast } from "@/components/admin/AdminToast";
+import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import { fetchJsonArray } from "@/lib/admin-fetch";
-import {
-  adminLink,
-  adminLoading,
-  adminPageTitle,
-  adminSubtitle,
-} from "@/lib/admin-styles";
+import { adminLink, adminLoading, adminMuted } from "@/lib/admin-styles";
 
 type Category = { id: string; name: string; slug: string };
 
@@ -52,19 +48,15 @@ export default function NewProductPage() {
 
   return (
     <div>
-      <Link href="/admin/productos" className={`${adminLink} text-xs uppercase tracking-wider`}>
-        ← Volver a productos
-      </Link>
-      <div className="mt-4 mb-8">
-        <h1 className={adminPageTitle}>Nuevo producto</h1>
-        <p className={adminSubtitle}>
-          Completa la información para publicar un perfume en la tienda.
-        </p>
-      </div>
+      <AdminPageHeader
+        title="Nuevo producto"
+        subtitle="Completa la información para publicar un perfume en la tienda."
+      />
+
       {loadingCategories ? (
         <p className={adminLoading}>Cargando categorías...</p>
       ) : categories.length === 0 ? (
-        <p className={adminSubtitle}>
+        <p className={adminMuted}>
           Primero crea una categoría en{" "}
           <Link href="/admin/catalogos" className={adminLink}>
             Categorías
