@@ -2,6 +2,8 @@
 
 Tienda online de perfumería de lujo con panel de administración, pagos Stripe y base de datos.
 
+**Repo:** [github.com/jonalparfum/jon-al-parfum](https://github.com/jonalparfum/jon-al-parfum)
+
 ## Características
 
 - Tienda con catálogo, filtros y detalle de producto

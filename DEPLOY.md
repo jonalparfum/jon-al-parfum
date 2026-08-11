@@ -1,30 +1,42 @@
 # Despliegue — Jon Al Parfum
 
-> **Proyecto independiente.** No usar la cuenta/equipo de Atrix en Vercel.
-> GitHub: `jonalparfum/jon-al-parfum` · Dominio: `jonalparfum.com`
+> **Un solo repo GitHub:** [jonalparfum/jon-al-parfum](https://github.com/jonalparfum/jon-al-parfum)  
+> Dominio: `www.jonalparfum.com` · Vercel proyecto: `jonalparfum01`
 
 ## Stack
 
-| Servicio | Cuenta |
-|----------|--------|
-| GitHub | `jonalparfum` |
-| Vercel | Cuenta **jonalparfum** (no Atrix) |
+| Servicio | Recurso |
+|----------|---------|
+| GitHub | `jonalparfum/jon-al-parfum` (único repo) |
+| Vercel | Cuenta **jonalparfum** → proyecto `jonalparfum01` |
 | Supabase | `qsbckliglejhyzeoymym` |
 | Cloudflare | `jonalparfum.com` |
 
 ---
 
-## 1. Vercel (cuenta correcta)
+## 1. GitHub (único repositorio)
 
-1. Cierra sesión de Atrix en CLI si aplica: `npx vercel logout`
-2. Inicia sesión con la cuenta de **jonalparfum**: `npx vercel login`
-3. En esta carpeta:
-
-```bash
-npx vercel link --project jon-al-parfum
+```
+https://github.com/jonalparfum/jon-al-parfum
 ```
 
-4. Importa el repo en [vercel.com/new](https://vercel.com/new) → `jonalparfum/jon-al-parfum`
+Todo el código va aquí. No uses otros repos.
+
+---
+
+## 2. Vercel — conectar el repo
+
+1. [Settings → Git](https://vercel.com/jonalparfum-5944s-projects/jonalparfum01/settings/git)
+2. Conecta **`jonalparfum/jon-al-parfum`** (branch `main`)
+3. Si había otro repo conectado, desconéctalo primero
+
+CLI (cuenta jonalparfum):
+
+```bash
+npx vercel logout && npx vercel login
+npx vercel link --scope jonalparfum-5944s-projects --project jonalparfum01
+./scripts/deploy-production.sh
+```
 
 ---
 
@@ -52,8 +64,8 @@ DB_PASSWORD='tu-contraseña' ./scripts/setup-production.sh
 | `DATABASE_URL` | Pooler 6543 (us-east-2) |
 | `DIRECT_URL` | Session pooler 5432 |
 | `AUTH_SECRET` | `openssl rand -base64 32` |
-| `AUTH_URL` | `https://jonalparfum.com` |
-| `NEXT_PUBLIC_APP_URL` | `https://jonalparfum.com` |
+| `AUTH_URL` | `https://www.jonalparfum.com` |
+| `NEXT_PUBLIC_APP_URL` | `https://www.jonalparfum.com` |
 | `NEXT_PUBLIC_SUPABASE_URL` | `https://qsbckliglejhyzeoymym.supabase.co` |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Anon key de Supabase |
 

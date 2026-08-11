@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
-# Despliega a Vercel (cuenta jonalparfum, proyecto jonalparfum01).
+# Despliega a Vercel (cuenta jonalparfum).
+# Repo GitHub único: jonalparfum/jon-al-parfum
+#
 # Uso:
 #   npx vercel login          # cuenta jonalparfum, NO Atrix
 #   ./scripts/deploy-production.sh
@@ -15,6 +17,7 @@ fi
 SCOPE="--scope jonalparfum-5944s-projects"
 PROJECT="--project jonalparfum01"
 
+echo "→ Repo: jonalparfum/jon-al-parfum"
 echo "→ Desplegando a producción..."
 npx vercel deploy --prod --yes $SCOPE $PROJECT
 
