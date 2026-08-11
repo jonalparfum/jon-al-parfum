@@ -1,6 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useState, ReactNode } from "react";
+import {
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  ReactNode,
+} from "react";
 import { isInViewport, shouldSkipEnterAnimations } from "@/lib/motion";
 
 export default function RevealOnScroll({
@@ -15,18 +21,24 @@ export default function RevealOnScroll({
   const ref = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const el = ref.current;
     if (!el) return;
 
     if (
       shouldSkipEnterAnimations() ||
       document.documentElement.dataset.skipEnterMotion === "true" ||
-      isInViewport(el)
+      isInViewport(el, 80)
     ) {
       setVisible(true);
-      return;
     }
+  }, []);
+
+  useEffect(() => {
+    if (visible) return;
+
+    const el = ref.current;
+    if (!el) return;
 
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -35,17 +47,17 @@ export default function RevealOnScroll({
           observer.disconnect();
         }
       },
-      { threshold: 0.12, rootMargin: "0px 0px -40px 0px" }
+      { threshold: 0.06, rootMargin: "100px 0px -8% 0px" }
     );
     observer.observe(el);
     return () => observer.disconnect();
-  }, []);
+  }, [visible]);
 
   return (
     <div
       ref={ref}
-      className={`reveal-on-scroll opacity-100 transition-transform duration-[900ms] ease-out ${className} ${
-        visible ? "translate-y-0" : "translate-y-10"
+      className={`reveal-on-scroll opacity-100 will-change-transform transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${className} ${
+        visible ? "translate-y-0" : "translate-y-6"
       }`}
       style={{ transitionDelay: visible ? `${delay}ms` : "0ms" }}
     >

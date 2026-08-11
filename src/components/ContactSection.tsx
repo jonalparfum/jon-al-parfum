@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, FormEvent } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, FormEvent } from "react";
 import { WHATSAPP_NUMBER, CONTACT_EMAIL } from "@/lib/contact";
 import ContactChannels from "@/components/ContactChannels";
 import { isInViewport, shouldSkipEnterAnimations } from "@/lib/motion";
@@ -25,28 +25,37 @@ export default function ContactSection() {
   const formRef = useRef<HTMLFormElement>(null);
   const [visible, setVisible] = useState(false);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const el = sectionRef.current;
     if (!el) return;
 
     if (
       shouldSkipEnterAnimations() ||
       document.documentElement.dataset.skipEnterMotion === "true" ||
-      isInViewport(el)
+      isInViewport(el, 80)
     ) {
       setVisible(true);
-      return;
     }
+  }, []);
+
+  useEffect(() => {
+    if (visible) return;
+
+    const el = sectionRef.current;
+    if (!el) return;
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) setVisible(true);
+        if (entry.isIntersecting) {
+          setVisible(true);
+          observer.disconnect();
+        }
       },
-      { threshold: 0.15 }
+      { threshold: 0.06, rootMargin: "100px 0px -8% 0px" }
     );
     observer.observe(el);
     return () => observer.disconnect();
-  }, []);
+  }, [visible]);
 
   function handlePhoneChange(value: string) {
     setPhoneDigits(formatPhoneDigits(value));
@@ -143,8 +152,8 @@ export default function ContactSection() {
         <div className="absolute inset-0 bg-radial-gold opacity-60 pointer-events-none" />
 
         <div
-          className={`reveal-on-scroll relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 opacity-100 transition-transform duration-1000 ${
-            visible ? "translate-y-0" : "translate-y-8"
+          className={`reveal-on-scroll relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 opacity-100 will-change-transform transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+            visible ? "translate-y-0" : "translate-y-6"
           }`}
         >
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-20 items-stretch">

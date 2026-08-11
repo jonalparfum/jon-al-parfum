@@ -53,14 +53,14 @@ export default async function HomePage() {
 
               <p
                 className="text-gold uppercase tracking-[0.45em] text-[10px] md:text-xs mb-5 animate-fade-in-up"
-                style={{ animationDelay: "100ms" }}
+                style={{ animationDelay: "40ms" }}
               >
                 Perfumes que dejan huella
               </p>
 
               <h1
                 className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-cream leading-[1.1] mb-6 animate-fade-in-up"
-                style={{ animationDelay: "200ms" }}
+                style={{ animationDelay: "80ms" }}
               >
                 La esencia del
                 <span className="block luxury-gradient-text mt-1">lujo olfativo</span>
@@ -68,7 +68,7 @@ export default async function HomePage() {
 
               <p
                 className="text-cream/75 text-base md:text-lg max-w-lg mx-auto lg:mx-0 mb-4 leading-relaxed font-light animate-fade-in-up"
-                style={{ animationDelay: "300ms" }}
+                style={{ animationDelay: "120ms" }}
               >
                 Perfumes originales de las mejores casas perfumistas.
                 Te ayudamos a encontrar la fragancia perfecta para ti.
@@ -76,7 +76,7 @@ export default async function HomePage() {
 
               <p
                 className="text-gold/80 text-xs uppercase tracking-[0.25em] mb-6 animate-fade-in-up"
-                style={{ animationDelay: "350ms" }}
+                style={{ animationDelay: "150ms" }}
               >
                 {SHIPPING_COVERAGE}
               </p>
@@ -85,7 +85,7 @@ export default async function HomePage() {
 
               <div
                 className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start animate-fade-in-up"
-                style={{ animationDelay: "500ms" }}
+                style={{ animationDelay: "200ms" }}
               >
                 <Link href="/tienda" className="btn-luxury-primary">
                   Explorar colección
@@ -165,7 +165,7 @@ export default async function HomePage() {
             </h2>
           </RevealOnScroll>
 
-          <RevealOnScroll delay={120}>
+          <RevealOnScroll delay={40}>
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 md:gap-8">
               {featured.map((product) => (
                 <ProductCard key={product.id} product={product} />
@@ -173,7 +173,7 @@ export default async function HomePage() {
             </div>
           </RevealOnScroll>
 
-          <RevealOnScroll className="text-center mt-16" delay={200}>
+          <RevealOnScroll className="text-center mt-16" delay={60}>
             <Link href="/tienda" className="btn-luxury-outline">
               Ver toda la colección
             </Link>
@@ -194,7 +194,7 @@ export default async function HomePage() {
             </h2>
           </RevealOnScroll>
 
-          <RevealOnScroll delay={120}>
+          <RevealOnScroll delay={40}>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-gold/10">
               {[
                 {

@@ -26,7 +26,7 @@ const config: Config = {
         display: ["var(--font-cormorant)", "var(--font-playfair)", "serif"],
       },
       animation: {
-        "fade-in-up": "fade-in-up 0.8s ease-out forwards",
+        "fade-in-up": "fade-in-up 0.45s cubic-bezier(0.22, 1, 0.36, 1) forwards",
         float: "float 6s ease-in-out infinite",
         shimmer: "shimmer 4s linear infinite",
         "pulse-glow": "pulse-glow 4s ease-in-out infinite",
