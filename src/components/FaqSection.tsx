@@ -79,7 +79,7 @@ function FaqItem({
         <div className="overflow-hidden">
           <div className="px-6 pb-6 md:px-8 md:pb-7">
             <div className="h-px bg-gradient-to-r from-gold/40 via-gold/10 to-transparent mb-5" />
-            <p className="text-sm text-cream/55 leading-relaxed font-light">{answer}</p>
+            <p className="text-sm text-cream/75 leading-relaxed font-light">{answer}</p>
           </div>
         </div>
       </div>

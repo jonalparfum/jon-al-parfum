@@ -1,4 +1,5 @@
 import Link from "next/link";
+import EmailLink from "@/components/EmailLink";
 
 export const metadata = {
   title: "Política de cookies | Jon Al Parfum",
@@ -6,21 +7,21 @@ export const metadata = {
 
 export default function PoliticaCookiesPage() {
   return (
-    <div className="max-w-3xl mx-auto px-4 py-16">
-      <h1 className="font-serif text-3xl text-charcoal mb-6">Política de cookies</h1>
-      <div className="prose prose-sm text-charcoal/80 space-y-4 leading-relaxed">
+    <div className="legal-page max-w-3xl mx-auto px-4 py-16 md:py-20">
+      <h1>Política de cookies</h1>
+      <div className="space-y-4">
         <p>
           En Jon Al Parfum utilizamos cookies y tecnologías similares para
           garantizar el correcto funcionamiento del sitio, recordar tus
           preferencias y mejorar la experiencia de navegación.
         </p>
-        <h2 className="font-serif text-xl text-charcoal pt-4">¿Qué son las cookies?</h2>
+        <h2>¿Qué son las cookies?</h2>
         <p>
           Las cookies son pequeños archivos de texto que se almacenan en tu
           dispositivo cuando visitas nuestra web.
         </p>
-        <h2 className="font-serif text-xl text-charcoal pt-4">Tipos de cookies que usamos</h2>
-        <ul className="list-disc pl-5 space-y-2">
+        <h2>Tipos de cookies que usamos</h2>
+        <ul>
           <li>
             <strong>Técnicas:</strong> necesarias para el carrito, la sesión y
             el funcionamiento básico de la tienda.
@@ -30,22 +31,19 @@ export default function PoliticaCookiesPage() {
             y otras opciones de navegación.
           </li>
         </ul>
-        <h2 className="font-serif text-xl text-charcoal pt-4">Gestión del consentimiento</h2>
+        <h2>Gestión del consentimiento</h2>
         <p>
           Puedes aceptar o rechazar las cookies no esenciales mediante el aviso
           que aparece al entrar por primera vez. También puedes eliminar las
           cookies desde la configuración de tu navegador.
         </p>
         <p>
-          Para cualquier consulta:{" "}
-          <a href="mailto:info@jonalparfum.com" className="text-gold hover:underline">
-            info@jonalparfum.com
-          </a>
+          Para cualquier consulta: <EmailLink className="text-cream/80" />
         </p>
       </div>
       <Link
         href="/"
-        className="inline-block mt-10 text-sm uppercase tracking-widest text-gold hover:text-charcoal border-b border-gold hover:border-charcoal pb-1 transition-colors"
+        className="inline-block mt-10 text-sm uppercase tracking-widest text-gold hover:text-gold-light border-b border-gold/40 hover:border-gold pb-1 transition-colors"
       >
         Volver al inicio
       </Link>

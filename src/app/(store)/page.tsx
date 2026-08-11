@@ -4,6 +4,7 @@ import BrandLogo from "@/components/BrandLogo";
 import FaqSection from "@/components/FaqSection";
 import ContactSection from "@/components/ContactSection";
 import RevealOnScroll from "@/components/RevealOnScroll";
+import FragranceMist from "@/components/FragranceMist";
 import { getFeaturedProducts } from "@/lib/products";
 import { LOCATION, SHIPPING_COVERAGE } from "@/lib/contact";
 
@@ -18,6 +19,7 @@ export default async function HomePage() {
       <section className="relative min-h-[100svh] flex items-center overflow-hidden">
         <div className="absolute inset-0 bg-luxury-black" />
         <div className="absolute inset-0 grain-overlay opacity-40" />
+        <FragranceMist intensity="rich" />
 
         {/* Ambient light */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-radial-gold opacity-80" />
@@ -64,7 +66,7 @@ export default async function HomePage() {
               </h1>
 
               <p
-                className="text-cream/50 text-base md:text-lg max-w-lg mx-auto lg:mx-0 mb-4 leading-relaxed font-light animate-fade-in-up"
+                className="text-cream/75 text-base md:text-lg max-w-lg mx-auto lg:mx-0 mb-4 leading-relaxed font-light animate-fade-in-up"
                 style={{ animationDelay: "300ms" }}
               >
                 Fragancias exclusivas seleccionadas con dedicación. Cada aroma
@@ -72,7 +74,7 @@ export default async function HomePage() {
               </p>
 
               <p
-                className="text-gold/60 text-xs uppercase tracking-[0.25em] mb-10 animate-fade-in-up"
+                className="text-gold/80 text-xs uppercase tracking-[0.25em] mb-10 animate-fade-in-up"
                 style={{ animationDelay: "350ms" }}
               >
                 {SHIPPING_COVERAGE}
@@ -129,7 +131,7 @@ export default async function HomePage() {
                   Elegancia desde la frontera
                 </h2>
               </div>
-              <div className="md:col-span-7 space-y-5 text-cream/55 leading-relaxed font-light">
+              <div className="md:col-span-7 space-y-5 text-cream/75 leading-relaxed font-light">
                 <p>
                   Jon Al Parfum nace en Nuevo Laredo con la misión de acercar las
                   fragancias más exclusivas del mundo a quienes aprecian el buen gusto
@@ -153,7 +155,8 @@ export default async function HomePage() {
       </section>
 
       {/* Featured */}
-      <section className="py-28 md:py-36 relative bg-luxury-panel/20">
+      <section className="py-28 md:py-36 relative bg-luxury-panel/20 overflow-hidden">
+        <FragranceMist intensity="subtle" className="opacity-60" />
         <div className="absolute inset-0 grain-overlay opacity-20" />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <RevealOnScroll className="text-center mb-16">
@@ -218,7 +221,7 @@ export default async function HomePage() {
                     {item.num}
                   </span>
                   <h3 className="font-display text-xl text-cream mb-4">{item.title}</h3>
-                  <p className="text-cream/45 text-sm leading-relaxed font-light">
+                  <p className="text-cream/70 text-sm leading-relaxed font-light">
                     {item.desc}
                   </p>
                 </div>

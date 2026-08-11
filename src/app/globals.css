@@ -93,6 +93,99 @@ body {
   .animate-marquee {
     animation: marquee 30s linear infinite;
   }
+
+  /* Legal / content pages — readable on dark theme */
+  .legal-page h1 {
+    @apply font-display text-3xl md:text-4xl text-cream mb-8;
+  }
+
+  .legal-page h2 {
+    @apply font-display text-xl text-cream/95 pt-6 mb-3;
+  }
+
+  .legal-page p,
+  .legal-page li {
+    @apply text-cream/80 leading-relaxed;
+  }
+
+  .legal-page strong {
+    @apply text-cream font-medium;
+  }
+
+  .legal-page ul {
+    @apply list-disc pl-5 space-y-2;
+  }
+
+  .legal-page a {
+    @apply text-gold hover:text-gold-light transition-colors;
+  }
+
+  /* Fragrance / scent effects */
+  .fragrance-particle {
+    background: radial-gradient(
+      circle,
+      rgba(232, 213, 163, 0.55) 0%,
+      rgba(201, 169, 98, 0.25) 40%,
+      transparent 70%
+    );
+    animation: scent-rise linear infinite;
+    filter: blur(1px);
+  }
+
+  .fragrance-particle-sm {
+    width: 6px;
+    height: 6px;
+    bottom: 50%;
+    border-radius: 50%;
+    background: radial-gradient(
+      circle,
+      rgba(232, 213, 163, 0.7) 0%,
+      transparent 70%
+    );
+    animation: scent-rise-sm 3s ease-out infinite;
+    filter: blur(0.5px);
+  }
+
+  .fragrance-wisp {
+    width: 2px;
+    height: 60px;
+    background: linear-gradient(
+      to top,
+      transparent,
+      rgba(201, 169, 98, 0.15),
+      rgba(232, 213, 163, 0.08),
+      transparent
+    );
+    animation: scent-wisp 6s ease-in-out infinite;
+    filter: blur(2px);
+  }
+
+  .fragrance-glow {
+    background: radial-gradient(
+      ellipse,
+      rgba(201, 169, 98, 0.12) 0%,
+      transparent 70%
+    );
+    animation: scent-breathe 8s ease-in-out infinite;
+  }
+
+  .whatsapp-scent-ring {
+    width: 56px;
+    height: 56px;
+    animation: scent-pulse-ring 3s ease-out infinite;
+  }
+
+  .whatsapp-scent-btn {
+    box-shadow:
+      0 0 20px rgba(37, 211, 102, 0.3),
+      0 0 40px rgba(201, 169, 98, 0.15);
+  }
+
+  .whatsapp-scent-btn:hover {
+    box-shadow:
+      0 0 28px rgba(37, 211, 102, 0.45),
+      0 0 50px rgba(201, 169, 98, 0.25);
+  }
 }
 
 @layer utilities {
@@ -147,5 +240,68 @@ body {
   }
   100% {
     transform: translateX(-50%);
+  }
+}
+
+@keyframes scent-rise {
+  0% {
+    transform: translateY(0) scale(0.6);
+    opacity: 0;
+  }
+  15% {
+    opacity: 0.7;
+  }
+  100% {
+    transform: translateY(-120px) scale(1.8);
+    opacity: 0;
+  }
+}
+
+@keyframes scent-rise-sm {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateY(-50px) scale(2);
+    opacity: 0;
+  }
+}
+
+@keyframes scent-wisp {
+  0%,
+  100% {
+    transform: translateY(0) scaleY(1);
+    opacity: 0.3;
+  }
+  50% {
+    transform: translateY(-30px) scaleY(1.3);
+    opacity: 0.6;
+  }
+}
+
+@keyframes scent-breathe {
+  0%,
+  100% {
+    transform: translate(-50%, 0) scale(1);
+    opacity: 0.2;
+  }
+  50% {
+    transform: translate(-50%, -10px) scale(1.08);
+    opacity: 0.45;
+  }
+}
+
+@keyframes scent-pulse-ring {
+  0% {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+  100% {
+    transform: scale(2.2);
+    opacity: 0;
   }
 }

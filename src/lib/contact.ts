@@ -5,7 +5,7 @@ export const WHATSAPP_DISPLAY = "+52 867 299 0689";
 export const FACEBOOK_URL =
   "https://www.facebook.com/profile.php?id=61591295592538";
 
-export const CONTACT_EMAIL = "info@jonalparfum.com";
+export const CONTACT_EMAIL = "jonal.parfum@gmail.com";
 
 export const LOCATION = "Nuevo Laredo, Tamaulipas";
 export const SHIPPING_COVERAGE = "Envíos a toda la República Mexicana";

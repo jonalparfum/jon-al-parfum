@@ -1,5 +1,6 @@
 import Link from "next/link";
 import BrandLogo from "@/components/BrandLogo";
+import EmailLink from "@/components/EmailLink";
 import {
   CONTACT_EMAIL,
   FACEBOOK_URL,
@@ -8,6 +9,7 @@ import {
   WHATSAPP_DISPLAY,
   WHATSAPP_URL,
 } from "@/lib/contact";
+import GmailIcon from "@/components/GmailIcon";
 
 export default function Footer() {
   return (
@@ -23,7 +25,7 @@ export default function Footer() {
               Perfumes que dejan huella
             </p>
             <p className="text-xs text-cream/40 mb-4">{LOCATION}</p>
-            <p className="text-cream/50 text-sm leading-relaxed max-w-xs mx-auto md:mx-0">
+            <p className="text-cream/70 text-sm leading-relaxed max-w-xs mx-auto md:mx-0">
               Fragancias de autor creadas con pasión y los más finos ingredientes.
               Cada perfume cuenta una historia única.
             </p>
@@ -33,7 +35,7 @@ export default function Footer() {
             <h4 className="text-xs uppercase tracking-[0.25em] text-gold mb-5">
               Enlaces
             </h4>
-            <ul className="space-y-3 text-sm text-cream/60">
+            <ul className="space-y-3 text-sm text-cream/75">
               <li>
                 <Link href="/tienda" className="hover:text-gold transition-colors duration-300">
                   Tienda
@@ -96,14 +98,9 @@ export default function Footer() {
             <h4 className="text-xs uppercase tracking-[0.25em] text-gold mb-5">
               Contacto
             </h4>
-            <ul className="space-y-3 text-sm text-cream/60">
+            <ul className="space-y-3 text-sm text-cream/75">
               <li>
-                <a
-                  href={`mailto:${CONTACT_EMAIL}`}
-                  className="hover:text-gold transition-colors duration-300"
-                >
-                  {CONTACT_EMAIL}
-                </a>
+                <EmailLink className="text-cream/75" />
               </li>
               <li>
                 <a
@@ -120,6 +117,13 @@ export default function Footer() {
             </ul>
 
             <div className="flex items-center justify-center md:justify-start gap-4 mt-6">
+              <a
+                href={`mailto:${CONTACT_EMAIL}`}
+                aria-label="Gmail"
+                className="w-10 h-10 rounded-full border border-gold/20 flex items-center justify-center bg-white/95 hover:border-gold/50 hover:scale-105 transition-all duration-300"
+              >
+                <GmailIcon className="w-5 h-5" />
+              </a>
               <a
                 href={WHATSAPP_URL}
                 target="_blank"

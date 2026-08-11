@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState, FormEvent } from "react";
-import { WHATSAPP_NUMBER } from "@/lib/contact";
+import { WHATSAPP_NUMBER, CONTACT_EMAIL } from "@/lib/contact";
+import EmailLink from "@/components/EmailLink";
 
 type FormState = "idle" | "loading" | "success" | "error";
 
@@ -90,31 +91,35 @@ export default function ContactSection() {
             <h2 className="font-display text-4xl md:text-5xl text-cream leading-tight mb-6">
               Contacto
             </h2>
-            <p className="text-cream/55 leading-relaxed mb-8 max-w-md">
+            <p className="text-cream/75 leading-relaxed mb-6 max-w-md">
               Desde Nuevo Laredo, Tamaulipas, atendemos consultas sobre fragancias,
               pedidos especiales y envíos a toda la República Mexicana.
             </p>
+
+            <div className="mb-8">
+              <EmailLink className="text-cream/80 text-sm" />
+            </div>
 
             <div className="space-y-5 text-sm">
               <div className="flex items-start gap-4 p-4 border border-gold/10 bg-luxury-panel/30">
                 <span className="text-gold mt-0.5">◆</span>
                 <div>
-                  <p className="text-cream/80 font-medium mb-1">Ubicación</p>
-                  <p className="text-cream/50">Nuevo Laredo, Tamaulipas, México</p>
+                  <p className="text-cream/90 font-medium mb-1">Ubicación</p>
+                  <p className="text-cream/70">Nuevo Laredo, Tamaulipas, México</p>
                 </div>
               </div>
               <div className="flex items-start gap-4 p-4 border border-gold/10 bg-luxury-panel/30">
                 <span className="text-gold mt-0.5">◆</span>
                 <div>
-                  <p className="text-cream/80 font-medium mb-1">Cobertura</p>
-                  <p className="text-cream/50">Envíos a toda la República Mexicana</p>
+                  <p className="text-cream/90 font-medium mb-1">Cobertura</p>
+                  <p className="text-cream/70">Envíos a toda la República Mexicana</p>
                 </div>
               </div>
               <div className="flex items-start gap-4 p-4 border border-gold/10 bg-luxury-panel/30">
                 <span className="text-gold mt-0.5">◆</span>
                 <div>
-                  <p className="text-cream/80 font-medium mb-1">Respuesta</p>
-                  <p className="text-cream/50">Te contactamos en menos de 24 horas</p>
+                  <p className="text-cream/90 font-medium mb-1">Respuesta</p>
+                  <p className="text-cream/70">Te contactamos en menos de 24 horas</p>
                 </div>
               </div>
             </div>
@@ -201,8 +206,15 @@ export default function ContactSection() {
                 {state === "loading" ? "Enviando..." : "Enviar mensaje"}
               </button>
 
-              <p className="text-center text-xs text-cream/35 tracking-wide">
-                También puedes escribirnos directo al{" "}
+              <p className="text-center text-xs text-cream/50 tracking-wide">
+                También puedes escribirnos a{" "}
+                <a
+                  href={`mailto:${CONTACT_EMAIL}`}
+                  className="text-gold/80 hover:text-gold transition-colors"
+                >
+                  {CONTACT_EMAIL}
+                </a>{" "}
+                o por{" "}
                 <a
                   href={`https://wa.me/${WHATSAPP_NUMBER}`}
                   target="_blank"
