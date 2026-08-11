@@ -38,7 +38,11 @@ export default function Header() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 md:h-20">
           <Link href="/" className="flex items-center gap-3 group">
-            <BrandLogo size="sm" priority className="group-hover:scale-105 transition-transform duration-500" />
+            <BrandLogo
+              size="sm"
+              priority
+              className="origin-left max-md:scale-[1.35] md:scale-100 group-hover:md:scale-105 transition-transform duration-500"
+            />
             <span className="hidden sm:block font-display text-lg md:text-xl tracking-wide text-cream group-hover:text-gold transition-colors duration-300">
               Jon Al Parfum
             </span>
