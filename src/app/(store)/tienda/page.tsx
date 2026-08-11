@@ -1,23 +1,27 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import ProductCard from "@/components/ProductCard";
+import ShopSearch from "@/components/ShopSearch";
 import { getProductsFromDb } from "@/lib/products";
 import { getCatalogCategories } from "@/lib/catalog";
 
 export const dynamic = "force-dynamic";
 
 type PageProps = {
-  searchParams: Promise<{ categoria?: string; subcategoria?: string }>;
+  searchParams: Promise<{ categoria?: string; subcategoria?: string; q?: string }>;
 };
 
 export default async function ShopPage({ searchParams }: PageProps) {
-  const { categoria, subcategoria } = await searchParams;
+  const { categoria, subcategoria, q } = await searchParams;
   const activeCategory = categoria || "all";
   const activeSubcategory = subcategoria || "all";
+  const searchQuery = q?.trim() || "";
 
   const [products, categories] = await Promise.all([
     getProductsFromDb({
       category: activeCategory,
       subcategory: activeSubcategory,
+      search: searchQuery,
     }),
     getCatalogCategories(),
   ]);
@@ -30,17 +34,36 @@ export default async function ShopPage({ searchParams }: PageProps) {
       ? "bg-gold text-luxury-black border-gold"
       : "border-gold/20 text-cream/60 hover:border-gold/50 hover:text-gold";
 
+  function buildHref(params: Record<string, string | undefined>) {
+    const sp = new URLSearchParams();
+    const cat = params.categoria ?? (activeCategory !== "all" ? activeCategory : undefined);
+    const sub =
+      params.subcategoria ??
+      (activeSubcategory !== "all" ? activeSubcategory : undefined);
+    const query = params.q ?? (searchQuery || undefined);
+
+    if (cat && cat !== "all") sp.set("categoria", cat);
+    if (sub && sub !== "all") sp.set("subcategoria", sub);
+    if (query) sp.set("q", query);
+
+    const qs = sp.toString();
+    return qs ? `/tienda?${qs}` : "/tienda";
+  }
+
   function categoryHref(slug: string) {
-    return slug === "all" ? "/tienda" : `/tienda?categoria=${slug}`;
+    return buildHref({
+      categoria: slug === "all" ? undefined : slug,
+      subcategoria: undefined,
+    });
   }
 
   function subcategoryHref(catSlug: string, subSlug: string) {
-    return `/tienda?categoria=${catSlug}&subcategoria=${subSlug}`;
+    return buildHref({ categoria: catSlug, subcategoria: subSlug });
   }
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
-      <div className="text-center mb-14">
+      <div className="text-center mb-10">
         <p className="text-gold uppercase tracking-[0.35em] text-xs mb-4">
           Colección completa
         </p>
@@ -48,13 +71,26 @@ export default async function ShopPage({ searchParams }: PageProps) {
           Tienda
         </h1>
         <p className="text-cream/50 max-w-xl mx-auto">
-          {products.length} perfumes originales para descubrir tu aroma perfecto
+          {searchQuery ? (
+            <>
+              {products.length} resultado{products.length === 1 ? "" : "s"} para{" "}
+              <span className="text-gold/80">&ldquo;{searchQuery}&rdquo;</span>
+            </>
+          ) : (
+            <>
+              {products.length} perfumes originales para descubrir tu aroma perfecto
+            </>
+          )}
         </p>
       </div>
 
+      <Suspense fallback={null}>
+        <ShopSearch initialQuery={searchQuery} />
+      </Suspense>
+
       <div className="flex flex-wrap justify-center gap-3 mb-8">
         <Link
-          href="/tienda"
+          href={categoryHref("all")}
           className={`px-5 py-2.5 text-xs uppercase tracking-[0.15em] border transition-all duration-300 ${filterClass(activeCategory === "all")}`}
         >
           Todos
@@ -102,10 +138,21 @@ export default async function ShopPage({ searchParams }: PageProps) {
       </div>
 
       {products.length === 0 && (
-        <p className="text-center text-cream/50 py-16">
-          No hay productos en esta categoría
-          {activeSubcategory !== "all" ? " o subcategoría" : ""}.
-        </p>
+        <div className="text-center py-16">
+          <p className="text-cream/50 mb-4">
+            {searchQuery
+              ? `No encontramos perfumes con “${searchQuery}”.`
+              : `No hay productos en esta categoría${activeSubcategory !== "all" ? " o subcategoría" : ""}.`}
+          </p>
+          {searchQuery && (
+            <Link
+              href={buildHref({ q: undefined })}
+              className="text-sm uppercase tracking-wider text-gold hover:text-gold-light"
+            >
+              Limpiar búsqueda
+            </Link>
+          )}
+        </div>
       )}
     </div>
   );

@@ -6,7 +6,10 @@ export async function getProductsFromDb(options?: {
   category?: string;
   subcategory?: string;
   featured?: boolean;
+  search?: string;
 }): Promise<Product[]> {
+  const query = options?.search?.trim();
+
   const products = await prisma.product.findMany({
     where: {
       active: true,
@@ -17,6 +20,15 @@ export async function getProductsFromDb(options?: {
         ? { subcategory: { slug: options.subcategory } }
         : {}),
       ...(options?.featured ? { featured: true } : {}),
+      ...(query
+        ? {
+            OR: [
+              { name: { contains: query, mode: "insensitive" } },
+              { brand: { contains: query, mode: "insensitive" } },
+              { description: { contains: query, mode: "insensitive" } },
+            ],
+          }
+        : {}),
     },
     include: { category: true, subcategory: true },
     orderBy: { createdAt: "desc" },
