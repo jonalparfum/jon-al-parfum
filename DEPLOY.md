@@ -3,6 +3,28 @@
 > **Un solo repo GitHub:** [jonalparfum/jon-al-parfum](https://github.com/jonalparfum/jon-al-parfum)  
 > Dominio: `www.jonalparfum.com` · Vercel proyecto: `jonalparfum01`
 
+## ⚠️ Cuentas — SOLO jonalparfum
+
+Este proyecto **no** usa DentalMate ni Atrix.
+
+| Servicio | Cuenta correcta | Incorrecto |
+|----------|-----------------|------------|
+| GitHub | **jonalparfum** | DentalMatemx, otras |
+| Vercel | **jonalparfum** (`jonalparfum-5944s-projects`) | Atrix, atrixtechno |
+| Supabase | **qsbckliglejhyzeoymym** | otros proyectos |
+
+**Git push falla con DentalMate:** macOS guardó otra cuenta en Llaveros. Solución:
+
+```bash
+GITHUB_TOKEN='ghp_...' ./scripts/push-jonalparfum.sh
+```
+
+O Acceso a Llaveros → `github.com` → borra entradas de DentalMate.
+
+**Vercel en Atrix:** `npx vercel logout` → `npx vercel login` con **jonalparfum**.
+
+Verificar: `./scripts/check-accounts.sh`
+
 ## Stack
 
 | Servicio | Recurso |
