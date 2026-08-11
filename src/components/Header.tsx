@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import Image from "next/image";
+import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useCart } from "@/context/CartContext";
 
@@ -9,24 +10,45 @@ export default function Header() {
   const { data: session } = useSession();
   const { totalItems, openCart } = useCart();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   const navLinks = [
     { href: "/", label: "Inicio" },
     { href: "/tienda", label: "Tienda" },
     { href: "/tienda?categoria=hombre", label: "Hombre" },
     { href: "/tienda?categoria=mujer", label: "Mujer" },
-    { href: "/tienda?categoria=unisex", label: "Unisex" },
+    { href: "/#faq", label: "FAQ" },
   ];
 
   return (
-    <header className="sticky top-0 z-40 bg-[#faf8f5]/95 backdrop-blur-md border-b border-gold/10">
+    <header
+      className={`sticky top-0 z-40 transition-all duration-500 ${
+        scrolled
+          ? "bg-luxury-black/95 backdrop-blur-md border-b border-gold/10 shadow-[0_4px_30px_rgba(0,0,0,0.5)]"
+          : "bg-transparent border-b border-transparent"
+      }`}
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 md:h-20">
-          <Link
-            href="/"
-            className="font-serif text-xl md:text-2xl tracking-wide text-charcoal hover:text-gold transition-colors"
-          >
-            Jon Al <span className="text-gold">Parfum</span>
+          <Link href="/" className="flex items-center gap-3 group">
+            <div className="relative w-10 h-10 md:w-12 md:h-12 overflow-hidden rounded-full ring-1 ring-gold/20 group-hover:ring-gold/50 transition-all duration-500">
+              <Image
+                src="/logo-jon-al-parfum.png"
+                alt="Jon Al Parfum"
+                fill
+                className="object-cover scale-150 group-hover:scale-[1.6] transition-transform duration-700"
+                priority
+              />
+            </div>
+            <span className="hidden sm:block font-display text-lg md:text-xl tracking-wide text-cream group-hover:text-gold transition-colors duration-300">
+              Jon Al Parfum
+            </span>
           </Link>
 
           <nav className="hidden md:flex items-center gap-8">
@@ -34,25 +56,25 @@ export default function Header() {
               <Link
                 key={link.href}
                 href={link.href}
-                className="text-sm uppercase tracking-widest text-charcoal/80 hover:text-gold transition-colors"
+                className="text-xs uppercase tracking-[0.2em] text-cream/70 hover:text-gold transition-colors duration-300 relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-px after:bg-gold hover:after:w-full after:transition-all after:duration-300"
               >
                 {link.label}
               </Link>
             ))}
           </nav>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 md:gap-3">
             {session ? (
               <Link
                 href="/cuenta"
-                className="hidden sm:block text-sm text-charcoal/70 hover:text-gold transition-colors"
+                className="hidden sm:block text-xs uppercase tracking-wider text-cream/60 hover:text-gold transition-colors"
               >
                 {session.user.name || "Mi cuenta"}
               </Link>
             ) : (
               <Link
                 href="/login"
-                className="hidden sm:block text-sm text-charcoal/70 hover:text-gold transition-colors"
+                className="hidden sm:block text-xs uppercase tracking-wider text-cream/60 hover:text-gold transition-colors"
               >
                 Entrar
               </Link>
@@ -60,7 +82,7 @@ export default function Header() {
 
             <button
               onClick={openCart}
-              className="relative p-2 text-charcoal hover:text-gold transition-colors"
+              className="relative p-2.5 text-cream/80 hover:text-gold transition-colors duration-300"
               aria-label="Abrir carrito"
             >
               <svg
@@ -78,7 +100,7 @@ export default function Header() {
                 />
               </svg>
               {totalItems > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 bg-gold text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-medium">
+                <span className="absolute -top-0.5 -right-0.5 bg-gold text-luxury-black text-xs w-5 h-5 rounded-full flex items-center justify-center font-semibold">
                   {totalItems}
                 </span>
               )}
@@ -86,7 +108,7 @@ export default function Header() {
 
             <button
               onClick={() => setMenuOpen(!menuOpen)}
-              className="md:hidden p-2 text-charcoal"
+              className="md:hidden p-2 text-cream"
               aria-label="Menú"
             >
               <svg
@@ -107,14 +129,18 @@ export default function Header() {
           </div>
         </div>
 
-        {menuOpen && (
-          <nav className="md:hidden py-4 border-t border-gold/10">
+        <div
+          className={`md:hidden overflow-hidden transition-all duration-500 ${
+            menuOpen ? "max-h-96 border-t border-gold/10" : "max-h-0"
+          }`}
+        >
+          <nav className="py-4">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
                 onClick={() => setMenuOpen(false)}
-                className="block py-3 text-sm uppercase tracking-widest text-charcoal/80 hover:text-gold transition-colors"
+                className="block py-3 text-xs uppercase tracking-[0.2em] text-cream/70 hover:text-gold transition-colors"
               >
                 {link.label}
               </Link>
@@ -122,12 +148,12 @@ export default function Header() {
             <Link
               href={session ? "/cuenta" : "/login"}
               onClick={() => setMenuOpen(false)}
-              className="block py-3 text-sm uppercase tracking-widest text-charcoal/80 hover:text-gold transition-colors"
+              className="block py-3 text-xs uppercase tracking-[0.2em] text-cream/70 hover:text-gold transition-colors"
             >
               {session ? "Mi cuenta" : "Entrar"}
             </Link>
           </nav>
-        )}
+        </div>
       </div>
     </header>
   );

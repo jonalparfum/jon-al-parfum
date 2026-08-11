@@ -38,55 +38,55 @@ function LoginForm() {
   return (
     <div className="min-h-[70vh] flex items-center justify-center px-4">
       <div className="w-full max-w-md">
-        <h1 className="font-serif text-3xl text-center mb-2">Iniciar sesión</h1>
-        <p className="text-center text-charcoal/60 mb-8 text-sm">
+        <h1 className="font-display text-3xl text-center mb-2 text-cream">Iniciar sesión</h1>
+        <p className="text-center text-cream/50 mb-8 text-sm">
           Accede a tu cuenta de Jon Al Parfum
         </p>
 
         <form
           onSubmit={handleSubmit}
-          className="bg-white rounded-lg shadow-sm border border-gold/10 p-8 space-y-4"
+          className="bg-luxury-panel border border-gold/10 p-8 space-y-4 gold-border-glow"
         >
           {error && (
-            <p className="text-red-600 text-sm text-center bg-red-50 py-2 rounded">
+            <p className="text-red-400 text-sm text-center bg-red-950/50 border border-red-900/50 py-2">
               {error}
             </p>
           )}
 
           <div>
-            <label className="block text-sm font-medium mb-1">Email</label>
+            <label className="block text-sm font-medium mb-1 text-cream/80">Email</label>
             <input
               type="email"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full border border-gray-200 rounded px-3 py-2.5 text-sm focus:outline-none focus:border-gold"
+              className="w-full bg-luxury-black border border-gold/20 px-3 py-2.5 text-sm text-cream focus:outline-none focus:border-gold transition-colors"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1">Contraseña</label>
+            <label className="block text-sm font-medium mb-1 text-cream/80">Contraseña</label>
             <input
               type="password"
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full border border-gray-200 rounded px-3 py-2.5 text-sm focus:outline-none focus:border-gold"
+              className="w-full bg-luxury-black border border-gold/20 px-3 py-2.5 text-sm text-cream focus:outline-none focus:border-gold transition-colors"
             />
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-charcoal text-white py-3 text-sm uppercase tracking-widest hover:bg-gold transition-colors disabled:opacity-50"
+            className="w-full bg-gold text-luxury-black py-3 text-sm uppercase tracking-widest hover:bg-gold-light transition-colors disabled:opacity-50 font-medium"
           >
             {loading ? "Entrando..." : "Entrar"}
           </button>
         </form>
 
-        <p className="text-center text-sm text-charcoal/60 mt-6">
+        <p className="text-center text-sm text-cream/50 mt-6">
           ¿No tienes cuenta?{" "}
-          <Link href="/registro" className="text-gold hover:text-charcoal">
+          <Link href="/registro" className="text-gold hover:text-gold-light">
             Regístrate
           </Link>
         </p>

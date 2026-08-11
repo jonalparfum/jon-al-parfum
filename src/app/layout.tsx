@@ -1,4 +1,4 @@
-import { Playfair_Display, Inter } from "next/font/google";
+import { Playfair_Display, Inter, Cormorant_Garamond } from "next/font/google";
 import "./globals.css";
 import AuthProvider from "@/components/AuthProvider";
 
@@ -14,10 +14,17 @@ const inter = Inter({
   display: "swap",
 });
 
+const cormorant = Cormorant_Garamond({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600"],
+  variable: "--font-cormorant",
+  display: "swap",
+});
+
 export const metadata = {
   title: "Jon Al Parfum | Perfumería de lujo",
   description:
-    "Descubre nuestra colección exclusiva de fragancias de autor. Perfumes para hombre, mujer y unisex.",
+    "Perfumes que dejan huella. Descubre nuestra colección exclusiva de fragancias de autor para hombre, mujer y unisex.",
 };
 
 export default function RootLayout({
@@ -26,9 +33,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es">
+    <html lang="es" className="scroll-smooth">
       <body
-        className={`${playfair.variable} ${inter.variable} font-sans antialiased`}
+        className={`${playfair.variable} ${inter.variable} ${cormorant.variable} font-sans antialiased bg-luxury-black text-cream`}
       >
         <AuthProvider>{children}</AuthProvider>
       </body>

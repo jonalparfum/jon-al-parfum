@@ -3,12 +3,16 @@
 @tailwind utilities;
 
 :root {
-  --background: #faf8f5;
-  --foreground: #1a1612;
+  --background: #080808;
+  --foreground: #f5f0e8;
   --gold: #c9a962;
   --gold-light: #e8d5a3;
+  --gold-dark: #a8894a;
   --cream: #f5f0e8;
-  --charcoal: #2c2825;
+  --charcoal: #1a1816;
+  --luxury-black: #080808;
+  --luxury-panel: #121212;
+  --luxury-muted: #2a2a2a;
 }
 
 body {
@@ -16,8 +20,119 @@ body {
   color: var(--foreground);
 }
 
+@layer base {
+  ::selection {
+    background: rgba(201, 169, 98, 0.35);
+    color: #fff;
+  }
+}
+
+@layer components {
+  .luxury-gradient-text {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(
+      135deg,
+      #e8d5a3 0%,
+      #c9a962 45%,
+      #a8894a 100%
+    );
+  }
+
+  .gold-shimmer {
+    background: linear-gradient(
+      110deg,
+      #a8894a 0%,
+      #c9a962 25%,
+      #f0e6c8 50%,
+      #c9a962 75%,
+      #a8894a 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 4s linear infinite;
+  }
+
+  .gold-border-glow {
+    box-shadow:
+      0 0 0 1px rgba(201, 169, 98, 0.15),
+      0 0 24px rgba(201, 169, 98, 0.08);
+  }
+
+  .grain-overlay {
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  }
+
+  .btn-luxury {
+    @apply relative overflow-hidden inline-flex items-center justify-center px-8 py-4 text-xs uppercase tracking-[0.25em] transition-all duration-500;
+  }
+
+  .btn-luxury-primary {
+    @apply btn-luxury bg-gold text-luxury-black font-medium hover:shadow-[0_0_30px_rgba(201,169,98,0.35)];
+  }
+
+  .btn-luxury-outline {
+    @apply btn-luxury border border-gold/40 text-gold hover:border-gold hover:bg-gold/5;
+  }
+
+  .section-divider {
+    @apply mx-auto w-48 h-px bg-gradient-to-r from-transparent via-gold/50 to-transparent;
+  }
+
+  .animate-on-scroll {
+    opacity: 0;
+    transform: translateY(24px);
+    transition:
+      opacity 0.8s ease-out,
+      transform 0.8s ease-out;
+  }
+
+  .animate-on-scroll.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 @layer utilities {
   .text-balance {
     text-wrap: balance;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-12px);
+  }
+}
+
+@keyframes pulse-glow {
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 0.7;
   }
 }

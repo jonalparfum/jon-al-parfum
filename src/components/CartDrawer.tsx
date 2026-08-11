@@ -64,12 +64,12 @@ export default function CartDrawer() {
         aria-hidden="true"
       />
       <aside
-        className="fixed right-0 top-0 h-full w-full max-w-md bg-white z-50 shadow-2xl flex flex-col"
+        className="fixed right-0 top-0 h-full w-full max-w-md bg-luxury-panel border-l border-gold/10 z-50 shadow-2xl flex flex-col text-cream"
         role="dialog"
         aria-label="Carrito de compras"
       >
         <div className="flex items-center justify-between p-6 border-b border-gold/10">
-          <h2 className="font-serif text-xl">Tu carrito</h2>
+          <h2 className="font-display text-xl">Tu carrito</h2>
           <button
             onClick={closeCart}
             className="p-2 hover:text-gold transition-colors"
@@ -83,10 +83,10 @@ export default function CartDrawer() {
 
         {items.length === 0 ? (
           <div className="flex-1 flex flex-col items-center justify-center p-6 text-center">
-            <p className="text-charcoal/60 mb-4">Tu carrito está vacío</p>
+            <p className="text-cream/50 mb-4">Tu carrito está vacío</p>
             <button
               onClick={closeCart}
-              className="text-sm uppercase tracking-wider text-gold hover:text-charcoal transition-colors"
+              className="text-sm uppercase tracking-wider text-gold hover:text-gold-light transition-colors"
             >
               Seguir comprando
             </button>
@@ -103,13 +103,13 @@ export default function CartDrawer() {
                     className="w-20 h-24 flex-shrink-0 rounded-sm"
                   />
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-serif text-sm truncate">{product.name}</h3>
-                    <p className="text-xs text-charcoal/60 mt-0.5">{product.size}</p>
+                    <h3 className="font-display text-sm truncate">{product.name}</h3>
+                    <p className="text-xs text-cream/50 mt-0.5">{product.size}</p>
                     <p className="text-sm font-medium mt-1">{formatPrice(product.price)}</p>
                     <div className="flex items-center gap-3 mt-2">
                       <button
                         onClick={() => updateQuantity(product.id, quantity - 1)}
-                        className="w-7 h-7 border border-charcoal/20 flex items-center justify-center hover:border-gold transition-colors"
+                        className="w-7 h-7 border border-gold/20 flex items-center justify-center hover:border-gold transition-colors"
                         aria-label="Reducir cantidad"
                       >
                         −
@@ -117,14 +117,14 @@ export default function CartDrawer() {
                       <span className="text-sm w-4 text-center">{quantity}</span>
                       <button
                         onClick={() => updateQuantity(product.id, quantity + 1)}
-                        className="w-7 h-7 border border-charcoal/20 flex items-center justify-center hover:border-gold transition-colors"
+                        className="w-7 h-7 border border-gold/20 flex items-center justify-center hover:border-gold transition-colors"
                         aria-label="Aumentar cantidad"
                       >
                         +
                       </button>
                       <button
                         onClick={() => removeItem(product.id)}
-                        className="ml-auto text-xs text-charcoal/40 hover:text-red-600 transition-colors"
+                        className="ml-auto text-xs text-cream/40 hover:text-red-400 transition-colors"
                       >
                         Eliminar
                       </button>
@@ -136,7 +136,7 @@ export default function CartDrawer() {
 
             <div className="border-t border-gold/10 p-6 space-y-4">
               {error && (
-                <p className="text-red-600 text-sm text-center bg-red-50 py-2 rounded">
+                <p className="text-red-400 text-sm text-center bg-red-950/50 border border-red-900/50 py-2 rounded">
                   {error}
                 </p>
               )}
@@ -147,7 +147,7 @@ export default function CartDrawer() {
               <button
                 onClick={handleCheckout}
                 disabled={checkingOut}
-                className="w-full bg-charcoal text-white py-4 text-sm uppercase tracking-widest hover:bg-gold transition-colors disabled:opacity-50"
+                className="w-full bg-gold text-luxury-black py-4 text-sm uppercase tracking-widest hover:bg-gold-light transition-colors disabled:opacity-50 font-medium"
               >
                 {checkingOut
                   ? "Redirigiendo..."
@@ -156,7 +156,7 @@ export default function CartDrawer() {
                     : "Iniciar sesión para pagar"}
               </button>
               {!session && (
-                <p className="text-xs text-center text-charcoal/50">
+                <p className="text-xs text-center text-cream/40">
                   <Link href="/registro" className="text-gold hover:underline">
                     Crear cuenta
                   </Link>{" "}
@@ -165,7 +165,7 @@ export default function CartDrawer() {
               )}
               <button
                 onClick={clearCart}
-                className="w-full text-sm text-charcoal/40 hover:text-charcoal transition-colors"
+                className="w-full text-sm text-cream/40 hover:text-cream transition-colors"
               >
                 Vaciar carrito
               </button>

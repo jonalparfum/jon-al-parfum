@@ -21,49 +21,51 @@ export default function ProductCard({ product }: ProductCardProps) {
 
   return (
     <Link href={`/tienda/${product.id}`} className="group block">
-      <article className="bg-white rounded-sm overflow-hidden shadow-sm hover:shadow-lg transition-shadow duration-300">
-        <div className="relative aspect-[3/4] overflow-hidden">
+      <article className="relative bg-luxury-panel border border-gold/10 overflow-hidden transition-all duration-500 hover:border-gold/30 hover:shadow-[0_8px_40px_rgba(201,169,98,0.12)] gold-border-glow">
+        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none bg-gradient-to-t from-gold/5 to-transparent" />
+
+        <div className="relative aspect-[3/4] overflow-hidden bg-luxury-muted">
           <ProductImage
             src={product.image}
             alt={product.name}
             category={product.category}
-            className="w-full h-full group-hover:scale-105 transition-transform duration-500"
+            className="w-full h-full group-hover:scale-105 transition-transform duration-700 ease-out"
           />
           {product.new && (
-            <span className="absolute top-3 left-3 bg-gold text-white text-xs uppercase tracking-wider px-2 py-1 z-10">
+            <span className="absolute top-3 left-3 bg-gold text-luxury-black text-[10px] uppercase tracking-[0.15em] px-2.5 py-1 z-10 font-medium">
               Nuevo
             </span>
           )}
           {product.originalPrice && (
-            <span className="absolute top-3 right-3 bg-red-600 text-white text-xs uppercase tracking-wider px-2 py-1 z-10">
+            <span className="absolute top-3 right-3 bg-red-900/90 text-cream text-[10px] uppercase tracking-[0.15em] px-2.5 py-1 z-10">
               Oferta
             </span>
           )}
         </div>
 
-        <div className="p-4">
-          <p className="text-xs uppercase tracking-widest text-gold mb-1">
+        <div className="relative p-5">
+          <p className="text-[10px] uppercase tracking-[0.2em] text-gold/80 mb-1.5">
             {product.category}
           </p>
-          <h3 className="font-serif text-lg text-charcoal group-hover:text-gold transition-colors">
+          <h3 className="font-display text-lg text-cream group-hover:text-gold transition-colors duration-300">
             {product.name}
           </h3>
-          <p className="text-sm text-charcoal/60 mt-1">{product.size}</p>
+          <p className="text-sm text-cream/40 mt-1">{product.size}</p>
 
-          <div className="flex items-center justify-between mt-3">
+          <div className="flex items-center justify-between mt-4 pt-4 border-t border-gold/10">
             <div>
-              <span className="font-medium text-charcoal">
+              <span className="font-medium text-cream">
                 {formatPrice(product.price)}
               </span>
               {product.originalPrice && (
-                <span className="ml-2 text-sm text-charcoal/40 line-through">
+                <span className="ml-2 text-sm text-cream/30 line-through">
                   {formatPrice(product.originalPrice)}
                 </span>
               )}
             </div>
             <button
               onClick={handleAddToCart}
-              className="text-xs uppercase tracking-wider text-gold hover:text-charcoal border border-gold hover:border-charcoal px-3 py-1.5 transition-colors"
+              className="text-[10px] uppercase tracking-[0.15em] text-gold border border-gold/40 hover:bg-gold hover:text-luxury-black px-3 py-1.5 transition-all duration-300"
               aria-label={`Añadir ${product.name} al carrito`}
             >
               Añadir
