@@ -9,7 +9,9 @@ import { formatPrice } from "@/lib/product-utils";
 import { STRIPE_MIN_MXN } from "@/lib/stripe-limits";
 import ProductImage from "@/components/ProductImage";
 import TransferCheckoutModal from "@/components/TransferCheckoutModal";
+import ShippingCheckoutModal from "@/components/ShippingCheckoutModal";
 import { lockScroll, unlockScroll } from "@/lib/scroll-lock";
+import type { ShippingInput } from "@/lib/shipping";
 
 type BankAccount = {
   id: string;
@@ -46,6 +48,9 @@ export default function CartDrawer() {
     null
   );
   const [transferSuccess, setTransferSuccess] = useState(false);
+  const [shippingModal, setShippingModal] = useState<"stripe" | "transfer" | null>(
+    null
+  );
 
   useEffect(() => {
     closeCart();
@@ -66,61 +71,96 @@ export default function CartDrawer() {
 
   const belowStripeMinimum = totalPrice > 0 && totalPrice < STRIPE_MIN_MXN;
 
-  const handleStripeCheckout = async () => {
-    if (!session) {
-      closeCart();
-      router.push("/login?callbackUrl=/tienda");
-      return;
-    }
-
-    setCheckingOut(true);
-    setError("");
-
-    const res = await fetch("/api/checkout", {
-      method: "POST",
+  const saveShipping = async (shipping: ShippingInput) => {
+    const res = await fetch("/api/user/profile", {
+      method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(cartPayload),
+      body: JSON.stringify(shipping),
     });
-
-    const data = await res.json();
-
-    if (res.ok && data.url) {
-      window.location.href = data.url;
-    } else {
-      setError(data.error || "Error al procesar el pago");
-      setCheckingOut(false);
+    if (!res.ok) {
+      const data = await res.json();
+      throw new Error(data.error || "Error al guardar datos de envío");
     }
   };
 
-  const handleTransferCheckout = async () => {
+  const handleShippingConfirm = async (shipping: ShippingInput) => {
+    const mode = shippingModal;
+    if (!mode) return;
+
+    await saveShipping(shipping);
+    setShippingModal(null);
+
+    const payload = { ...cartPayload, shipping };
+
+    if (mode === "stripe") {
+      setCheckingOut(true);
+      setError("");
+
+      const res = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+
+      if (res.ok && data.url) {
+        window.location.href = data.url;
+      } else {
+        setError(data.error || "Error al procesar el pago");
+        setCheckingOut(false);
+      }
+    } else {
+      setTransferLoading(true);
+      setError("");
+
+      const res = await fetch("/api/checkout/transfer", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        setTransferSession({
+          orderId: data.orderId,
+          total: data.total,
+          bankAccounts: data.bankAccounts,
+        });
+      } else {
+        setError(data.error || "Error al iniciar transferencia");
+      }
+
+      setTransferLoading(false);
+    }
+  };
+
+  const handleStripeCheckout = () => {
     if (!session) {
       closeCart();
       router.push("/login?callbackUrl=/tienda");
       return;
     }
+    if (belowStripeMinimum) return;
+    setShippingModal("stripe");
+  };
 
-    setTransferLoading(true);
-    setError("");
+  const handleTransferCheckout = () => {
+    if (!session) {
+      closeCart();
+      router.push("/login?callbackUrl=/tienda");
+      return;
+    }
+    setShippingModal("transfer");
+  };
 
-    const res = await fetch("/api/checkout/transfer", {
+  const cancelTransferOrder = async (orderId: string) => {
+    await fetch("/api/checkout/cancel", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(cartPayload),
-    });
-
-    const data = await res.json();
-
-    if (res.ok) {
-      setTransferSession({
-        orderId: data.orderId,
-        total: data.total,
-        bankAccounts: data.bankAccounts,
-      });
-    } else {
-      setError(data.error || "Error al iniciar transferencia");
-    }
-
-    setTransferLoading(false);
+      body: JSON.stringify({ orderId }),
+    }).catch(() => {});
   };
 
   const handleTransferSuccess = () => {
@@ -133,12 +173,22 @@ export default function CartDrawer() {
 
   return (
     <>
+      {shippingModal && (
+        <ShippingCheckoutModal
+          onClose={() => setShippingModal(null)}
+          onConfirm={handleShippingConfirm}
+        />
+      )}
+
       {transferSession && (
         <TransferCheckoutModal
           orderId={transferSession.orderId}
           total={transferSession.total}
           bankAccounts={transferSession.bankAccounts}
-          onClose={() => setTransferSession(null)}
+          onClose={() => {
+            void cancelTransferOrder(transferSession.orderId);
+            setTransferSession(null);
+          }}
           onSuccess={handleTransferSuccess}
         />
       )}

@@ -33,15 +33,39 @@ enum PaymentProofStatus {
   REJECTED
 }
 
+enum AdminNotifyModule {
+  PEDIDOS
+  COMPROBANTES
+  USUARIOS
+}
+
 model User {
-  id           String   @id @default(cuid())
-  name         String?
-  email        String   @unique
-  passwordHash String
-  role         Role     @default(USER)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  orders       Order[]
+  id             String   @id @default(cuid())
+  name           String?
+  email          String   @unique
+  passwordHash   String
+  role           Role     @default(USER)
+  shippingPhone  String?
+  shippingStreet String?
+  shippingColony String?
+  shippingCity   String?
+  shippingState  String?
+  shippingZip    String?
+  shippingNotes  String?
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+  orders         Order[]
+  moduleSeen     AdminModuleSeen[]
+}
+
+model AdminModuleSeen {
+  id     String            @id @default(cuid())
+  userId String
+  user   User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  module AdminNotifyModule
+  seenAt DateTime          @default(now())
+
+  @@unique([userId, module])
 }
 
 model Category {
@@ -125,6 +149,13 @@ model Order {
   stripePaymentId    String?
   shippingName       String?
   shippingEmail      String?
+  shippingPhone      String?
+  shippingStreet     String?
+  shippingColony     String?
+  shippingCity       String?
+  shippingState      String?
+  shippingZip        String?
+  shippingNotes      String?
   shippingAddress    String?
   items              OrderItem[]
   createdAt          DateTime            @default(now())

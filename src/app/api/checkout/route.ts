@@ -4,9 +4,16 @@ import { requireAuth, unauthorized, parseJsonBody } from "@/lib/api-auth";
 import { stripe, isStripeConfigured } from "@/lib/stripe";
 import { STRIPE_MIN_MXN } from "@/lib/stripe-limits";
 import { prepareCheckoutItems } from "@/lib/checkout-items";
+import {
+  normalizeShipping,
+  shippingToOrderFields,
+  validateShipping,
+  type ShippingInput,
+} from "@/lib/shipping";
 
 type CheckoutBody = {
   items: { productId: string; quantity: number }[];
+  shipping?: ShippingInput;
 };
 
 export async function POST(request: NextRequest) {
@@ -82,13 +89,23 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  const shippingError = validateShipping(body.shipping ?? {});
+  if (shippingError) {
+    return NextResponse.json({ error: shippingError }, { status: 400 });
+  }
+
+  const shippingFields = shippingToOrderFields(
+    normalizeShipping(body.shipping!),
+    session.user.email
+  );
+
   const order = await prisma.order.create({
     data: {
       userId: session.user.id,
       total,
       status: "PENDING",
       paymentMethod: "STRIPE",
-      shippingEmail: session.user.email || undefined,
+      ...shippingFields,
       items: { create: orderItems },
     },
   });
@@ -118,7 +135,7 @@ export async function POST(request: NextRequest) {
     payment_method_types: ["card"],
     line_items: lineItems,
     success_url: `${process.env.NEXT_PUBLIC_APP_URL}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/checkout/cancel`,
+    cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/checkout/cancel?session_id={CHECKOUT_SESSION_ID}`,
     customer_email: session.user.email || undefined,
     metadata: { orderId: order.id },
   });

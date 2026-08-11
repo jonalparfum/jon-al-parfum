@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { formatPrice } from "@/lib/product-utils";
+import { paidOrderWhere } from "@/lib/admin-orders";
 import DownloadReportButton from "@/components/admin/DownloadReportButton";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import {
@@ -23,8 +24,9 @@ const statusLabels: Record<string, string> = {
 };
 
 export default async function AdminDashboard() {
-  const [recentOrders, lowStock, pendingOrders] = await Promise.all([
+  const [recentOrders, lowStock, pendingProofs] = await Promise.all([
     prisma.order.findMany({
+      where: paidOrderWhere,
       take: 5,
       include: {
         user: { select: { name: true, email: true } },
@@ -37,7 +39,12 @@ export default async function AdminDashboard() {
       take: 5,
       orderBy: { stock: "asc" },
     }),
-    prisma.order.count({ where: { status: "PENDING" } }),
+    prisma.order.count({
+      where: {
+        paymentMethod: "BANK_TRANSFER",
+        paymentProofStatus: "PENDING_REVIEW",
+      },
+    }),
   ]);
 
   return (
@@ -49,12 +56,12 @@ export default async function AdminDashboard() {
         <DownloadReportButton />
       </AdminPageHeader>
 
-      {pendingOrders > 0 && (
-        <Link href="/admin/pedidos" className={`${adminAlertWarning} mb-8`}>
+      {pendingProofs > 0 && (
+        <Link href="/admin/comprobantes" className={`${adminAlertWarning} mb-8`}>
           <p className={adminStatLabel}>Requiere atención</p>
           <p className="font-medium mt-1">
-            {pendingOrders} pedido{pendingOrders === 1 ? "" : "s"} pendiente
-            {pendingOrders === 1 ? "" : "s"} de pago →
+            {pendingProofs} comprobante{pendingProofs === 1 ? "" : "s"} por
+            revisar →
           </p>
         </Link>
       )}
@@ -64,7 +71,7 @@ export default async function AdminDashboard() {
           <div className="flex items-center justify-between mb-5">
             <div>
               <h2 className={adminSectionTitle}>Pedidos recientes</h2>
-              <p className={`${adminMuted} mt-1`}>Últimas 5 órdenes</p>
+              <p className={`${adminMuted} mt-1`}>Últimos pagos confirmados</p>
             </div>
             <span className={adminChipGold}>{recentOrders.length}</span>
           </div>

@@ -13,7 +13,7 @@ type Category = { id: string; name: string; slug: string };
 
 export default function NewProductPage() {
   const router = useRouter();
-  const { showToast } = useAdminToast();
+  const { showToast, showActionModal } = useAdminToast();
   const [categories, setCategories] = useState<Category[]>([]);
   const [loadingCategories, setLoadingCategories] = useState(true);
 
@@ -42,8 +42,9 @@ export default function NewProductPage() {
       throw new Error("create failed");
     }
 
-    showToast("Producto creado correctamente");
-    router.replace("/admin/productos");
+    showActionModal("Producto agregado", "success", () => {
+      router.replace("/admin/productos");
+    });
   };
 
   return (

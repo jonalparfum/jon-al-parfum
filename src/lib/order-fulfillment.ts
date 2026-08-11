@@ -196,6 +196,34 @@ const STOCK_RESERVED_STATUSES: OrderStatus[] = [
   "DELIVERED",
 ];
 
+/** Elimina pedidos PENDING que no llegaron a pagarse (checkout cancelado o abandonado). */
+export async function cancelPendingOrder(params: {
+  orderId?: string;
+  stripeSessionId?: string;
+}) {
+  const order = params.orderId
+    ? await prisma.order.findUnique({ where: { id: params.orderId } })
+    : params.stripeSessionId
+      ? await prisma.order.findUnique({
+          where: { stripeSessionId: params.stripeSessionId },
+        })
+      : null;
+
+  if (!order || order.status !== "PENDING") {
+    return null;
+  }
+
+  if (
+    order.paymentMethod === "BANK_TRANSFER" &&
+    (order.paymentProofUrl || order.paymentProofStatus === "PENDING_REVIEW")
+  ) {
+    return null;
+  }
+
+  await prisma.order.delete({ where: { id: order.id } });
+  return order.id;
+}
+
 /** Elimina un pedido y devuelve inventario si ya se había descontado. */
 export async function deleteOrder(orderId: string) {
   return prisma.$transaction(async (tx) => {

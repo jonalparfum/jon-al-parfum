@@ -44,7 +44,7 @@ export default function EditProductPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const { showToast } = useAdminToast();
+  const { showToast, showActionModal } = useAdminToast();
   const [product, setProduct] = useState<Product | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
@@ -109,7 +109,7 @@ export default function EditProductPage({
 
     const saved = (await res.json()) as Product;
     setProduct(saved);
-    showToast("Producto guardado correctamente");
+    showActionModal("Producto modificado");
   };
 
   if (loading) {

@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { stripe } from "@/lib/stripe";
-import { markOrderPaid } from "@/lib/order-fulfillment";
+import { markOrderPaid, cancelPendingOrder } from "@/lib/order-fulfillment";
 import Stripe from "stripe";
 
 export async function POST(request: Request) {
@@ -45,6 +45,13 @@ export async function POST(request: Request) {
           { status: 500 }
         );
       }
+    }
+  }
+
+  if (event.type === "checkout.session.expired") {
+    const session = event.data.object as Stripe.Checkout.Session;
+    if (session.id) {
+      await cancelPendingOrder({ stripeSessionId: session.id });
     }
   }
 

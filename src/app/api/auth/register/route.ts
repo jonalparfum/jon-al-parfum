@@ -4,6 +4,12 @@ import { NextResponse } from "next/server";
 import { parseJsonBody } from "@/lib/api-auth";
 import { validatePassword } from "@/lib/password-policy";
 import {
+  normalizeShipping,
+  shippingToUserFields,
+  validateShipping,
+  type ShippingInput,
+} from "@/lib/shipping";
+import {
   AUTH_LIMITS,
   consumeRateLimit,
   getClientIp,
@@ -14,6 +20,13 @@ type RegisterBody = {
   name?: string;
   email?: string;
   password?: string;
+  shippingPhone?: string;
+  shippingStreet?: string;
+  shippingColony?: string;
+  shippingCity?: string;
+  shippingState?: string;
+  shippingZip?: string;
+  shippingNotes?: string;
 };
 
 export async function POST(request: Request) {
@@ -42,6 +55,24 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: passwordError }, { status: 400 });
   }
 
+  const shippingInput: ShippingInput = {
+    shippingName: body.name?.trim() ?? "",
+    shippingPhone: body.shippingPhone ?? "",
+    shippingStreet: body.shippingStreet ?? "",
+    shippingColony: body.shippingColony,
+    shippingCity: body.shippingCity ?? "",
+    shippingState: body.shippingState ?? "",
+    shippingZip: body.shippingZip ?? "",
+    shippingNotes: body.shippingNotes,
+  };
+
+  const shippingError = validateShipping(shippingInput);
+  if (shippingError) {
+    return NextResponse.json({ error: shippingError }, { status: 400 });
+  }
+
+  const normalizedShipping = normalizeShipping(shippingInput);
+
   const email = body.email.trim().toLowerCase();
 
   const existing = await prisma.user.findUnique({
@@ -59,9 +90,10 @@ export async function POST(request: Request) {
 
   const user = await prisma.user.create({
     data: {
-      name: body.name?.trim() || null,
+      name: normalizedShipping.shippingName,
       email,
       passwordHash,
+      ...shippingToUserFields(normalizedShipping),
     },
     select: { id: true, email: true, name: true },
   });

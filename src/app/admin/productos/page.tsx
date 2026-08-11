@@ -51,7 +51,7 @@ type StatusFilter = "all" | "active" | "inactive" | "featured" | "lowStock";
 type SortOption = "newest" | "name" | "price-asc" | "price-desc" | "stock";
 
 export default function AdminProductsPage() {
-  const { showToast } = useAdminToast();
+  const { showToast, showActionModal } = useAdminToast();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -157,7 +157,7 @@ export default function AdminProductsPage() {
 
     if (res.ok) {
       setProducts((prev) => prev.filter((p) => p.id !== id));
-      showToast("Producto eliminado");
+      showActionModal("Producto eliminado");
       return;
     }
 
@@ -182,13 +182,13 @@ export default function AdminProductsPage() {
           setProducts((prev) =>
             prev.map((p) => (p.id === id ? { ...p, active: false } : p))
           );
-          showToast("Producto desactivado (ya no aparece en la tienda)");
+          showActionModal("Producto desactivado");
           return;
         }
       }
     }
 
-    showToast(err.error || "No se pudo eliminar el producto", "error");
+    showActionModal(err.error || "No se pudo eliminar el producto", "error");
   };
 
   const clearFilters = () => {

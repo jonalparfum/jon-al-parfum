@@ -2,10 +2,13 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { formatPrice } from "@/lib/product-utils";
+import { formatShippingAddress } from "@/lib/shipping";
 import { useAdminToast } from "@/components/admin/AdminToast";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import { fetchJsonArray } from "@/lib/admin-fetch";
 import {
+  adminBtnGhost,
+  adminBtnSuccess,
   adminCard,
   adminEmptyState,
   adminFilterGroup,
@@ -26,6 +29,15 @@ type Order = {
   status: string;
   total: number;
   createdAt: string;
+  shippingName: string | null;
+  shippingPhone: string | null;
+  shippingStreet: string | null;
+  shippingColony: string | null;
+  shippingCity: string | null;
+  shippingState: string | null;
+  shippingZip: string | null;
+  shippingNotes: string | null;
+  shippingAddress: string | null;
   user: { name: string | null; email: string };
   items: {
     quantity: number;
@@ -40,7 +52,6 @@ const statuses = [
   "PROCESSING",
   "SHIPPED",
   "DELIVERED",
-  "CANCELLED",
 ] as const;
 
 const statusLabels: Record<string, string> = {
@@ -49,7 +60,6 @@ const statusLabels: Record<string, string> = {
   PROCESSING: "Procesando",
   SHIPPED: "Enviado",
   DELIVERED: "Entregado",
-  CANCELLED: "Cancelado",
 };
 
 export default function AdminOrdersPage() {
@@ -59,6 +69,26 @@ export default function AdminOrdersPage() {
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
   const [search, setSearch] = useState("");
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [statusDrafts, setStatusDrafts] = useState<Record<string, string>>({});
+  const [savingId, setSavingId] = useState<string | null>(null);
+
+  const getDraftStatus = (order: Order) =>
+    statusDrafts[order.id] ?? order.status;
+
+  const hasUnsavedStatus = (order: Order) =>
+    getDraftStatus(order) !== order.status;
+
+  const setDraftStatus = (orderId: string, status: string) => {
+    setStatusDrafts((prev) => ({ ...prev, [orderId]: status }));
+  };
+
+  const cancelStatusDraft = (orderId: string) => {
+    setStatusDrafts((prev) => {
+      const next = { ...prev };
+      delete next[orderId];
+      return next;
+    });
+  };
 
   const load = () => {
     fetchJsonArray<Order>("/api/admin/orders").then(({ ok, data, error }) => {
@@ -88,22 +118,31 @@ export default function AdminOrdersPage() {
     return list;
   }, [orders, statusFilter, search]);
 
-  const updateStatus = async (id: string, status: string) => {
-    const res = await fetch(`/api/admin/orders/${id}`, {
+  const saveStatus = async (order: Order) => {
+    const status = getDraftStatus(order);
+    if (status === order.status) return;
+
+    setSavingId(order.id);
+    const res = await fetch(`/api/admin/orders/${order.id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status }),
     });
+
     if (res.ok) {
-      showToast("Estado actualizado");
-      load();
+      setOrders((prev) =>
+        prev.map((o) => (o.id === order.id ? { ...o, status } : o))
+      );
+      cancelStatusDraft(order.id);
+      showToast("Estado guardado");
     } else {
       const err = await res.json().catch(() => ({}));
       showToast(
-        (err as { error?: string }).error || "Error al actualizar",
+        (err as { error?: string }).error || "Error al guardar",
         "error"
       );
     }
+    setSavingId(null);
   };
 
   const handleDelete = async (order: Order) => {
@@ -198,7 +237,7 @@ export default function AdminOrdersPage() {
                     })}
                   </p>
                 </div>
-                <div className="flex flex-wrap items-center gap-3">
+                <div className="flex flex-wrap items-end gap-3">
                   <span
                     className={`text-[10px] uppercase tracking-wider px-2.5 py-1 rounded-full border font-medium ${
                       adminOrderStatus[order.status] || "bg-stone-100 text-charcoal border-stone-200"
@@ -209,19 +248,52 @@ export default function AdminOrdersPage() {
                   <span className="font-semibold text-xl text-gold">
                     {formatPrice(order.total)}
                   </span>
-                  <select
-                    value={order.status}
-                    onChange={(e) => updateStatus(order.id, e.target.value)}
-                    className={adminSelect}
-                  >
-                    {statuses
-                      .filter((s) => s !== "ALL")
-                      .map((s) => (
-                        <option key={s} value={s}>
-                          {statusLabels[s]}
-                        </option>
-                      ))}
-                  </select>
+                  <div className="flex flex-wrap items-end gap-2">
+                    <div>
+                      <label
+                        htmlFor={`order-status-${order.id}`}
+                        className="block text-[10px] uppercase tracking-wider text-charcoal/50 mb-1"
+                      >
+                        Cambiar estado
+                      </label>
+                      <select
+                        id={`order-status-${order.id}`}
+                        value={getDraftStatus(order)}
+                        onChange={(e) =>
+                          setDraftStatus(order.id, e.target.value)
+                        }
+                        className={adminSelect}
+                      >
+                        {statuses
+                          .filter((s) => s !== "ALL")
+                          .map((s) => (
+                            <option key={s} value={s}>
+                              {statusLabels[s]}
+                            </option>
+                          ))}
+                      </select>
+                    </div>
+                    {hasUnsavedStatus(order) && (
+                      <>
+                        <button
+                          type="button"
+                          onClick={() => saveStatus(order)}
+                          disabled={savingId === order.id}
+                          className={adminBtnSuccess}
+                        >
+                          {savingId === order.id ? "Guardando…" : "Guardar"}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => cancelStatusDraft(order.id)}
+                          disabled={savingId === order.id}
+                          className={adminBtnGhost}
+                        >
+                          Cancelar
+                        </button>
+                      </>
+                    )}
+                  </div>
                   <button
                     type="button"
                     onClick={() => handleDelete(order)}
@@ -232,6 +304,28 @@ export default function AdminOrdersPage() {
                   </button>
                 </div>
               </div>
+              {(order.shippingAddress || order.shippingStreet) && (
+                <div className="mb-4 p-3 bg-stone-50 rounded-lg border border-stone-200 text-sm text-charcoal/80">
+                  <p className="text-[10px] uppercase tracking-wider text-charcoal/50 mb-1">
+                    Envío
+                  </p>
+                  {order.shippingName && (
+                    <p className="font-medium text-charcoal">{order.shippingName}</p>
+                  )}
+                  <p>
+                    {order.shippingAddress ||
+                      formatShippingAddress({
+                        shippingStreet: order.shippingStreet ?? undefined,
+                        shippingColony: order.shippingColony ?? undefined,
+                        shippingCity: order.shippingCity ?? undefined,
+                        shippingState: order.shippingState ?? undefined,
+                        shippingZip: order.shippingZip ?? undefined,
+                        shippingPhone: order.shippingPhone ?? undefined,
+                        shippingNotes: order.shippingNotes ?? undefined,
+                      })}
+                  </p>
+                </div>
+              )}
               <ul className="space-y-2 pt-3 border-t border-stone-200">
                 {order.items.map((item, i) => (
                   <li

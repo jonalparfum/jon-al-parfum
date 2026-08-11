@@ -1,6 +1,7 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { AdminShell } from "@/components/admin/AdminShell";
+import AdminModuleSeenMarker from "@/components/admin/AdminModuleSeenMarker";
 import { AdminToastProvider } from "@/components/admin/AdminToast";
 import AdminBodyTheme from "@/components/admin/AdminBodyTheme";
 import { getAdminBadgeCounts } from "@/lib/admin-notifications";
@@ -23,7 +24,9 @@ export default async function AdminLayout({
     prisma.category.count(),
     prisma.order.count(),
     prisma.user.count(),
-    getAdminBadgeCounts(),
+    session?.user?.id
+      ? getAdminBadgeCounts(session.user.id)
+      : Promise.resolve({ pedidos: 0, comprobantes: 0, usuarios: 0 }),
   ]);
 
   const stats = [
@@ -36,6 +39,7 @@ export default async function AdminLayout({
   return (
     <AdminToastProvider>
       <AdminBodyTheme />
+      <AdminModuleSeenMarker />
       <AdminShell email={session?.user?.email} stats={stats} badges={badges}>
         {children}
       </AdminShell>

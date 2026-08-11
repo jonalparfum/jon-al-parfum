@@ -2,9 +2,16 @@ import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 import { requireAuth, unauthorized, parseJsonBody } from "@/lib/api-auth";
 import { prepareCheckoutItems } from "@/lib/checkout-items";
+import {
+  normalizeShipping,
+  shippingToOrderFields,
+  validateShipping,
+  type ShippingInput,
+} from "@/lib/shipping";
 
 type CheckoutBody = {
   items: { productId: string; quantity: number }[];
+  shipping?: ShippingInput;
 };
 
 export async function POST(request: NextRequest) {
@@ -38,6 +45,16 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  const shippingError = validateShipping(body.shipping ?? {});
+  if (shippingError) {
+    return NextResponse.json({ error: shippingError }, { status: 400 });
+  }
+
+  const shippingFields = shippingToOrderFields(
+    normalizeShipping(body.shipping!),
+    session.user.email
+  );
+
   const primaryAccount = bankAccounts[0];
 
   const order = await prisma.order.create({
@@ -47,7 +64,7 @@ export async function POST(request: NextRequest) {
       status: "PENDING",
       paymentMethod: "BANK_TRANSFER",
       bankAccountId: primaryAccount.id,
-      shippingEmail: session.user.email || undefined,
+      ...shippingFields,
       items: { create: prepared.orderItems },
     },
   });
