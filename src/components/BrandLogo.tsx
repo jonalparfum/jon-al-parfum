@@ -11,7 +11,7 @@ const sizes = {
   sm: "w-10 h-10 md:w-12 md:h-12",
   md: "w-20 h-20",
   lg: "w-32 h-32 md:w-40 md:h-40",
-  hero: "w-56 h-56 sm:w-64 sm:h-64 md:w-80 md:h-80 lg:w-96 lg:h-96",
+  hero: "w-64 h-64 sm:w-72 sm:h-72 md:w-[22rem] md:h-[22rem] lg:w-[28rem] lg:h-[28rem]",
 };
 
 export default function BrandLogo({

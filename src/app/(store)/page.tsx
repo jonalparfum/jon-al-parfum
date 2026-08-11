@@ -34,7 +34,7 @@ export default async function HomePage() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-8 items-center">
             {/* Logo */}
             <div className="flex justify-center lg:justify-end order-1 lg:order-none">
-              <div className="relative animate-float max-md:scale-[1.28] md:scale-100 origin-center">
+              <div className="relative animate-float max-md:scale-[1.35] md:scale-100 origin-center">
                 <BrandLogo size="hero" priority className="mx-auto" />
                 <div className="absolute inset-0 -z-10 blur-3xl bg-gold/10 scale-75 rounded-full" />
               </div>
