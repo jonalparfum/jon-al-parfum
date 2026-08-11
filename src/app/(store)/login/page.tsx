@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { signIn, getSession, useSession } from "next-auth/react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 
 function resolveDestination(callbackUrl: string, role?: string) {
@@ -17,18 +17,37 @@ function resolveDestination(callbackUrl: string, role?: string) {
 }
 
 function LoginForm() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/";
-  const { data: session, status } = useSession();
+  const { status } = useSession();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [redirecting, setRedirecting] = useState(false);
+  const hasRedirected = useRef(false);
+
+  const goToDestination = useCallback(async () => {
+    if (hasRedirected.current) return;
+    hasRedirected.current = true;
+    setRedirecting(true);
+
+    const currentSession = await getSession();
+    const destination = resolveDestination(
+      callbackUrl,
+      currentSession?.user?.role
+    );
+
+    router.refresh();
+    router.replace(destination);
+  }, [callbackUrl, router]);
 
   useEffect(() => {
-    if (status !== "authenticated") return;
-    window.location.href = resolveDestination(callbackUrl, session?.user?.role);
-  }, [status, session, callbackUrl]);
+    if (status === "authenticated" && !hasRedirected.current) {
+      goToDestination();
+    }
+  }, [status, goToDestination]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,17 +66,13 @@ function LoginForm() {
       return;
     }
 
-    const session = await getSession();
-    window.location.href = resolveDestination(
-      callbackUrl,
-      session?.user?.role
-    );
+    await goToDestination();
   };
 
-  if (status === "loading" || status === "authenticated") {
+  if (redirecting) {
     return (
       <div className="min-h-[70vh] flex items-center justify-center px-4">
-        <p className="text-cream/60 text-sm">Redirigiendo...</p>
+        <p className="text-cream/60 text-sm">Entrando...</p>
       </div>
     );
   }
@@ -124,7 +139,7 @@ function LoginForm() {
 
 export default function LoginPage() {
   return (
-    <Suspense fallback={<div className="text-center py-20">Cargando...</div>}>
+    <Suspense fallback={<div className="text-center py-20 text-cream/60">Cargando...</div>}>
       <LoginForm />
     </Suspense>
   );
