@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useAdminToast } from "@/components/admin/AdminToast";
+import { fetchJsonArray } from "@/lib/admin-fetch";
 import {
   adminBtnGhost,
   adminBtnPrimary,
@@ -96,22 +97,26 @@ export default function ProductForm({
   const [saving, setSaving] = useState(false);
   const [loadingSubs, setLoadingSubs] = useState(false);
   const [manualUrl, setManualUrl] = useState("");
+  const subsRequestRef = useRef(0);
 
   const loadSubcategories = (categoryId: string) => {
     if (!categoryId) {
       setSubcategories([]);
       return;
     }
+    const requestId = ++subsRequestRef.current;
     setLoadingSubs(true);
-    fetch(`/api/admin/subcategories?categoryId=${categoryId}`)
-      .then(async (r) => {
-        if (!r.ok) return [] as Subcategory[];
-        const data: unknown = await r.json();
-        return Array.isArray(data) ? (data as Subcategory[]) : [];
+    fetchJsonArray<Subcategory>(
+      `/api/admin/subcategories?categoryId=${categoryId}`
+    )
+      .then(({ ok, data, error }) => {
+        if (requestId !== subsRequestRef.current) return;
+        setSubcategories(data);
+        if (!ok && error) showToast(error, "error");
       })
-      .then((data) => setSubcategories(data))
-      .catch(() => setSubcategories([]))
-      .finally(() => setLoadingSubs(false));
+      .finally(() => {
+        if (requestId === subsRequestRef.current) setLoadingSubs(false);
+      });
   };
 
   useEffect(() => {
@@ -128,9 +133,9 @@ export default function ProductForm({
 
   useEffect(() => {
     if (loadingSubs) return;
+    if (!form.subcategoryId) return;
     if (
-      form.subcategoryId &&
-      subcategories.length > 0 &&
+      subcategories.length === 0 ||
       !subcategories.some((sub) => sub.id === form.subcategoryId)
     ) {
       update("subcategoryId", "");
@@ -160,7 +165,7 @@ export default function ProductForm({
         });
         const data = await res.json();
 
-        if (res.ok) {
+        if (res.ok && typeof data.url === "string" && data.url) {
           uploaded.push(data.url);
         } else {
           showToast(data.error || "Error al subir imagen", "error");

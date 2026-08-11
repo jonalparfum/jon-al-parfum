@@ -7,14 +7,17 @@ import LoadingSpinner from "@/components/LoadingSpinner";
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 
+import { sanitizeCallbackUrl } from "@/lib/product-validation";
+
 function resolveDestination(callbackUrl: string, role?: string) {
+  const safeUrl = sanitizeCallbackUrl(callbackUrl);
   if (role === "ADMIN") {
-    if (callbackUrl.startsWith("/admin")) return callbackUrl;
-    if (callbackUrl === "/") return "/admin";
-    return callbackUrl;
+    if (safeUrl.startsWith("/admin")) return safeUrl;
+    if (safeUrl === "/") return "/admin";
+    return safeUrl;
   }
-  if (callbackUrl.startsWith("/admin")) return "/";
-  return callbackUrl;
+  if (safeUrl.startsWith("/admin")) return "/";
+  return safeUrl;
 }
 
 async function waitForSession(maxAttempts = 8) {

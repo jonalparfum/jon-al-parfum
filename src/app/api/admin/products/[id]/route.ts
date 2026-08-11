@@ -6,6 +6,10 @@ import {
   parseJsonBody,
 } from "@/lib/api-auth";
 import { serializeNotes, slugify, serializeImages } from "@/lib/product-utils";
+import {
+  validateProductPricing,
+  validateSubcategoryForCategory,
+} from "@/lib/product-validation";
 
 type RouteParams = { params: Promise<{ id: string }> };
 
@@ -55,6 +59,30 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
   const body = await parseJsonBody<ProductBody>(request);
   if (!body) {
     return NextResponse.json({ error: "Body inválido" }, { status: 400 });
+  }
+
+  const existing = await prisma.product.findUnique({
+    where: { id },
+    select: { categoryId: true },
+  });
+  if (!existing) {
+    return NextResponse.json({ error: "Producto no encontrado" }, { status: 404 });
+  }
+
+  const effectiveCategoryId = body.categoryId ?? existing.categoryId;
+  const pricingError = validateProductPricing(body.price, body.stock);
+  if (pricingError) {
+    return NextResponse.json({ error: pricingError }, { status: 400 });
+  }
+
+  if (body.subcategoryId !== undefined || body.categoryId !== undefined) {
+    const subError = await validateSubcategoryForCategory(
+      effectiveCategoryId,
+      body.subcategoryId
+    );
+    if (subError) {
+      return NextResponse.json({ error: subError }, { status: 400 });
+    }
   }
 
   try {

@@ -293,10 +293,20 @@ export default function AdminProductsPage() {
 
       {filtered.length === 0 ? (
         <div className={adminEmptyState}>
-          <p className="text-cream/70 mb-2">No hay productos con estos filtros.</p>
-          <button type="button" onClick={clearFilters} className={adminLink}>
-            Ver todos los productos
-          </button>
+          <p className="text-cream/70 mb-2">
+            {products.length === 0
+              ? "Aún no hay productos en el catálogo."
+              : "No hay productos con estos filtros."}
+          </p>
+          {products.length === 0 ? (
+            <Link href="/admin/productos/nuevo" className={adminLink}>
+              Crear primer producto →
+            </Link>
+          ) : (
+            <button type="button" onClick={clearFilters} className={adminLink}>
+              Ver todos los productos
+            </button>
+          )}
         </div>
       ) : (
         <div className={adminPanel}>

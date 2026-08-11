@@ -23,6 +23,19 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "El carrito está vacío" }, { status: 400 });
   }
 
+  for (const item of body.items) {
+    if (
+      !Number.isInteger(item.quantity) ||
+      item.quantity < 1 ||
+      item.quantity > 99
+    ) {
+      return NextResponse.json(
+        { error: "Cantidad inválida en el carrito" },
+        { status: 400 }
+      );
+    }
+  }
+
   const productIds = body.items.map((i) => i.productId);
   const products = await prisma.product.findMany({
     where: { id: { in: productIds }, active: true },
@@ -76,7 +89,7 @@ export async function POST(request: NextRequest) {
 
     return {
       price_data: {
-        currency: "eur",
+        currency: "mxn",
         product_data: {
           name: product.name,
           description: product.description.slice(0, 200),

@@ -107,7 +107,11 @@ export default function AdminOrdersPage() {
       showToast("Estado actualizado");
       load();
     } else {
-      showToast("Error al actualizar", "error");
+      const err = await res.json().catch(() => ({}));
+      showToast(
+        (err as { error?: string }).error || "Error al actualizar",
+        "error"
+      );
     }
   };
 

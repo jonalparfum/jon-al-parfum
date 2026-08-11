@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
+  adminBtnPrimary,
   adminNavLink,
   adminNavLinkActive,
   adminNavLinkInactive,
@@ -91,6 +92,20 @@ type AdminShellProps = {
 export function AdminShell({ children, email, stats }: AdminShellProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
 
+  useEffect(() => {
+    if (!mobileOpen) return;
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setMobileOpen(false);
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      window.removeEventListener("keydown", onKeyDown);
+    };
+  }, [mobileOpen]);
+
   return (
     <div className="min-h-screen bg-luxury-black text-cream flex">
       <aside className="hidden md:flex w-64 shrink-0 border-r border-gold/10 bg-luxury-panel/30">
@@ -129,7 +144,7 @@ export function AdminShell({ children, email, stats }: AdminShellProps) {
             </p>
             <Link
               href="/admin/productos/nuevo"
-              className="hidden sm:inline-flex items-center bg-gold text-luxury-black px-4 py-2 rounded-lg text-[10px] uppercase tracking-[0.14em] font-semibold hover:bg-gold-light transition-colors"
+              className={`${adminBtnPrimary} hidden sm:inline-flex py-2`}
             >
               + Producto
             </Link>

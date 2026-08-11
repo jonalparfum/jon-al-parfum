@@ -6,6 +6,10 @@ import {
   parseJsonBody,
 } from "@/lib/api-auth";
 import { serializeNotes, slugify, serializeImages } from "@/lib/product-utils";
+import {
+  validateProductPricing,
+  validateSubcategoryForCategory,
+} from "@/lib/product-validation";
 
 type ProductBody = {
   name: string;
@@ -55,6 +59,19 @@ export async function POST(request: NextRequest) {
       { error: "Faltan campos obligatorios" },
       { status: 400 }
     );
+  }
+
+  const pricingError = validateProductPricing(body.price, body.stock);
+  if (pricingError) {
+    return NextResponse.json({ error: pricingError }, { status: 400 });
+  }
+
+  const subError = await validateSubcategoryForCategory(
+    body.categoryId,
+    body.subcategoryId
+  );
+  if (subError) {
+    return NextResponse.json({ error: subError }, { status: 400 });
   }
 
   const slug = body.slug || slugify(body.name);

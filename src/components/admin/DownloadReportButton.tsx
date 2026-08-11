@@ -1,9 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import { useAdminToast } from "@/components/admin/AdminToast";
 import { adminBtnGhost, adminBtnPrimary } from "@/lib/admin-styles";
 
 export default function DownloadReportButton() {
+  const { showToast } = useAdminToast();
   const [loading, setLoading] = useState(false);
 
   const handleDownload = async () => {
@@ -11,7 +13,7 @@ export default function DownloadReportButton() {
     try {
       const res = await fetch("/api/admin/report/pdf");
       if (!res.ok) {
-        alert("No se pudo generar el reporte PDF");
+        showToast("No se pudo generar el reporte PDF", "error");
         return;
       }
 
@@ -24,8 +26,9 @@ export default function DownloadReportButton() {
       link.click();
       link.remove();
       URL.revokeObjectURL(url);
+      showToast("Reporte descargado");
     } catch {
-      alert("Error al descargar el reporte");
+      showToast("Error al descargar el reporte", "error");
     } finally {
       setLoading(false);
     }
@@ -36,7 +39,7 @@ export default function DownloadReportButton() {
     try {
       const res = await fetch("/api/admin/report/pdf");
       if (!res.ok) {
-        alert("No se pudo generar el reporte PDF");
+        showToast("No se pudo generar el reporte PDF", "error");
         return;
       }
 
@@ -45,7 +48,7 @@ export default function DownloadReportButton() {
       window.open(url, "_blank", "noopener,noreferrer");
       setTimeout(() => URL.revokeObjectURL(url), 60_000);
     } catch {
-      alert("Error al abrir el reporte");
+      showToast("Error al abrir el reporte", "error");
     } finally {
       setLoading(false);
     }

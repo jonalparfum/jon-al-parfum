@@ -8,6 +8,7 @@ import { useAdminToast } from "@/components/admin/AdminToast";
 import { fetchJsonArray } from "@/lib/admin-fetch";
 import {
   adminLink,
+  adminLoading,
   adminPageTitle,
   adminSubtitle,
 } from "@/lib/admin-styles";
@@ -18,11 +19,13 @@ export default function NewProductPage() {
   const router = useRouter();
   const { showToast } = useAdminToast();
   const [categories, setCategories] = useState<Category[]>([]);
+  const [loadingCategories, setLoadingCategories] = useState(true);
 
   useEffect(() => {
     fetchJsonArray<Category>("/api/admin/categories").then(({ ok, data, error }) => {
       setCategories(data);
       if (!ok && error) showToast(error, "error");
+      setLoadingCategories(false);
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -58,11 +61,23 @@ export default function NewProductPage() {
           Completa la información para publicar un perfume en la tienda.
         </p>
       </div>
-      <ProductForm
-        categories={categories}
-        onSubmit={handleSubmit}
-        mode="create"
-      />
+      {loadingCategories ? (
+        <p className={adminLoading}>Cargando categorías...</p>
+      ) : categories.length === 0 ? (
+        <p className={adminSubtitle}>
+          Primero crea una categoría en{" "}
+          <Link href="/admin/catalogos" className={adminLink}>
+            Categorías
+          </Link>
+          .
+        </p>
+      ) : (
+        <ProductForm
+          categories={categories}
+          onSubmit={handleSubmit}
+          mode="create"
+        />
+      )}
     </div>
   );
 }
