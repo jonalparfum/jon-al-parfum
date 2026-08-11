@@ -5,7 +5,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useCart } from "@/context/CartContext";
-import { formatPrice } from "@/lib/products";
+import { formatPrice } from "@/lib/product-utils";
 import ProductImage from "@/components/ProductImage";
 
 export default function CartDrawer() {

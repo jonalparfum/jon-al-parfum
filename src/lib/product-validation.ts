@@ -1,3 +1,5 @@
+import "server-only";
+
 import { prisma } from "@/lib/prisma";
 import { OrderStatus } from "@prisma/client";
 
@@ -37,9 +39,4 @@ const ORDER_STATUSES = new Set<string>(Object.values(OrderStatus));
 
 export function validateOrderStatus(status: string): status is OrderStatus {
   return ORDER_STATUSES.has(status);
-}
-
-export function sanitizeCallbackUrl(url: string): string {
-  if (!url.startsWith("/") || url.startsWith("//")) return "/";
-  return url;
 }

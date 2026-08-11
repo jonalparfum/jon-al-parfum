@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { Product } from "@/types";
-import { formatPrice } from "@/lib/products";
+import { formatPrice } from "@/lib/product-utils";
 import { useCart } from "@/context/CartContext";
 import ProductImage from "@/components/ProductImage";
 

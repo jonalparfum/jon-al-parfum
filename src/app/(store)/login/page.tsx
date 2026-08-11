@@ -7,7 +7,7 @@ import LoadingSpinner from "@/components/LoadingSpinner";
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 
-import { sanitizeCallbackUrl } from "@/lib/product-validation";
+import { sanitizeCallbackUrl } from "@/lib/auth-utils";
 
 function resolveDestination(callbackUrl: string, role?: string) {
   const safeUrl = sanitizeCallbackUrl(callbackUrl);

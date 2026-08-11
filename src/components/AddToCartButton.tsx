@@ -1,7 +1,7 @@
 "use client";
 
 import { Product } from "@/types";
-import { formatPrice } from "@/lib/products";
+import { formatPrice } from "@/lib/product-utils";
 import { useCart } from "@/context/CartContext";
 
 type AddToCartButtonProps = {

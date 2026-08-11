@@ -1,12 +1,10 @@
+import "server-only";
+
 import { prisma } from "@/lib/prisma";
 import { toProductDTO } from "@/lib/product-utils";
-import { Product } from "@/types";
+import { Product, type ProductSort } from "@/types";
 
-export type ProductSort =
-  | "newest"
-  | "bestsellers"
-  | "name-asc"
-  | "price-desc";
+export type { ProductSort };
 
 export function parseProductSort(value?: string | null): ProductSort {
   if (

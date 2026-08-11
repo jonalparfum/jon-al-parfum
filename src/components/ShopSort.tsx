@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import type { ProductSort } from "@/lib/products";
+import type { ProductSort } from "@/types";
 
 const sortOptions: { value: ProductSort; label: string }[] = [
   { value: "newest", label: "Más recientes" },

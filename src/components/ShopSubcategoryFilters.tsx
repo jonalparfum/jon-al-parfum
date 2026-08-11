@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import type { ProductSort } from "@/lib/products";
+import type { ProductSort } from "@/types";
 
 type Subcategory = { id: string; name: string; slug: string };
 

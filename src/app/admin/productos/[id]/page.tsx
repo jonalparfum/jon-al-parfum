@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import ProductForm from "@/components/admin/ProductForm";
 import { useAdminToast } from "@/components/admin/AdminToast";
@@ -49,29 +49,43 @@ export default function EditProductPage({
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState("");
+  const loadRequestRef = useRef(0);
 
   useEffect(() => {
+    let cancelled = false;
+    const requestId = ++loadRequestRef.current;
+
     params.then(async ({ id: productId }) => {
+      if (cancelled || requestId !== loadRequestRef.current) return;
+
       const [prodResult, catsResult] = await Promise.all([
         fetchJson<Product>(`/api/admin/products/${productId}`),
         fetchJsonArray<Category>("/api/admin/categories"),
       ]);
 
+      if (cancelled || requestId !== loadRequestRef.current) return;
+
       setCategories(catsResult.data);
 
       if (!prodResult.ok || !prodResult.data?.id) {
         setLoadError(prodResult.error || "Producto no encontrado");
+        setProduct(null);
         setLoading(false);
         return;
       }
 
       setProduct(prodResult.data);
+      setLoadError("");
       setLoading(false);
 
       if (!catsResult.ok && catsResult.error) {
         showToast(catsResult.error, "error");
       }
     });
+
+    return () => {
+      cancelled = true;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params]);
 

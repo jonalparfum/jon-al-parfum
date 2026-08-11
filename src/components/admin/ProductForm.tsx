@@ -98,10 +98,12 @@ export default function ProductForm({
   const [loadingSubs, setLoadingSubs] = useState(false);
   const [manualUrl, setManualUrl] = useState("");
   const subsRequestRef = useRef(0);
+  const subsFetchOkRef = useRef(false);
 
   const loadSubcategories = (categoryId: string) => {
     if (!categoryId) {
       setSubcategories([]);
+      subsFetchOkRef.current = false;
       return;
     }
     const requestId = ++subsRequestRef.current;
@@ -111,6 +113,7 @@ export default function ProductForm({
     )
       .then(({ ok, data, error }) => {
         if (requestId !== subsRequestRef.current) return;
+        subsFetchOkRef.current = ok;
         setSubcategories(data);
         if (!ok && error) showToast(error, "error");
       })
@@ -132,12 +135,9 @@ export default function ProductForm({
   }, [categories, form.categoryId]);
 
   useEffect(() => {
-    if (loadingSubs) return;
+    if (loadingSubs || !subsFetchOkRef.current) return;
     if (!form.subcategoryId) return;
-    if (
-      subcategories.length === 0 ||
-      !subcategories.some((sub) => sub.id === form.subcategoryId)
-    ) {
+    if (!subcategories.some((sub) => sub.id === form.subcategoryId)) {
       update("subcategoryId", "");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

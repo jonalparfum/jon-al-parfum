@@ -78,12 +78,17 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
   if (body.subcategoryId !== undefined || body.categoryId !== undefined) {
     const subError = await validateSubcategoryForCategory(
       effectiveCategoryId,
-      body.subcategoryId
+      body.subcategoryId ?? null
     );
     if (subError) {
       return NextResponse.json({ error: subError }, { status: 400 });
     }
   }
+
+  const shouldClearSubcategory =
+    body.categoryId !== undefined &&
+    body.categoryId !== existing.categoryId &&
+    body.subcategoryId === undefined;
 
   try {
     const images = Array.isArray(body.images)
@@ -134,6 +139,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
         ...(body.subcategoryId !== undefined && {
           subcategoryId: body.subcategoryId || null,
         }),
+        ...(shouldClearSubcategory && { subcategoryId: null }),
       },
       include: { category: true, subcategory: true },
     });

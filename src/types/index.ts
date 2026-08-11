@@ -18,6 +18,12 @@ export type Product = {
   new?: boolean;
 };
 
+export type ProductSort =
+  | "newest"
+  | "bestsellers"
+  | "name-asc"
+  | "price-desc";
+
 export type CartItem = {
   product: Product;
   quantity: number;
