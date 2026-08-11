@@ -58,12 +58,11 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
   }
 
   try {
-    const images =
-      body.images !== undefined
-        ? body.images
-        : body.image !== undefined
-          ? [body.image]
-          : undefined;
+    const images = Array.isArray(body.images)
+      ? body.images.filter(Boolean)
+      : body.image
+        ? [body.image]
+        : [];
 
     const product = await prisma.product.update({
       where: { id },
@@ -80,12 +79,15 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
         ...(body.originalPrice !== undefined && {
           originalPrice: body.originalPrice,
         }),
-        ...(images !== undefined && {
-          images: serializeImages(images),
-          image: images[0] || body.image || "",
-        }),
-        ...(body.image !== undefined &&
-          images === undefined && { image: body.image }),
+        ...(body.images !== undefined || body.image !== undefined
+          ? {
+              images: serializeImages(images),
+              image:
+                images[0] ||
+                body.image ||
+                "/uploads/products/placeholder.jpg",
+            }
+          : {}),
         ...(body.size !== undefined && { size: body.size }),
         ...(body.notesTop !== undefined && {
           notesTop: serializeNotes(body.notesTop),
@@ -111,10 +113,13 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     return NextResponse.json(product);
   } catch (error) {
     console.error("Error updating product:", error);
-    return NextResponse.json(
-      { error: "No se pudo actualizar el producto" },
-      { status: 500 }
-    );
+    const message =
+      error instanceof Error &&
+      "code" in error &&
+      (error as { code?: string }).code === "P2022"
+        ? "Falta la columna images en la base de datos. Ejecuta prisma db push."
+        : "No se pudo actualizar el producto";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
 

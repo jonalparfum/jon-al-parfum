@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import ProductForm from "@/components/admin/ProductForm";
 import { parseNotes, resolveProductImages } from "@/lib/product-utils";
 import { adminLoading, adminPageTitle } from "@/lib/admin-styles";
@@ -28,6 +27,7 @@ type Product = {
   active: boolean;
   categoryId: string;
   subcategoryId: string | null;
+  updatedAt?: string;
 };
 
 export default function EditProductPage({
@@ -35,7 +35,6 @@ export default function EditProductPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const router = useRouter();
   const [product, setProduct] = useState<Product | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
   const [id, setId] = useState("");
@@ -68,7 +67,9 @@ export default function EditProductPage({
       throw new Error("update failed");
     }
 
-    router.replace("/admin/productos");
+    const saved = (await res.json()) as Product;
+    setProduct(saved);
+    alert("Producto guardado correctamente");
   };
 
   if (!product) {
@@ -79,6 +80,7 @@ export default function EditProductPage({
     <div>
       <h1 className={`${adminPageTitle} mb-6`}>Editar producto</h1>
       <ProductForm
+        key={`${product.id}-${product.updatedAt ?? product.image}`}
         categories={categories}
         initial={{
           name: product.name,
