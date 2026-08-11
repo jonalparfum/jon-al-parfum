@@ -35,9 +35,12 @@ export default async function AdminLayout({
             >
               Panel Admin
             </Link>
-            <p className="text-xs text-cream/50 mt-1 truncate max-w-[240px] sm:max-w-none">
-              {session?.user?.email}
-            </p>
+            <Link
+              href="/admin/perfil"
+              className="text-xs text-cream/50 mt-1 block hover:text-gold transition-colors truncate max-w-[240px] sm:max-w-none"
+            >
+              {session?.user?.email} · Mi perfil
+            </Link>
           </div>
           <Link
             href="/"
