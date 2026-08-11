@@ -18,6 +18,12 @@ const nextConfig = {
   async redirects() {
     return [
       {
+        source: "/:path*",
+        has: [{ type: "host", value: "jonalparfum.com" }],
+        destination: "https://www.jonalparfum.com/:path*",
+        permanent: true,
+      },
+      {
         source: "/aviso-privacidad.html",
         destination: "/aviso-privacidad",
         permanent: true,

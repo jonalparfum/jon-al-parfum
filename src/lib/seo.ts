@@ -8,13 +8,19 @@ import {
 } from "@/lib/contact";
 import type { Product } from "@/types";
 
+function normalizeSiteUrl(url: string): string {
+  return url
+    .replace(/\/$/, "")
+    .replace("https://jonalparfum.com", "https://www.jonalparfum.com");
+}
+
 export const SITE_NAME = "Jon Al Parfum";
 export const SITE_TAGLINE = "Perfumes que dejan huella";
 export const SITE_DESCRIPTION =
   "Perfumes 100% originales de las mejores casas perfumistas. Tienda de lujo en Nuevo Laredo con envíos a toda la República Mexicana.";
-export const SITE_URL =
-  process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "") ||
-  "https://www.jonalparfum.com";
+export const SITE_URL = normalizeSiteUrl(
+  process.env.NEXT_PUBLIC_APP_URL || "https://www.jonalparfum.com"
+);
 
 export const DEFAULT_KEYWORDS = [
   "perfumes originales",
