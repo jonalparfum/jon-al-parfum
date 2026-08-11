@@ -36,6 +36,11 @@ body {
       #c9a962 45%,
       #a8894a 100%
     );
+    background-size: 200% 200%;
+  }
+
+  .luxury-gradient-text.animate-gradient-shimmer {
+    animation: gradient-shimmer 7s ease-in-out infinite;
   }
 
   .gold-shimmer {
@@ -86,27 +91,30 @@ body {
     transform: translateY(0);
   }
 
-  /* Skip entrance motion on refresh — keeps content visible (set via inline script) */
-  html[data-skip-enter-motion] .animate-fade-in-up {
-    animation: none !important;
-    opacity: 1 !important;
-    transform: none !important;
-  }
+  /* ── Landing motion ── */
 
-  html[data-skip-enter-motion] .animate-hero-in {
-    animation: none !important;
+  html[data-skip-enter-motion] .landing-reveal {
     opacity: 1 !important;
     transform: none !important;
-  }
-
-  html[data-skip-enter-motion] .reveal-on-scroll {
-    opacity: 1 !important;
-    transform: none !important;
+    filter: none !important;
     transition: none !important;
   }
 
-  .reveal-on-scroll {
+  .landing-reveal {
+    opacity: 0;
+    transform: translateY(28px);
+    filter: blur(3px);
+    transition:
+      opacity 0.65s cubic-bezier(0.16, 1, 0.3, 1),
+      transform 0.65s cubic-bezier(0.16, 1, 0.3, 1),
+      filter 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+    will-change: opacity, transform, filter;
+  }
+
+  .landing-reveal-visible {
     opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
   }
 
   .hero-section {
@@ -132,15 +140,132 @@ body {
     z-index: 1;
   }
 
+  .hero-aurora {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(
+        ellipse 55% 40% at 18% 78%,
+        rgba(201, 169, 98, 0.09),
+        transparent 68%
+      ),
+      radial-gradient(
+        ellipse 45% 32% at 82% 22%,
+        rgba(232, 213, 163, 0.06),
+        transparent 65%
+      );
+    animation: aurora-drift 18s ease-in-out infinite;
+  }
+
+  .hero-light-sweep {
+    position: absolute;
+    inset: -20% 0;
+    width: 40%;
+    background: linear-gradient(
+      105deg,
+      transparent,
+      rgba(201, 169, 98, 0.06),
+      transparent
+    );
+    animation: light-sweep 16s ease-in-out infinite;
+    pointer-events: none;
+  }
+
+  .hero-orb {
+    position: absolute;
+    border-radius: 9999px;
+    pointer-events: none;
+  }
+
+  .hero-orb-a {
+    bottom: 0;
+    left: 0;
+    width: 24rem;
+    height: 24rem;
+    background: rgba(201, 169, 98, 0.05);
+    filter: blur(80px);
+  }
+
+  .hero-orb-b {
+    top: 5rem;
+    right: 0;
+    width: 18rem;
+    height: 18rem;
+    background: rgba(201, 169, 98, 0.08);
+    filter: blur(80px);
+  }
+
   @media (max-width: 768px) {
-    .hero-section .fragrance-mist .fragrance-particle,
-    .hero-section .fragrance-mist .fragrance-wisp {
+    .hero-orb-a,
+    .hero-orb-b {
+      filter: none;
+      opacity: 0.35;
+    }
+
+    .hero-light-sweep {
       display: none;
     }
   }
 
+  .hero-logo-ring {
+    animation: hero-logo-glow 4s ease-in-out infinite;
+  }
+
+  .landing-section-ambient {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+      ellipse 70% 50% at 50% 0%,
+      rgba(201, 169, 98, 0.06),
+      transparent 70%
+    );
+    animation: section-glow 8s ease-in-out infinite;
+  }
+
+  .landing-value-card {
+    transition:
+      transform 0.55s cubic-bezier(0.16, 1, 0.3, 1),
+      background-color 0.5s ease,
+      box-shadow 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .landing-value-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 16px 48px rgba(201, 169, 98, 0.07);
+  }
+
+  .landing-marquee-track {
+    animation: marquee 36s linear infinite;
+  }
+
+  .landing-marquee-text {
+    animation: marquee-text-glow 6s ease-in-out infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .landing-reveal {
+      opacity: 1;
+      transform: none;
+      filter: none;
+      transition: none;
+    }
+
+    .hero-aurora,
+    .hero-light-sweep,
+    .hero-orb,
+    .hero-logo-ring,
+    .landing-section-ambient,
+    .landing-marquee-track,
+    .landing-marquee-text,
+    .fragrance-glow,
+    .fragrance-particle,
+    .fragrance-wisp {
+      animation: none !important;
+    }
+  }
+
   .animate-marquee {
-    animation: marquee 30s linear infinite;
+    animation: marquee 36s linear infinite;
   }
 
   /* Legal / content pages — readable on dark theme */
@@ -170,9 +295,19 @@ body {
   }
 
   /* Fragrance / scent effects */
+  .fragrance-mist-hero .fragrance-glow {
+    top: 33%;
+  }
+
+  .fragrance-mist-section .fragrance-glow {
+    top: 20%;
+    opacity: 0.35;
+    width: min(600px, 95vw);
+    height: 220px;
+  }
+
   .fragrance-glow {
     position: absolute;
-    top: 33%;
     left: 50%;
     width: min(500px, 90vw);
     height: 280px;
@@ -183,77 +318,78 @@ body {
       rgba(201, 169, 98, 0.2) 0%,
       transparent 72%
     );
-    animation: scent-breathe 2.5s ease-in-out infinite;
+    animation: scent-breathe 4s ease-in-out infinite;
   }
 
   .fragrance-particle {
     position: absolute;
-    bottom: 0;
+    bottom: 8%;
     border-radius: 9999px;
-    background: rgba(201, 169, 98, 0.42);
-    box-shadow: 0 0 10px rgba(201, 169, 98, 0.28);
-    animation: scent-rise linear infinite;
+    background: rgba(201, 169, 98, 0.38);
+    box-shadow: 0 0 10px rgba(201, 169, 98, 0.24);
+    animation: scent-rise ease-in-out infinite;
+    opacity: 0.5;
   }
 
   .fragrance-particle-a {
     left: 12%;
     width: 6px;
     height: 6px;
-    animation-duration: 2s;
+    animation-duration: 5s;
   }
 
   .fragrance-particle-b {
     left: 32%;
     width: 5px;
     height: 5px;
-    animation-duration: 2.2s;
-    animation-delay: 0.15s;
+    animation-duration: 5.5s;
+    animation-delay: 0.8s;
   }
 
   .fragrance-particle-c {
     left: 58%;
     width: 7px;
     height: 7px;
-    animation-duration: 1.9s;
-    animation-delay: 0.08s;
+    animation-duration: 4.8s;
+    animation-delay: 0.4s;
   }
 
   .fragrance-particle-d {
     left: 74%;
     width: 5px;
     height: 5px;
-    animation-duration: 2.1s;
-    animation-delay: 0.22s;
+    animation-duration: 5.2s;
+    animation-delay: 1.2s;
   }
 
   .fragrance-particle-e {
     left: 88%;
     width: 6px;
     height: 6px;
-    animation-duration: 2s;
-    animation-delay: 0.12s;
+    animation-duration: 5s;
+    animation-delay: 0.6s;
   }
 
   .fragrance-particle-f {
     left: 46%;
     width: 4px;
     height: 4px;
-    animation-duration: 2.3s;
-    animation-delay: 0.18s;
+    animation-duration: 5.8s;
+    animation-delay: 1s;
   }
 
   .fragrance-wisp {
     position: absolute;
-    bottom: 10%;
+    bottom: 12%;
     width: 2px;
-    height: 40px;
+    height: 48px;
     background: linear-gradient(
       to top,
       transparent,
-      rgba(201, 169, 98, 0.22),
+      rgba(201, 169, 98, 0.2),
       transparent
     );
-    animation: scent-wisp 2.5s ease-in-out infinite;
+    animation: scent-wisp 5s ease-in-out infinite;
   }
 
   .fragrance-wisp-a {
@@ -262,13 +398,27 @@ body {
 
   .fragrance-wisp-b {
     left: 68%;
-    animation-delay: 0.4s;
+    animation-delay: 1.6s;
   }
 
   @media (max-width: 768px) {
     .fragrance-glow {
       height: 180px;
-      opacity: 0.65;
+      opacity: 0.6;
+    }
+
+    .fragrance-mist-hero .fragrance-wisp-b,
+    .fragrance-mist-hero .fragrance-particle-c,
+    .fragrance-mist-hero .fragrance-particle-d,
+    .fragrance-mist-hero .fragrance-particle-e,
+    .fragrance-mist-hero .fragrance-particle-f {
+      display: none;
+    }
+
+    .fragrance-mist-hero .fragrance-particle-a,
+    .fragrance-mist-hero .fragrance-particle-b {
+      animation-duration: 7s;
+      opacity: 0.45;
     }
   }
 
@@ -383,13 +533,88 @@ body {
   }
 }
 
-@keyframes scent-rise {
+@keyframes gradient-shimmer {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes aurora-drift {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: translate(2%, -1.5%) scale(1.02);
+    opacity: 0.85;
+  }
+}
+
+@keyframes light-sweep {
   0% {
-    transform: translateY(0) scale(0.9);
-    opacity: 0.55;
+    transform: translateX(-30%) skewX(-8deg);
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  50% {
+    transform: translateX(130%) skewX(-8deg);
+    opacity: 0.5;
   }
   100% {
-    transform: translateY(-80px) scale(1.4);
+    transform: translateX(130%) skewX(-8deg);
+    opacity: 0;
+  }
+}
+
+@keyframes hero-logo-glow {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: scale(0.75);
+  }
+  50% {
+    opacity: 0.55;
+    transform: scale(0.82);
+  }
+}
+
+@keyframes section-glow {
+  0%,
+  100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes marquee-text-glow {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 0.55;
+  }
+}
+
+@keyframes scent-rise {
+  0% {
+    transform: translateY(0) translateX(0) scale(0.95);
+    opacity: 0.45;
+  }
+  50% {
+    opacity: 0.65;
+  }
+  100% {
+    transform: translateY(-90px) translateX(6px) scale(1.2);
     opacity: 0;
   }
 }
@@ -424,11 +649,11 @@ body {
   0%,
   100% {
     transform: translateX(-50%) scale(1);
-    opacity: 0.5;
+    opacity: 0.48;
   }
   50% {
-    transform: translateX(-50%) scale(1.04);
-    opacity: 0.65;
+    transform: translateX(-50%) scale(1.05);
+    opacity: 0.62;
   }
 }
 

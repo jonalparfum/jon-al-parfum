@@ -152,9 +152,7 @@ export default function ContactSection() {
         <div className="absolute inset-0 bg-radial-gold opacity-60 pointer-events-none" />
 
         <div
-          className={`reveal-on-scroll relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 opacity-100 will-change-transform transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
-            visible ? "translate-y-0" : "translate-y-6"
-          }`}
+          className={`landing-reveal ${visible ? "landing-reveal-visible" : ""} relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8`}
         >
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-20 items-stretch">
             <div className="flex flex-col">
