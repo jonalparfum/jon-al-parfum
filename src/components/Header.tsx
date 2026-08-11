@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
+import BrandLogo from "@/components/BrandLogo";
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useCart } from "@/context/CartContext";
@@ -23,6 +23,7 @@ export default function Header() {
     { href: "/tienda", label: "Tienda" },
     { href: "/tienda?categoria=hombre", label: "Hombre" },
     { href: "/tienda?categoria=mujer", label: "Mujer" },
+    { href: "/#contacto", label: "Contacto" },
     { href: "/#faq", label: "FAQ" },
   ];
 
@@ -37,15 +38,7 @@ export default function Header() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 md:h-20">
           <Link href="/" className="flex items-center gap-3 group">
-            <div className="relative w-10 h-10 md:w-12 md:h-12 overflow-hidden rounded-full ring-1 ring-gold/20 group-hover:ring-gold/50 transition-all duration-500">
-              <Image
-                src="/logo-jon-al-parfum.png"
-                alt="Jon Al Parfum"
-                fill
-                className="object-cover scale-150 group-hover:scale-[1.6] transition-transform duration-700"
-                priority
-              />
-            </div>
+            <BrandLogo size="sm" priority className="group-hover:scale-105 transition-transform duration-500" />
             <span className="hidden sm:block font-display text-lg md:text-xl tracking-wide text-cream group-hover:text-gold transition-colors duration-300">
               Jon Al Parfum
             </span>

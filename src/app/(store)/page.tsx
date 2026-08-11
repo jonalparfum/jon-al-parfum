@@ -1,8 +1,11 @@
 import Link from "next/link";
-import Image from "next/image";
 import ProductCard from "@/components/ProductCard";
+import BrandLogo from "@/components/BrandLogo";
 import FaqSection from "@/components/FaqSection";
+import ContactSection from "@/components/ContactSection";
+import RevealOnScroll from "@/components/RevealOnScroll";
 import { getFeaturedProducts } from "@/lib/products";
+import { LOCATION, SHIPPING_COVERAGE } from "@/lib/contact";
 
 export const dynamic = "force-dynamic";
 
@@ -12,139 +15,220 @@ export default async function HomePage() {
   return (
     <>
       {/* Hero */}
-      <section className="relative min-h-[100svh] flex items-center justify-center overflow-hidden">
+      <section className="relative min-h-[100svh] flex items-center overflow-hidden">
         <div className="absolute inset-0 bg-luxury-black" />
-        <div className="absolute inset-0 grain-overlay opacity-60" />
-        <div className="absolute inset-0 bg-radial-gold" />
+        <div className="absolute inset-0 grain-overlay opacity-40" />
 
-        <div className="absolute top-1/3 left-1/4 w-72 h-72 bg-gold/5 rounded-full blur-3xl animate-pulse-glow" />
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-gold/8 rounded-full blur-3xl animate-pulse-glow" style={{ animationDelay: "2s" }} />
+        {/* Ambient light */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-radial-gold opacity-80" />
+        <div className="absolute bottom-0 left-0 w-96 h-96 bg-gold/5 rounded-full blur-[120px]" />
+        <div className="absolute top-20 right-0 w-72 h-72 bg-gold/8 rounded-full blur-[100px] animate-pulse-glow" />
 
-        <div className="relative z-10 text-center px-4 max-w-4xl mx-auto pt-20 pb-16">
-          <div className="animate-fade-in-up mb-8">
-            <div className="relative w-48 h-48 md:w-64 md:h-64 mx-auto animate-float">
-              <Image
-                src="/logo-jon-al-parfum.png"
-                alt="Jon Al Parfum — Perfumes que dejan huella"
-                fill
-                className="object-contain drop-shadow-[0_0_40px_rgba(201,169,98,0.25)]"
-                priority
-              />
+        {/* Vertical gold accent lines */}
+        <div className="absolute left-8 md:left-16 top-1/4 bottom-1/4 w-px bg-gradient-to-b from-transparent via-gold/20 to-transparent hidden lg:block" />
+        <div className="absolute right-8 md:right-16 top-1/3 bottom-1/3 w-px bg-gradient-to-b from-transparent via-gold/15 to-transparent hidden lg:block" />
+
+        <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-20 md:pt-32">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-8 items-center">
+            {/* Logo */}
+            <div className="flex justify-center lg:justify-end order-1 lg:order-none">
+              <div className="relative animate-float">
+                <BrandLogo size="hero" priority className="mx-auto" />
+                <div className="absolute inset-0 -z-10 blur-3xl bg-gold/10 scale-75 rounded-full" />
+              </div>
+            </div>
+
+            {/* Copy */}
+            <div className="text-center lg:text-left order-2">
+              <div className="inline-flex items-center gap-3 mb-8 animate-fade-in-up">
+                <span className="h-px w-8 bg-gold/50" />
+                <span className="text-[10px] uppercase tracking-[0.35em] text-gold/80">
+                  {LOCATION}
+                </span>
+                <span className="h-px w-8 bg-gold/50 hidden sm:block" />
+              </div>
+
+              <p
+                className="text-gold uppercase tracking-[0.45em] text-[10px] md:text-xs mb-5 animate-fade-in-up"
+                style={{ animationDelay: "100ms" }}
+              >
+                Perfumes que dejan huella
+              </p>
+
+              <h1
+                className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-cream leading-[1.1] mb-6 animate-fade-in-up"
+                style={{ animationDelay: "200ms" }}
+              >
+                La esencia del
+                <span className="block luxury-gradient-text mt-1">lujo olfativo</span>
+              </h1>
+
+              <p
+                className="text-cream/50 text-base md:text-lg max-w-lg mx-auto lg:mx-0 mb-4 leading-relaxed font-light animate-fade-in-up"
+                style={{ animationDelay: "300ms" }}
+              >
+                Fragancias exclusivas seleccionadas con dedicación. Cada aroma
+                cuenta una historia única, pensada para quienes buscan distinción.
+              </p>
+
+              <p
+                className="text-gold/60 text-xs uppercase tracking-[0.25em] mb-10 animate-fade-in-up"
+                style={{ animationDelay: "350ms" }}
+              >
+                {SHIPPING_COVERAGE}
+              </p>
+
+              <div
+                className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start animate-fade-in-up"
+                style={{ animationDelay: "450ms" }}
+              >
+                <Link href="/tienda" className="btn-luxury-primary">
+                  Explorar colección
+                </Link>
+                <Link href="/#contacto" className="btn-luxury-outline">
+                  Contáctanos
+                </Link>
+              </div>
             </div>
           </div>
 
-          <p
-            className="text-gold uppercase tracking-[0.4em] text-xs md:text-sm mb-6 animate-fade-in-up"
-            style={{ animationDelay: "200ms" }}
-          >
-            Perfumes que dejan huella
-          </p>
-
-          <p
-            className="text-cream/60 text-base md:text-lg max-w-xl mx-auto mb-10 leading-relaxed animate-fade-in-up"
-            style={{ animationDelay: "400ms" }}
-          >
-            Descubre fragancias únicas que cuentan historias. Cada perfume es una
-            obra de arte olfativa, creada con los ingredientes más selectos.
-          </p>
-
-          <div
-            className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-up"
-            style={{ animationDelay: "600ms" }}
-          >
-            <Link href="/tienda" className="btn-luxury-primary">
-              Explorar colección
-            </Link>
-            <Link href="/#faq" className="btn-luxury-outline">
-              Preguntas frecuentes
-            </Link>
+          {/* Scroll hint */}
+          <div className="absolute bottom-10 left-1/2 -translate-x-1/2 hidden md:flex flex-col items-center gap-3 opacity-40">
+            <span className="text-[9px] uppercase tracking-[0.4em] text-cream/60">Descubre</span>
+            <div className="w-px h-10 bg-gradient-to-b from-gold/50 to-transparent animate-pulse" />
           </div>
+        </div>
+      </section>
 
-          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce hidden md:block">
-            <div className="w-px h-12 bg-gradient-to-b from-gold/60 to-transparent mx-auto" />
-          </div>
+      {/* Marquee strip */}
+      <div className="border-y border-gold/10 bg-luxury-panel/30 overflow-hidden py-4">
+        <div className="flex animate-marquee whitespace-nowrap">
+          {[...Array(2)].map((_, i) => (
+            <span
+              key={i}
+              className="text-[10px] uppercase tracking-[0.5em] text-gold/40 mx-8"
+            >
+              Jon Al Parfum · Nuevo Laredo · Envíos nacionales · Perfumes originales ·
+              Asesoría personalizada ·
+            </span>
+          ))}
+        </div>
+      </div>
+
+      {/* Story */}
+      <section className="py-28 md:py-36 relative">
+        <div className="absolute top-0 left-0 right-0 section-divider" />
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <RevealOnScroll>
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-12 md:gap-16 items-center">
+              <div className="md:col-span-5">
+                <p className="text-gold uppercase tracking-[0.4em] text-[10px] mb-5">
+                  Nuestra historia
+                </p>
+                <h2 className="font-display text-3xl md:text-4xl text-cream leading-snug">
+                  Elegancia desde la frontera
+                </h2>
+              </div>
+              <div className="md:col-span-7 space-y-5 text-cream/55 leading-relaxed font-light">
+                <p>
+                  Jon Al Parfum nace en Nuevo Laredo con la misión de acercar las
+                  fragancias más exclusivas del mundo a quienes aprecian el buen gusto
+                  y la autenticidad.
+                </p>
+                <p>
+                  Seleccionamos cada perfume con criterio, ofrecemos atención
+                  personalizada y enviamos con cuidado a cualquier rincón de México.
+                  Porque un aroma memorable merece llegar hasta ti.
+                </p>
+                <Link
+                  href="/tienda"
+                  className="inline-block mt-4 text-xs uppercase tracking-[0.3em] text-gold hover:text-gold-light border-b border-gold/30 hover:border-gold pb-1 transition-all duration-300"
+                >
+                  Ver catálogo
+                </Link>
+              </div>
+            </div>
+          </RevealOnScroll>
         </div>
       </section>
 
       {/* Featured */}
-      <section className="py-24 md:py-32 relative">
-        <div className="absolute top-0 left-0 right-0 section-divider" />
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-14">
-            <p className="text-gold uppercase tracking-[0.35em] text-xs mb-4">
+      <section className="py-28 md:py-36 relative bg-luxury-panel/20">
+        <div className="absolute inset-0 grain-overlay opacity-20" />
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <RevealOnScroll className="text-center mb-16">
+            <p className="text-gold uppercase tracking-[0.4em] text-[10px] mb-5">
               Selección exclusiva
             </p>
-            <h2 className="font-display text-3xl md:text-5xl text-cream">
+            <h2 className="font-display text-4xl md:text-5xl text-cream">
               Destacados
             </h2>
-          </div>
+          </RevealOnScroll>
+
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
-            {featured.map((product) => (
-              <ProductCard key={product.id} product={product} />
+            {featured.map((product, i) => (
+              <RevealOnScroll key={product.id} delay={i * 80}>
+                <ProductCard product={product} />
+              </RevealOnScroll>
             ))}
           </div>
-          <div className="text-center mt-14">
-            <Link
-              href="/tienda"
-              className="inline-block text-xs uppercase tracking-[0.25em] text-gold hover:text-gold-light border-b border-gold/40 hover:border-gold pb-1 transition-all duration-300"
-            >
+
+          <RevealOnScroll className="text-center mt-16" delay={200}>
+            <Link href="/tienda" className="btn-luxury-outline">
               Ver toda la colección
             </Link>
-          </div>
+          </RevealOnScroll>
         </div>
       </section>
 
       {/* Values */}
-      <section className="py-24 md:py-32 bg-luxury-panel/50 relative overflow-hidden">
-        <div className="absolute inset-0 grain-overlay opacity-30" />
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-16">
+      <section className="py-28 md:py-36 relative overflow-hidden">
+        <div className="absolute top-0 left-0 right-0 section-divider" />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <RevealOnScroll className="text-center mb-16">
+            <p className="text-gold uppercase tracking-[0.4em] text-[10px] mb-5">
+              Por qué elegirnos
+            </p>
+            <h2 className="font-display text-3xl md:text-4xl text-cream">
+              Experiencia premium
+            </h2>
+          </RevealOnScroll>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-gold/10">
             {[
               {
-                icon: (
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
-                ),
-                title: "Ingredientes premium",
-                desc: "Seleccionamos las materias primas más finas de Grasse, Marrakech y más allá.",
+                num: "01",
+                title: "100% originales",
+                desc: "Fragancias auténticas de las casas perfumistas más prestigiosas del mundo.",
               },
               {
-                icon: (
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
-                ),
-                title: "Hecho con pasión",
-                desc: "Cada fragancia es elaborada artesanalmente en pequeños lotes.",
+                num: "02",
+                title: "Envío nacional",
+                desc: "Desde Nuevo Laredo enviamos a todo México con empaque seguro y rastreo.",
               },
               {
-                icon: (
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 00-3.213-9.193 2.056 2.056 0 00-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 00-10.026 0 1.106 1.106 0 00-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12" />
-                ),
-                title: "Envío gratuito",
-                desc: "En pedidos superiores a 75€. Entrega en 24–48h en península.",
+                num: "03",
+                title: "Atención personal",
+                desc: "Asesoría por WhatsApp, Facebook o formulario. Te ayudamos a encontrar tu aroma ideal.",
               },
-            ].map((item) => (
-              <div key={item.title} className="text-center group">
-                <div className="w-16 h-16 mx-auto mb-6 rounded-full border border-gold/20 flex items-center justify-center group-hover:border-gold/50 group-hover:shadow-[0_0_24px_rgba(201,169,98,0.15)] transition-all duration-500">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth={1}
-                    stroke="currentColor"
-                    className="w-7 h-7 text-gold"
-                  >
-                    {item.icon}
-                  </svg>
+            ].map((item, i) => (
+              <RevealOnScroll key={item.num} delay={i * 100}>
+                <div className="bg-luxury-black p-10 md:p-12 h-full group hover:bg-luxury-panel/50 transition-colors duration-500">
+                  <span className="text-gold/30 font-display text-3xl mb-6 block group-hover:text-gold/50 transition-colors">
+                    {item.num}
+                  </span>
+                  <h3 className="font-display text-xl text-cream mb-4">{item.title}</h3>
+                  <p className="text-cream/45 text-sm leading-relaxed font-light">
+                    {item.desc}
+                  </p>
                 </div>
-                <h3 className="font-display text-xl text-cream mb-3">{item.title}</h3>
-                <p className="text-cream/50 text-sm leading-relaxed max-w-xs mx-auto">
-                  {item.desc}
-                </p>
-              </div>
+              </RevealOnScroll>
             ))}
           </div>
         </div>
       </section>
 
+      <ContactSection />
       <FaqSection />
     </>
   );

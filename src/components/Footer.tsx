@@ -1,8 +1,10 @@
 import Link from "next/link";
-import Image from "next/image";
+import BrandLogo from "@/components/BrandLogo";
 import {
   CONTACT_EMAIL,
   FACEBOOK_URL,
+  LOCATION,
+  SHIPPING_COVERAGE,
   WHATSAPP_DISPLAY,
   WHATSAPP_URL,
 } from "@/lib/contact";
@@ -15,18 +17,12 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-20">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-16">
           <div className="text-center md:text-left">
-            <div className="relative w-20 h-20 mx-auto md:mx-0 mb-5 overflow-hidden rounded-full ring-1 ring-gold/20">
-              <Image
-                src="/logo-jon-al-parfum.png"
-                alt="Jon Al Parfum"
-                fill
-                className="object-cover scale-150"
-              />
-            </div>
+            <BrandLogo size="md" className="mx-auto md:mx-0 mb-5" />
             <h3 className="font-display text-2xl text-cream mb-2">Jon Al Parfum</h3>
-            <p className="text-xs uppercase tracking-[0.3em] text-gold/80 mb-4">
+            <p className="text-xs uppercase tracking-[0.3em] text-gold/80 mb-2">
               Perfumes que dejan huella
             </p>
+            <p className="text-xs text-cream/40 mb-4">{LOCATION}</p>
             <p className="text-cream/50 text-sm leading-relaxed max-w-xs mx-auto md:mx-0">
               Fragancias de autor creadas con pasión y los más finos ingredientes.
               Cada perfume cuenta una historia única.
@@ -65,6 +61,11 @@ export default function Footer() {
                   className="hover:text-gold transition-colors duration-300"
                 >
                   Unisex
+                </Link>
+              </li>
+              <li>
+                <Link href="/#contacto" className="hover:text-gold transition-colors duration-300">
+                  Contacto
                 </Link>
               </li>
               <li>
@@ -114,6 +115,7 @@ export default function Footer() {
                   WhatsApp: {WHATSAPP_DISPLAY}
                 </a>
               </li>
+              <li>{SHIPPING_COVERAGE}</li>
               <li>Lun – Vie: 9:00 – 18:00</li>
             </ul>
 
