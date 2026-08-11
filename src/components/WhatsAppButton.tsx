@@ -5,7 +5,7 @@ import { WhatsAppIcon } from "@/components/SocialIcons";
 
 export default function WhatsAppButton() {
   return (
-    <div className="fixed bottom-24 right-5 md:bottom-8 md:right-8 z-[60] w-14 h-14">
+    <div className="fixed bottom-14 right-5 md:bottom-6 md:right-8 z-[60] w-14 h-14">
       {/* Fragrance mist rising from button */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none" aria-hidden="true">
         {[0, 1, 2, 3, 4].map((i) => (
