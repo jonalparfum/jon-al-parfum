@@ -1,4 +1,5 @@
 import type { NextAuthConfig } from "next-auth";
+import "@/lib/normalize-auth-url";
 
 export const authConfig = {
   secret: process.env.AUTH_SECRET,
