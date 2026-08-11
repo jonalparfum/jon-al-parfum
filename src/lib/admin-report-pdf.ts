@@ -1,7 +1,17 @@
 import PDFDocument from "pdfkit";
+import path from "path";
+import fs from "fs/promises";
 import type { AdminReportData } from "@/lib/admin-report";
 
 type PdfDoc = InstanceType<typeof PDFDocument>;
+
+type PdfContext = {
+  logo: Buffer | null;
+  generatedAt: Date;
+};
+
+const HEADER = { full: 92, compact: 48 };
+const LOGO = { full: 54, compact: 30, footer: 16 };
 
 const COLORS = {
   gold: "#c9a962",
@@ -62,16 +72,47 @@ function truncate(text: string, max: number) {
   return `${clean.slice(0, max - 1)}…`;
 }
 
-function ensureSpace(doc: PdfDoc, needed: number) {
-  if (doc.y + needed > doc.page.height - M.bottom) {
-    doc.addPage();
-    doc.y = M.top;
+async function loadReportLogo(): Promise<Buffer | null> {
+  try {
+    const logoPath = path.join(
+      process.cwd(),
+      "public",
+      "logo-jon-al-parfum-transparent.png"
+    );
+    return await fs.readFile(logoPath);
+  } catch {
+    return null;
   }
 }
 
-function drawPageFooter(doc: PdfDoc, pageNum: number) {
+function drawLogo(
+  doc: PdfDoc,
+  logo: Buffer | null,
+  x: number,
+  y: number,
+  size: number
+) {
+  if (!logo) return;
+  doc.image(logo, x, y, { fit: [size, size] });
+}
+
+function addContentPage(doc: PdfDoc, ctx: PdfContext) {
+  doc.addPage();
+  drawCompactPageHeader(doc, ctx);
+}
+
+function ensureSpace(doc: PdfDoc, needed: number, ctx: PdfContext) {
+  if (doc.y + needed > doc.page.height - M.bottom) {
+    addContentPage(doc, ctx);
+  }
+}
+
+function drawPageFooter(doc: PdfDoc, pageNum: number, logo: Buffer | null) {
   const y = doc.page.height - M.bottom + 18;
   const w = pageContentWidth(doc);
+  const footerLogoSize = LOGO.footer;
+  const textX = logo ? M.left + footerLogoSize + 8 : M.left;
+  const textW = w - (logo ? footerLogoSize + 8 : 0);
 
   doc
     .moveTo(M.left, y - 10)
@@ -80,52 +121,95 @@ function drawPageFooter(doc: PdfDoc, pageNum: number) {
     .lineWidth(0.5)
     .stroke();
 
+  if (logo) {
+    drawLogo(doc, logo, M.left, y - 2, footerLogoSize);
+  }
+
   doc
     .fontSize(7.5)
     .fillColor(COLORS.muted)
     .font("Helvetica")
     .text(
-      "Jon Al Parfum  |  Documento confidencial  |  Generado desde el panel administrativo",
-      M.left,
+      "Jon Al Parfum  |  Documento confidencial  |  Panel administrativo",
+      textX,
       y,
-      { width: w, align: "center" }
+      { width: textW, align: "center" }
     );
 
   doc.text(`P\u00e1gina ${pageNum}`, M.left, y, { width: w, align: "right" });
 }
 
-function drawPageHeader(doc: PdfDoc, generatedAt: Date) {
+function drawCompactPageHeader(doc: PdfDoc, ctx: PdfContext) {
   const w = doc.page.width;
+  const headerH = HEADER.compact;
+  const logoSize = LOGO.compact;
+  const logoY = (headerH - logoSize) / 2;
+  const textX = ctx.logo ? M.left + logoSize + 12 : M.left;
 
   doc.save();
-  doc.rect(0, 0, w, 82).fill(COLORS.headerBg);
-  doc.rect(0, 79, w, 3).fill(COLORS.gold);
+  doc.rect(0, 0, w, headerH).fill(COLORS.headerBg);
+  doc.rect(0, headerH - 2, w, 2).fill(COLORS.gold);
+
+  drawLogo(doc, ctx.logo, M.left, logoY, logoSize);
 
   doc
     .fillColor(COLORS.gold)
     .font("Helvetica-Bold")
-    .fontSize(18)
-    .text("Jon Al Parfum", M.left, 22, { lineBreak: false });
+    .fontSize(10)
+    .text("Jon Al Parfum", textX, 14, { lineBreak: false });
+
+  doc
+    .fillColor(COLORS.cream)
+    .font("Helvetica")
+    .fontSize(8)
+    .text("Reporte de operaciones", textX, 28, { lineBreak: false });
+
+  doc.restore();
+  doc.y = headerH + 12;
+}
+
+function drawPageHeader(doc: PdfDoc, ctx: PdfContext) {
+  const w = doc.page.width;
+  const headerH = HEADER.full;
+  const logoSize = LOGO.full;
+  const logoY = (headerH - logoSize) / 2 - 2;
+  const textX = ctx.logo ? M.left + logoSize + 16 : M.left;
+  const contentW = w - M.left - M.right;
+
+  doc.save();
+  doc.rect(0, 0, w, headerH).fill(COLORS.headerBg);
+  doc.rect(0, headerH - 3, w, 3).fill(COLORS.gold);
+
+  drawLogo(doc, ctx.logo, M.left, logoY, logoSize);
+
+  doc
+    .fillColor(COLORS.gold)
+    .font("Helvetica-Bold")
+    .fontSize(17)
+    .text("Jon Al Parfum", textX, 24, { lineBreak: false });
 
   doc
     .fillColor(COLORS.cream)
     .font("Helvetica")
     .fontSize(10)
-    .text("Reporte global de operaciones", M.left, 44, { lineBreak: false });
+    .text("Reporte global de operaciones", textX, 44, { lineBreak: false });
 
   doc
     .fillColor("#9ca3af")
     .fontSize(8)
-    .text(`Generado: ${formatDate(generatedAt)}`, M.left, 60, {
+    .font("Helvetica")
+    .text(`Generado: ${formatDate(ctx.generatedAt)}`, M.left, 58, {
+      width: contentW,
+      align: "right",
       lineBreak: false,
     });
 
   doc.restore();
-  doc.y = 96;
+  doc.y = headerH + 14;
 }
 
-function sectionTitle(doc: PdfDoc, title: string) {
-  ensureSpace(doc, 48);
+function sectionTitle(doc: PdfDoc, title: string, ctx: PdfContext) {
+  ensureSpace(doc, 48, ctx);
   doc.moveDown(0.4);
 
   const y = doc.y;
@@ -223,13 +307,14 @@ type TableColumn = {
 function drawTable(
   doc: PdfDoc,
   columns: TableColumn[],
-  rows: string[][]
+  rows: string[][],
+  ctx: PdfContext
 ) {
   const rowH = 22;
   const headerH = 24;
   const tableW = columns.reduce((s, c) => s + c.width, 0);
 
-  ensureSpace(doc, headerH + rowH * Math.min(rows.length, 1) + 8);
+  ensureSpace(doc, headerH + rowH * Math.min(rows.length, 1) + 8, ctx);
 
   const drawHeader = (y: number) => {
     doc.save();
@@ -262,8 +347,7 @@ function drawTable(
 
   rows.forEach((row, rowIndex) => {
     if (y + rowH > doc.page.height - M.bottom) {
-      doc.addPage();
-      doc.y = M.top;
+      addContentPage(doc, ctx);
       y = doc.y;
       drawHeader(y);
       y += headerH;
@@ -303,6 +387,7 @@ function drawTable(
 function drawBulletList(
   doc: PdfDoc,
   items: string[],
+  ctx: PdfContext,
   options?: { color?: string; fontSize?: number }
 ) {
   const fontSize = options?.fontSize ?? 9;
@@ -310,7 +395,7 @@ function drawBulletList(
   const lineH = fontSize + 6;
 
   items.forEach((item) => {
-    ensureSpace(doc, lineH + 4);
+    ensureSpace(doc, lineH + 4, ctx);
     doc
       .fontSize(fontSize)
       .fillColor(color)
@@ -323,8 +408,13 @@ function drawBulletList(
   });
 }
 
-function drawSummaryLine(doc: PdfDoc, label: string, value: string) {
-  ensureSpace(doc, 18);
+function drawSummaryLine(
+  doc: PdfDoc,
+  label: string,
+  value: string,
+  ctx: PdfContext
+) {
+  ensureSpace(doc, 18, ctx);
   const w = pageContentWidth(doc);
   const y = doc.y;
 
@@ -350,6 +440,9 @@ function drawSummaryLine(doc: PdfDoc, label: string, value: string) {
 export async function buildAdminReportPdf(
   data: AdminReportData
 ): Promise<Buffer> {
+  const logo = await loadReportLogo();
+  const ctx: PdfContext = { logo, generatedAt: data.generatedAt };
+
   return new Promise((resolve, reject) => {
     const doc = new PDFDocument({
       size: "A4",
@@ -366,7 +459,7 @@ export async function buildAdminReportPdf(
     doc.on("end", () => resolve(Buffer.concat(chunks)));
     doc.on("error", reject);
 
-    drawPageHeader(doc, data.generatedAt);
+    drawPageHeader(doc, ctx);
 
     drawKpiGrid(doc, [
       { label: "Ingresos confirmados", value: formatMoney(data.sales.totalRevenue) },
@@ -377,10 +470,15 @@ export async function buildAdminReportPdf(
       { label: "Usuarios registrados", value: String(data.catalog.users) },
     ]);
 
-    sectionTitle(doc, "Resumen de ventas");
-    drawSummaryLine(doc, "Pedidos pendientes de pago", String(data.sales.pendingOrders));
-    drawSummaryLine(doc, "Pedidos cancelados", String(data.sales.cancelledOrders));
-    drawSummaryLine(doc, "Total pedidos en sistema", String(data.sales.paidOrders + data.sales.pendingOrders + data.sales.cancelledOrders));
+    sectionTitle(doc, "Resumen de ventas", ctx);
+    drawSummaryLine(doc, "Pedidos pendientes de pago", String(data.sales.pendingOrders), ctx);
+    drawSummaryLine(doc, "Pedidos cancelados", String(data.sales.cancelledOrders), ctx);
+    drawSummaryLine(
+      doc,
+      "Total pedidos en sistema",
+      String(data.sales.paidOrders + data.sales.pendingOrders + data.sales.cancelledOrders),
+      ctx
+    );
 
     if (data.sales.recentOrders.length > 0) {
       doc.moveDown(0.2);
@@ -400,12 +498,13 @@ export async function buildAdminReportPdf(
           formatShortDate(order.date),
           statusLabels[order.status] ?? order.status,
           formatMoney(order.total),
-        ])
+        ]),
+        ctx
       );
     }
 
     if (data.topProducts.length > 0) {
-      sectionTitle(doc, "Productos mas vendidos");
+      sectionTitle(doc, "Productos mas vendidos", ctx);
       const cw = pageContentWidth(doc);
       drawTable(
         doc,
@@ -420,22 +519,25 @@ export async function buildAdminReportPdf(
           truncate(p.name, 42),
           String(p.unitsSold),
           formatMoney(p.revenue),
-        ])
+        ]),
+        ctx
       );
     }
 
-    sectionTitle(doc, "Inventario");
+    sectionTitle(doc, "Inventario", ctx);
     drawSummaryLine(
       doc,
       "Productos en catalogo",
-      `${data.stock.totalProducts} (${data.stock.activeProducts} activos)`
+      `${data.stock.totalProducts} (${data.stock.activeProducts} activos)`,
+      ctx
     );
     drawSummaryLine(
       doc,
       "Categorias / Subcategorias",
-      `${data.catalog.categories} / ${data.catalog.subcategories}`
+      `${data.catalog.categories} / ${data.catalog.subcategories}`,
+      ctx
     );
-    drawSummaryLine(doc, "Administradores", String(data.catalog.admins));
+    drawSummaryLine(doc, "Administradores", String(data.catalog.admins), ctx);
 
     if (data.stock.lowStock.length > 0) {
       doc.moveDown(0.3);
@@ -449,7 +551,8 @@ export async function buildAdminReportPdf(
         doc,
         data.stock.lowStock.slice(0, 10).map(
           (p) => `${truncate(p.name, 36)} (${p.category}) — ${p.stock} uds.`
-        )
+        ),
+        ctx
       );
     }
 
@@ -465,7 +568,8 @@ export async function buildAdminReportPdf(
         doc,
         data.stock.outOfStock.slice(0, 10).map(
           (p) => `${truncate(p.name, 36)} (${p.category})`
-        )
+        ),
+        ctx
       );
     }
 
@@ -479,17 +583,18 @@ export async function buildAdminReportPdf(
       doc.moveDown(0.5);
     }
 
-    sectionTitle(doc, "Recomendaciones");
+    sectionTitle(doc, "Recomendaciones", ctx);
     drawBulletList(
       doc,
       data.recommendations.map((r, i) => `${i + 1}. ${r}`),
+      ctx,
       { fontSize: 9.5 }
     );
 
     const range = doc.bufferedPageRange();
     for (let i = range.start; i < range.start + range.count; i++) {
       doc.switchToPage(i);
-      drawPageFooter(doc, i - range.start + 1);
+      drawPageFooter(doc, i - range.start + 1, ctx.logo);
     }
 
     doc.end();

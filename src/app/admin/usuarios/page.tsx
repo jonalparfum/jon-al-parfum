@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useSession } from "next-auth/react";
 import { useAdminToast } from "@/components/admin/AdminToast";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import { fetchJsonArray } from "@/lib/admin-fetch";
@@ -14,6 +15,7 @@ import {
   adminFilterPillInactive,
   adminInput,
   adminLabel,
+  adminLinkDanger,
   adminLoading,
   adminPanel,
   adminTableHead,
@@ -38,9 +40,11 @@ const roleLabels = {
 };
 
 export default function AdminUsersPage() {
+  const { data: session } = useSession();
   const { showToast } = useAdminToast();
   const [users, setUsers] = useState<UserRow[]>([]);
   const [loading, setLoading] = useState(true);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState<"all" | "USER" | "ADMIN">("all");
 
@@ -68,6 +72,43 @@ export default function AdminUsersPage() {
     }
     return list;
   }, [users, search, roleFilter]);
+
+  const handleDelete = async (user: UserRow) => {
+    const label = user.name || user.email;
+    let message = `¿Eliminar la cuenta de "${label}"? Esta acción no se puede deshacer.`;
+
+    if (user._count.orders > 0) {
+      message += `\n\nTiene ${user._count.orders} pedido(s) asociado(s). También se eliminarán del historial.`;
+    }
+
+    if (user.role === "ADMIN") {
+      message += "\n\nEstás eliminando una cuenta de administrador.";
+    }
+
+    if (!confirm(message)) return;
+
+    setDeletingId(user.id);
+    try {
+      const res = await fetch(`/api/admin/users/${user.id}`, { method: "DELETE" });
+      const data = (await res.json()) as { error?: string; deletedOrders?: number };
+
+      if (!res.ok) {
+        showToast(data.error || "No se pudo eliminar el usuario", "error");
+        return;
+      }
+
+      setUsers((prev) => prev.filter((u) => u.id !== user.id));
+      const ordersNote =
+        data.deletedOrders && data.deletedOrders > 0
+          ? ` (${data.deletedOrders} pedido(s) eliminado(s))`
+          : "";
+      showToast(`Cuenta eliminada${ordersNote}`);
+    } catch {
+      showToast("Error al eliminar el usuario", "error");
+    } finally {
+      setDeletingId(null);
+    }
+  };
 
   if (loading) return <p className={adminLoading}>Cargando usuarios...</p>;
 
@@ -133,10 +174,14 @@ export default function AdminUsersPage() {
                   <th className={adminTh}>Rol</th>
                   <th className={adminTh}>Pedidos</th>
                   <th className={adminTh}>Registro</th>
+                  <th className={`${adminTh} text-right`}>Acciones</th>
                 </tr>
               </thead>
               <tbody>
-                {filtered.map((user) => (
+                {filtered.map((user) => {
+                  const isSelf = session?.user?.id === user.id;
+
+                  return (
                   <tr key={user.id} className={adminTr}>
                     <td className={adminTd}>
                       <span className="font-medium text-charcoal">
@@ -163,8 +208,23 @@ export default function AdminUsersPage() {
                         year: "numeric",
                       })}
                     </td>
+                    <td className={`${adminTd} text-right whitespace-nowrap`}>
+                      {isSelf ? (
+                        <span className="text-xs text-charcoal/40">Tu cuenta</span>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => handleDelete(user)}
+                          disabled={deletingId === user.id}
+                          className={`${adminLinkDanger} disabled:opacity-50`}
+                        >
+                          {deletingId === user.id ? "Eliminando…" : "Eliminar"}
+                        </button>
+                      )}
+                    </td>
                   </tr>
-                ))}
+                  );
+                })}
               </tbody>
             </table>
           </div>
