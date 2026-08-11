@@ -15,13 +15,6 @@ const staticNavLinks = [
   { href: "/#faq", label: "FAQ" },
 ];
 
-const adminLinks = [
-  { href: "/admin", label: "Resumen" },
-  { href: "/admin/productos", label: "Productos" },
-  { href: "/admin/catalogos", label: "Categorías" },
-  { href: "/admin/pedidos", label: "Pedidos" },
-];
-
 export default function Header() {
   const { data: session } = useSession();
   const { totalItems, openCart } = useCart();
@@ -134,23 +127,16 @@ export default function Header() {
           </nav>
 
           <div className="flex items-center gap-2 md:gap-3 shrink-0">
-            {isAdmin && (
-              <nav className="hidden lg:flex items-center gap-2 xl:gap-3 mr-1">
-                {adminLinks.map((link) => (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    className="text-[10px] uppercase tracking-[0.15em] text-cream/50 hover:text-gold transition-colors whitespace-nowrap"
-                  >
-                    {link.label}
-                  </Link>
-                ))}
-              </nav>
-            )}
-
             {session ? (
               <>
-                {!isAdmin && (
+                {isAdmin ? (
+                  <Link
+                    href="/admin"
+                    className="text-[10px] uppercase tracking-[0.15em] text-luxury-black bg-gold hover:bg-gold-light px-3 py-1.5 font-medium transition-colors whitespace-nowrap"
+                  >
+                    Mi panel
+                  </Link>
+                ) : (
                   <Link
                     href="/cuenta"
                     className="hidden sm:block text-xs uppercase tracking-wider text-cream/60 hover:text-gold transition-colors"
@@ -260,24 +246,6 @@ export default function Header() {
                 {link.label}
               </Link>
             ))}
-
-            {isAdmin && (
-              <div className="mt-4 pt-4 border-t border-gold/10">
-                <p className="px-0 py-1 text-[10px] uppercase tracking-[0.25em] text-gold/60 mb-2">
-                  Administración
-                </p>
-                {adminLinks.map((link) => (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    onClick={closeMenu}
-                    className="block py-2.5 text-xs uppercase tracking-[0.2em] text-gold hover:text-gold-light transition-colors"
-                  >
-                    {link.label}
-                  </Link>
-                ))}
-              </div>
-            )}
 
             {!session && (
               <Link
