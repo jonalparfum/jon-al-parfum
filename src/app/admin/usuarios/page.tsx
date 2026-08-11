@@ -1,13 +1,21 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   adminBadgeActive,
   adminBadgeInactive,
+  adminEmptyState,
+  adminFilterGroup,
+  adminFilterPill,
+  adminFilterPillActive,
+  adminFilterPillInactive,
+  adminInput,
+  adminLabel,
   adminLoading,
   adminMuted,
   adminPageTitle,
   adminPanel,
+  adminSubtitle,
   adminTableHead,
   adminTd,
   adminTdMuted,
@@ -32,6 +40,8 @@ const roleLabels = {
 export default function AdminUsersPage() {
   const [users, setUsers] = useState<UserRow[]>([]);
   const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
+  const [roleFilter, setRoleFilter] = useState<"all" | "USER" | "ADMIN">("all");
 
   useEffect(() => {
     fetch("/api/admin/users")
@@ -40,39 +50,92 @@ export default function AdminUsersPage() {
       .finally(() => setLoading(false));
   }, []);
 
+  const filtered = useMemo(() => {
+    let list = [...users];
+    const q = search.trim().toLowerCase();
+    if (q) {
+      list = list.filter(
+        (u) =>
+          u.email.toLowerCase().includes(q) ||
+          (u.name?.toLowerCase().includes(q) ?? false)
+      );
+    }
+    if (roleFilter !== "all") {
+      list = list.filter((u) => u.role === roleFilter);
+    }
+    return list;
+  }, [users, search, roleFilter]);
+
   if (loading) return <p className={adminLoading}>Cargando usuarios...</p>;
 
   return (
     <div>
       <div className="mb-6">
-        <h1 className={adminPageTitle}>Usuarios registrados</h1>
-        <p className={`${adminMuted} mt-2`}>
-          {users.length} persona{users.length === 1 ? "" : "s"} registrada
-          {users.length === 1 ? "" : "s"} en la tienda.
+        <h1 className={adminPageTitle}>Usuarios</h1>
+        <p className={adminSubtitle}>
+          {filtered.length} de {users.length} registrados
         </p>
       </div>
 
-      <div className={adminPanel}>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm min-w-[720px]">
-            <thead className={adminTableHead}>
-              <tr>
-                <th className={adminTh}>Nombre</th>
-                <th className={adminTh}>Email</th>
-                <th className={adminTh}>Rol</th>
-                <th className={adminTh}>Pedidos</th>
-                <th className={adminTh}>Registro</th>
-              </tr>
-            </thead>
-            <tbody>
-              {users.length === 0 ? (
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6 max-w-2xl">
+        <div>
+          <label className={adminLabel}>Buscar</label>
+          <input
+            type="search"
+            placeholder="Nombre o email..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className={adminInput}
+          />
+        </div>
+      </div>
+
+      <div className={`${adminFilterGroup} mb-6`}>
+        {(
+          [
+            ["all", "Todos"],
+            ["USER", "Clientes"],
+            ["ADMIN", "Administradores"],
+          ] as const
+        ).map(([value, label]) => (
+          <button
+            key={value}
+            type="button"
+            onClick={() => setRoleFilter(value)}
+            className={`${adminFilterPill} ${
+              roleFilter === value
+                ? adminFilterPillActive
+                : adminFilterPillInactive
+            }`}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+
+      {filtered.length === 0 ? (
+        <div className={adminEmptyState}>
+          <p className="text-cream/70">
+            {users.length === 0
+              ? "Aún no hay usuarios registrados."
+              : "Ningún usuario coincide con la búsqueda."}
+          </p>
+        </div>
+      ) : (
+        <div className={adminPanel}>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm min-w-[720px]">
+              <thead className={adminTableHead}>
                 <tr>
-                  <td colSpan={5} className={`${adminTdMuted} p-8 text-center`}>
-                    Aún no hay usuarios registrados.
-                  </td>
+                  <th className={adminTh}>Nombre</th>
+                  <th className={adminTh}>Email</th>
+                  <th className={adminTh}>Rol</th>
+                  <th className={adminTh}>Pedidos</th>
+                  <th className={adminTh}>Registro</th>
                 </tr>
-              ) : (
-                users.map((user) => (
+              </thead>
+              <tbody>
+                {filtered.map((user) => (
                   <tr key={user.id} className={adminTr}>
                     <td className={adminTd}>
                       <span className="font-medium text-cream">
@@ -100,12 +163,12 @@ export default function AdminUsersPage() {
                       })}
                     </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

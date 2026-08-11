@@ -3,44 +3,62 @@ import { prisma } from "@/lib/prisma";
 import { formatPrice } from "@/lib/product-utils";
 import DownloadReportButton from "@/components/admin/DownloadReportButton";
 import {
+  adminCard,
   adminLink,
   adminMuted,
   adminPageTitle,
-  adminPanelPadding,
   adminSectionTitle,
+  adminStatLabel,
+  adminSubtitle,
 } from "@/lib/admin-styles";
 
 export default async function AdminDashboard() {
-  const recentOrders = await prisma.order.findMany({
-    take: 5,
-    include: {
-      user: { select: { name: true, email: true } },
-      _count: { select: { items: true } },
-    },
-    orderBy: { createdAt: "desc" },
-  });
-
-  const lowStock = await prisma.product.findMany({
-    where: { stock: { lte: 10 }, active: true },
-    take: 5,
-    orderBy: { stock: "asc" },
-  });
+  const [recentOrders, lowStock, pendingOrders] = await Promise.all([
+    prisma.order.findMany({
+      take: 5,
+      include: {
+        user: { select: { name: true, email: true } },
+        _count: { select: { items: true } },
+      },
+      orderBy: { createdAt: "desc" },
+    }),
+    prisma.product.findMany({
+      where: { stock: { lte: 10 }, active: true },
+      take: 5,
+      orderBy: { stock: "asc" },
+    }),
+    prisma.order.count({ where: { status: "PENDING" } }),
+  ]);
 
   return (
     <div>
       <div className="flex flex-wrap justify-between items-start gap-4 mb-8">
         <div>
           <h1 className={adminPageTitle}>Resumen</h1>
-          <p className={`${adminMuted} mt-2`}>
-            Vista general de ventas, stock y operaciones.
+          <p className={adminSubtitle}>
+            Vista general de ventas, stock y operaciones del catálogo.
           </p>
         </div>
         <DownloadReportButton />
       </div>
 
+      {pendingOrders > 0 && (
+        <Link
+          href="/admin/pedidos"
+          className="block mb-6 p-4 rounded-xl border border-amber-700/30 bg-amber-950/20 hover:border-amber-600/40 transition-colors"
+        >
+          <p className={adminStatLabel}>Atención</p>
+          <p className="text-amber-200 mt-1">
+            {pendingOrders} pedido{pendingOrders === 1 ? "" : "s"} pendiente
+            {pendingOrders === 1 ? "" : "s"} de pago
+          </p>
+        </Link>
+      )}
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <section className={adminPanelPadding}>
+        <section className={adminCard}>
           <h2 className={adminSectionTitle}>Pedidos recientes</h2>
+          <p className={`${adminMuted} mb-4`}>Últimas 5 órdenes</p>
           {recentOrders.length === 0 ? (
             <p className={adminMuted}>No hay pedidos aún.</p>
           ) : (
@@ -48,7 +66,7 @@ export default async function AdminDashboard() {
               {recentOrders.map((order) => (
                 <li
                   key={order.id}
-                  className="flex justify-between items-center text-sm border-b border-gold/10 pb-3"
+                  className="flex justify-between items-center text-sm border-b border-gold/10 pb-3 last:border-0"
                 >
                   <div>
                     <p className="font-medium text-cream">
@@ -65,13 +83,14 @@ export default async function AdminDashboard() {
               ))}
             </ul>
           )}
-          <Link href="/admin/pedidos" className={`inline-block mt-4 ${adminLink}`}>
-            Ver todos →
+          <Link href="/admin/pedidos" className={`inline-block mt-5 ${adminLink}`}>
+            Ver todos los pedidos →
           </Link>
         </section>
 
-        <section className={adminPanelPadding}>
+        <section className={adminCard}>
           <h2 className={adminSectionTitle}>Stock bajo</h2>
+          <p className={`${adminMuted} mb-4`}>Productos con ≤ 10 unidades</p>
           {lowStock.length === 0 ? (
             <p className={adminMuted}>Todo el stock está bien.</p>
           ) : (
@@ -79,7 +98,7 @@ export default async function AdminDashboard() {
               {lowStock.map((product) => (
                 <li
                   key={product.id}
-                  className="flex justify-between items-center text-sm border-b border-gold/10 pb-3"
+                  className="flex justify-between items-center text-sm border-b border-gold/10 pb-3 last:border-0"
                 >
                   <Link
                     href={`/admin/productos/${product.id}`}
@@ -96,7 +115,7 @@ export default async function AdminDashboard() {
           )}
           <Link
             href="/admin/productos"
-            className={`inline-block mt-4 ${adminLink}`}
+            className={`inline-block mt-5 ${adminLink}`}
           >
             Gestionar productos →
           </Link>

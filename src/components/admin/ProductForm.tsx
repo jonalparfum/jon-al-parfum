@@ -1,12 +1,19 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
+import { useAdminToast } from "@/components/admin/AdminToast";
 import {
+  adminBtnGhost,
   adminBtnPrimary,
+  adminCard,
   adminInput,
   adminLabel,
+  adminLink,
   adminMuted,
-  adminPanelPadding,
+  adminSectionTitle,
+  adminSelect,
+  adminSubtitle,
 } from "@/lib/admin-styles";
 import {
   prepareProductPayload,
@@ -20,6 +27,7 @@ type ProductFormProps = {
   categories: Category[];
   initial?: Partial<ProductFormPayload>;
   onSubmit: (data: ReturnType<typeof prepareProductPayload>) => Promise<void>;
+  mode?: "create" | "edit";
 };
 
 function notesToString(notes: string[]): string {
@@ -33,11 +41,32 @@ function stringToNotes(value: string): string[] {
     .filter(Boolean);
 }
 
+function FormSection({
+  title,
+  description,
+  children,
+}: {
+  title: string;
+  description?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <section className={adminCard}>
+      <h2 className={adminSectionTitle}>{title}</h2>
+      {description && <p className={`${adminMuted} mb-5`}>{description}</p>}
+      {!description && <div className="mb-5" />}
+      {children}
+    </section>
+  );
+}
+
 export default function ProductForm({
   categories,
   initial,
   onSubmit,
+  mode = "create",
 }: ProductFormProps) {
+  const { showToast } = useAdminToast();
   const [form, setForm] = useState<ProductFormPayload>({
     name: initial?.name || "",
     slug: initial?.slug || "",
@@ -67,6 +96,7 @@ export default function ProductForm({
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [loadingSubs, setLoadingSubs] = useState(false);
+  const [manualUrl, setManualUrl] = useState("");
 
   const loadSubcategories = (categoryId: string) => {
     if (!categoryId) {
@@ -120,10 +150,10 @@ export default function ProductForm({
         if (res.ok) {
           uploaded.push(data.url);
         } else {
-          alert(data.error || "Error al subir imagen");
+          showToast(data.error || "Error al subir imagen", "error");
         }
       } catch {
-        alert("Error al subir imagen");
+        showToast("Error al subir imagen", "error");
       }
     }
 
@@ -136,6 +166,11 @@ export default function ProductForm({
           image: images[0] || prev.image,
         };
       });
+      showToast(
+        uploaded.length === 1
+          ? "Imagen subida"
+          : `${uploaded.length} imágenes subidas`
+      );
     }
 
     setUploading(false);
@@ -165,6 +200,7 @@ export default function ProductForm({
         image: images[0],
       };
     });
+    showToast("Imagen principal actualizada");
   };
 
   const addImageUrl = (url: string) => {
@@ -178,6 +214,8 @@ export default function ProductForm({
         image: prev.image || images[0],
       };
     });
+    setManualUrl("");
+    showToast("URL agregada");
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -186,153 +224,174 @@ export default function ProductForm({
     try {
       await onSubmit(prepareProductPayload(form));
     } catch {
-      alert("Error al guardar el producto. Intenta de nuevo.");
+      showToast("Error al guardar el producto. Intenta de nuevo.", "error");
     } finally {
       setSaving(false);
     }
   };
 
+  const checkboxClass =
+    "h-4 w-4 rounded border-gold/30 bg-luxury-black text-gold focus:ring-gold/30";
+
   return (
-    <form
-      onSubmit={handleSubmit}
-      className={`${adminPanelPadding} max-w-3xl space-y-6`}
-    >
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
-          <label className={adminLabel}>Nombre *</label>
-          <input
-            type="text"
-            required
-            value={form.name}
-            onChange={(e) => update("name", e.target.value)}
-            className={adminInput}
-          />
-        </div>
-        <div>
-          <label className={adminLabel}>Slug</label>
-          <input
-            type="text"
-            value={form.slug}
-            onChange={(e) => update("slug", e.target.value)}
-            className={adminInput}
-            placeholder="auto-generado si vacío"
-          />
-        </div>
-      </div>
-
-      <div>
-        <label className={adminLabel}>Descripción *</label>
-        <textarea
-          required
-          rows={4}
-          value={form.description}
-          onChange={(e) => update("description", e.target.value)}
-          className={adminInput}
-        />
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div>
-          <label className={adminLabel}>Precio (MXN) *</label>
-          <input
-            type="number"
-            step="0.01"
-            required
-            value={form.price}
-            onChange={(e) => update("price", parseFloat(e.target.value))}
-            className={adminInput}
-          />
-        </div>
-        <div>
-          <label className={adminLabel}>Precio original (MXN)</label>
-          <input
-            type="number"
-            step="0.01"
-            value={form.originalPrice || ""}
-            onChange={(e) =>
-              update(
-                "originalPrice",
-                e.target.value ? parseFloat(e.target.value) : undefined
-              )
-            }
-            className={adminInput}
-          />
-        </div>
-        <div>
-          <label className={adminLabel}>Stock</label>
-          <input
-            type="number"
-            value={form.stock}
-            onChange={(e) => update("stock", parseInt(e.target.value))}
-            className={adminInput}
-          />
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div>
-          <label className={adminLabel}>Marca</label>
-          <input
-            type="text"
-            value={form.brand}
-            onChange={(e) => update("brand", e.target.value)}
-            className={adminInput}
-            placeholder="Ej: Dior, Tom Ford…"
-          />
-        </div>
-        <div>
-          <label className={adminLabel}>Categoría *</label>
-          <select
-            required
-            value={form.categoryId}
-            onChange={(e) => {
-              update("categoryId", e.target.value);
-              update("subcategoryId", "");
-            }}
-            className={adminInput}
-          >
-            {categories.map((cat) => (
-              <option key={cat.id} value={cat.id}>
-                {cat.name}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <div className="flex items-center justify-between gap-2 mb-1">
-            <label className={adminLabel}>Subcategoría</label>
-            <button
-              type="button"
-              onClick={() => loadSubcategories(form.categoryId)}
-              className="text-[10px] uppercase tracking-wider text-gold hover:text-gold-light"
-            >
-              {loadingSubs ? "Actualizando…" : "Actualizar lista"}
-            </button>
+    <form onSubmit={handleSubmit} className="max-w-4xl space-y-6">
+      <FormSection
+        title="Información básica"
+        description="Nombre, descripción y datos de identificación del perfume."
+      >
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <div>
+            <label className={adminLabel}>Nombre *</label>
+            <input
+              type="text"
+              required
+              value={form.name}
+              onChange={(e) => update("name", e.target.value)}
+              className={adminInput}
+            />
           </div>
-          <select
-            value={form.subcategoryId || ""}
-            onChange={(e) =>
-              update("subcategoryId", e.target.value || undefined)
-            }
-            onFocus={() => loadSubcategories(form.categoryId)}
-            className={adminInput}
-          >
-            <option value="">
-              {subcategories.length === 0
-                ? "Sin subcategorías — créalas en Categorías"
-                : "Sin subcategoría"}
-            </option>
-            {subcategories.map((sub) => (
-              <option key={sub.id} value={sub.id}>
-                {sub.name}
-              </option>
-            ))}
-          </select>
+          <div>
+            <label className={adminLabel}>Slug</label>
+            <input
+              type="text"
+              value={form.slug}
+              onChange={(e) => update("slug", e.target.value)}
+              className={adminInput}
+              placeholder="auto-generado si vacío"
+            />
+          </div>
         </div>
-      </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
+        <div className="mt-5">
+          <label className={adminLabel}>Descripción *</label>
+          <textarea
+            required
+            rows={4}
+            value={form.description}
+            onChange={(e) => update("description", e.target.value)}
+            className={adminInput}
+          />
+        </div>
+      </FormSection>
+
+      <FormSection
+        title="Precio e inventario"
+        description="Precios en pesos mexicanos (MXN) y unidades disponibles."
+      >
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+          <div>
+            <label className={adminLabel}>Precio (MXN) *</label>
+            <input
+              type="number"
+              step="0.01"
+              required
+              value={form.price}
+              onChange={(e) => update("price", parseFloat(e.target.value))}
+              className={adminInput}
+            />
+          </div>
+          <div>
+            <label className={adminLabel}>Precio original (MXN)</label>
+            <input
+              type="number"
+              step="0.01"
+              value={form.originalPrice || ""}
+              onChange={(e) =>
+                update(
+                  "originalPrice",
+                  e.target.value ? parseFloat(e.target.value) : undefined
+                )
+              }
+              className={adminInput}
+              placeholder="Para ofertas"
+            />
+          </div>
+          <div>
+            <label className={adminLabel}>Stock</label>
+            <input
+              type="number"
+              value={form.stock}
+              onChange={(e) => update("stock", parseInt(e.target.value))}
+              className={adminInput}
+            />
+          </div>
+        </div>
+      </FormSection>
+
+      <FormSection
+        title="Catálogo"
+        description="Clasifica el producto dentro de tu tienda."
+      >
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          <div>
+            <label className={adminLabel}>Marca</label>
+            <input
+              type="text"
+              value={form.brand}
+              onChange={(e) => update("brand", e.target.value)}
+              className={adminInput}
+              placeholder="Ej: Dior, Tom Ford…"
+            />
+          </div>
+          <div>
+            <label className={adminLabel}>Categoría *</label>
+            <select
+              required
+              value={form.categoryId}
+              onChange={(e) => {
+                update("categoryId", e.target.value);
+                update("subcategoryId", "");
+              }}
+              className={adminSelect}
+            >
+              {categories.map((cat) => (
+                <option key={cat.id} value={cat.id}>
+                  {cat.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <div className="flex items-center justify-between gap-2 mb-1.5">
+              <label className={adminLabel}>Subcategoría</label>
+              <button
+                type="button"
+                onClick={() => loadSubcategories(form.categoryId)}
+                className="text-[10px] uppercase tracking-wider text-gold hover:text-gold-light"
+              >
+                {loadingSubs ? "Actualizando…" : "Actualizar"}
+              </button>
+            </div>
+            <select
+              value={form.subcategoryId || ""}
+              onChange={(e) =>
+                update("subcategoryId", e.target.value || undefined)
+              }
+              onFocus={() => loadSubcategories(form.categoryId)}
+              className={adminSelect}
+            >
+              <option value="">
+                {subcategories.length === 0
+                  ? "Sin subcategorías"
+                  : "Sin subcategoría"}
+              </option>
+              {subcategories.map((sub) => (
+                <option key={sub.id} value={sub.id}>
+                  {sub.name}
+                </option>
+              ))}
+            </select>
+            {subcategories.length === 0 && (
+              <p className={`${adminMuted} mt-2`}>
+                <Link href="/admin/catalogos" className={adminLink}>
+                  Crear subcategorías →
+                </Link>
+              </p>
+            )}
+          </div>
+        </div>
+
+        <div className="mt-5 max-w-xs">
           <label className={adminLabel}>Tamaño</label>
           <input
             type="text"
@@ -341,21 +400,18 @@ export default function ProductForm({
             className={adminInput}
           />
         </div>
-      </div>
+      </FormSection>
 
-      <div>
-        <label className={adminLabel}>Fotos del perfume</label>
-        <p className={`${adminMuted} mb-3`}>
-          Puedes subir varias imágenes. La primera es la foto principal en la
-          tienda.
-        </p>
-
+      <FormSection
+        title="Imágenes"
+        description="La primera imagen es la foto principal en la tienda. Puedes subir varias o pegar URLs."
+      >
         {form.images.length > 0 && (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 mb-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 mb-5">
             {form.images.map((url, index) => (
               <div
                 key={`${url}-${index}`}
-                className="relative rounded overflow-hidden border border-gold/20 bg-luxury-black/50"
+                className="relative rounded-lg overflow-hidden border border-gold/20 bg-luxury-black/50"
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
@@ -364,11 +420,11 @@ export default function ProductForm({
                   className="w-full aspect-[3/4] object-cover"
                 />
                 {index === 0 && (
-                  <span className="absolute top-1 left-1 bg-gold text-luxury-black text-[9px] uppercase tracking-wider px-1.5 py-0.5">
+                  <span className="absolute top-2 left-2 bg-gold text-luxury-black text-[9px] uppercase tracking-wider px-2 py-0.5 rounded">
                     Principal
                   </span>
                 )}
-                <div className="flex flex-wrap gap-1 p-2 bg-luxury-black/80">
+                <div className="flex flex-wrap gap-2 p-2 bg-luxury-black/90 border-t border-gold/10">
                   {index !== 0 && (
                     <button
                       type="button"
@@ -391,117 +447,135 @@ export default function ProductForm({
           </div>
         )}
 
-        <div className="space-y-2">
-          <input
-            type="file"
-            accept="image/jpeg,image/png,image/webp"
-            multiple
-            onChange={handleImageUpload}
-            className="text-sm text-cream/70"
-          />
-          {uploading && (
-            <p className={adminMuted}>Subiendo imágenes...</p>
-          )}
+        <div className="space-y-3">
+          <label className="flex flex-col items-start gap-2 cursor-pointer">
+            <span className={adminBtnGhost}>Seleccionar archivos</span>
+            <input
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              multiple
+              onChange={handleImageUpload}
+              className="sr-only"
+            />
+          </label>
+          {uploading && <p className={adminMuted}>Subiendo imágenes...</p>}
           <div className="flex gap-2">
             <input
               type="text"
-              id="manual-image-url"
+              value={manualUrl}
               placeholder="Pegar URL de imagen"
               className={`${adminInput} flex-1`}
+              onChange={(e) => setManualUrl(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === "Enter") {
                   e.preventDefault();
-                  addImageUrl((e.currentTarget as HTMLInputElement).value);
-                  (e.currentTarget as HTMLInputElement).value = "";
+                  addImageUrl(manualUrl);
                 }
               }}
             />
             <button
               type="button"
-              onClick={() => {
-                const input = document.getElementById(
-                  "manual-image-url"
-                ) as HTMLInputElement | null;
-                if (!input) return;
-                addImageUrl(input.value);
-                input.value = "";
-              }}
-              className="shrink-0 px-3 py-2 text-[10px] uppercase tracking-wider border border-gold/30 text-gold hover:border-gold"
+              onClick={() => addImageUrl(manualUrl)}
+              className={adminBtnGhost}
             >
               Agregar URL
             </button>
           </div>
         </div>
-      </div>
+      </FormSection>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div>
-          <label className={adminLabel}>
-            Notas de salida (separadas por coma)
-          </label>
-          <input
-            type="text"
-            value={notesToString(form.notesTop)}
-            onChange={(e) => update("notesTop", stringToNotes(e.target.value))}
-            className={adminInput}
-          />
-        </div>
-        <div>
-          <label className={adminLabel}>Notas de corazón</label>
-          <input
-            type="text"
-            value={notesToString(form.notesHeart)}
-            onChange={(e) =>
-              update("notesHeart", stringToNotes(e.target.value))
-            }
-            className={adminInput}
-          />
-        </div>
-        <div>
-          <label className={adminLabel}>Notas de fondo</label>
-          <input
-            type="text"
-            value={notesToString(form.notesBase)}
-            onChange={(e) => update("notesBase", stringToNotes(e.target.value))}
-            className={adminInput}
-          />
-        </div>
-      </div>
-
-      <div className="flex flex-wrap gap-6">
-        <label className="flex items-center gap-2 text-sm text-cream/80">
-          <input
-            type="checkbox"
-            checked={form.featured}
-            onChange={(e) => update("featured", e.target.checked)}
-          />
-          Destacado
-        </label>
-        <label className="flex items-center gap-2 text-sm text-cream/80">
-          <input
-            type="checkbox"
-            checked={form.isNew}
-            onChange={(e) => update("isNew", e.target.checked)}
-          />
-          Nuevo
-        </label>
-        <label className="flex items-center gap-2 text-sm text-cream/80">
-          <input
-            type="checkbox"
-            checked={form.active}
-            onChange={(e) => update("active", e.target.checked)}
-          />
-          Activo
-        </label>
-      </div>
-
-      <button
-        type="submit"
-        disabled={saving}
-        className={`${adminBtnPrimary} px-6 py-3 disabled:opacity-50`}
+      <FormSection
+        title="Notas olfativas"
+        description="Separa cada nota con comas."
       >
-        {saving ? "Guardando..." : "Guardar producto"}
-      </button>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          <div>
+            <label className={adminLabel}>Notas de salida</label>
+            <input
+              type="text"
+              value={notesToString(form.notesTop)}
+              onChange={(e) =>
+                update("notesTop", stringToNotes(e.target.value))
+              }
+              className={adminInput}
+              placeholder="Bergamota, limón…"
+            />
+          </div>
+          <div>
+            <label className={adminLabel}>Notas de corazón</label>
+            <input
+              type="text"
+              value={notesToString(form.notesHeart)}
+              onChange={(e) =>
+                update("notesHeart", stringToNotes(e.target.value))
+              }
+              className={adminInput}
+              placeholder="Rosa, jazmín…"
+            />
+          </div>
+          <div>
+            <label className={adminLabel}>Notas de fondo</label>
+            <input
+              type="text"
+              value={notesToString(form.notesBase)}
+              onChange={(e) =>
+                update("notesBase", stringToNotes(e.target.value))
+              }
+              className={adminInput}
+              placeholder="Vainilla, ámbar…"
+            />
+          </div>
+        </div>
+      </FormSection>
+
+      <FormSection title="Visibilidad">
+        <div className="flex flex-wrap gap-6">
+          <label className="flex items-center gap-2.5 text-sm text-cream/80 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={form.featured}
+              onChange={(e) => update("featured", e.target.checked)}
+              className={checkboxClass}
+            />
+            Destacado en tienda
+          </label>
+          <label className="flex items-center gap-2.5 text-sm text-cream/80 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={form.isNew}
+              onChange={(e) => update("isNew", e.target.checked)}
+              className={checkboxClass}
+            />
+            Marcar como nuevo
+          </label>
+          <label className="flex items-center gap-2.5 text-sm text-cream/80 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={form.active}
+              onChange={(e) => update("active", e.target.checked)}
+              className={checkboxClass}
+            />
+            Visible en tienda
+          </label>
+        </div>
+      </FormSection>
+
+      <div className="flex flex-wrap items-center gap-3 pt-2">
+        <button
+          type="submit"
+          disabled={saving}
+          className={`${adminBtnPrimary} px-8 py-3 disabled:opacity-50`}
+        >
+          {saving
+            ? "Guardando..."
+            : mode === "edit"
+              ? "Guardar cambios"
+              : "Crear producto"}
+        </button>
+        <Link href="/admin/productos" className={adminBtnGhost}>
+          Cancelar
+        </Link>
+      </div>
     </form>
   );
 }

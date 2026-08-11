@@ -1,14 +1,21 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import ProductForm from "@/components/admin/ProductForm";
-import { adminPageTitle } from "@/lib/admin-styles";
+import { useAdminToast } from "@/components/admin/AdminToast";
+import {
+  adminLink,
+  adminPageTitle,
+  adminSubtitle,
+} from "@/lib/admin-styles";
 
 type Category = { id: string; name: string; slug: string };
 
 export default function NewProductPage() {
   const router = useRouter();
+  const { showToast } = useAdminToast();
   const [categories, setCategories] = useState<Category[]>([]);
 
   useEffect(() => {
@@ -26,19 +33,33 @@ export default function NewProductPage() {
 
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));
-      alert(
-        (err as { error?: string }).error || "Error al crear producto"
+      showToast(
+        (err as { error?: string }).error || "Error al crear producto",
+        "error"
       );
       throw new Error("create failed");
     }
 
+    showToast("Producto creado correctamente");
     router.replace("/admin/productos");
   };
 
   return (
     <div>
-      <h1 className={`${adminPageTitle} mb-6`}>Nuevo producto</h1>
-      <ProductForm categories={categories} onSubmit={handleSubmit} />
+      <Link href="/admin/productos" className={`${adminLink} text-xs uppercase tracking-wider`}>
+        ← Volver a productos
+      </Link>
+      <div className="mt-4 mb-8">
+        <h1 className={adminPageTitle}>Nuevo producto</h1>
+        <p className={adminSubtitle}>
+          Completa la información para publicar un perfume en la tienda.
+        </p>
+      </div>
+      <ProductForm
+        categories={categories}
+        onSubmit={handleSubmit}
+        mode="create"
+      />
     </div>
   );
 }

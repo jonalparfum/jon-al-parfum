@@ -1,26 +1,29 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { slugify } from "@/lib/product-utils";
+import { useAdminToast } from "@/components/admin/AdminToast";
 import {
+  adminBtnDanger,
+  adminBtnGhost,
   adminBtnPrimary,
+  adminBtnSuccess,
+  adminCard,
+  adminEmptyState,
+  adminFilterGroup,
+  adminFilterPill,
+  adminFilterPillActive,
+  adminFilterPillInactive,
   adminInput,
   adminLabel,
   adminLink,
-  adminLinkDanger,
   adminLoading,
   adminMuted,
   adminPageTitle,
-  adminPanel,
   adminPanelPadding,
-  adminSectionTitle,
   adminSelect,
-  adminTableHead,
-  adminTd,
-  adminTdMuted,
-  adminTh,
-  adminTr,
+  adminSubtitle,
 } from "@/lib/admin-styles";
 
 type Category = {
@@ -42,9 +45,11 @@ type Subcategory = {
 };
 
 export default function AdminCategoriesPage() {
+  const { showToast } = useAdminToast();
   const [categories, setCategories] = useState<Category[]>([]);
   const [subcategories, setSubcategories] = useState<Subcategory[]>([]);
   const [loading, setLoading] = useState(true);
+  const [viewFilter, setViewFilter] = useState<string>("all");
 
   const [catName, setCatName] = useState("");
   const [catDescription, setCatDescription] = useState("");
@@ -79,6 +84,21 @@ export default function AdminCategoriesPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const visibleCategories = useMemo(() => {
+    if (viewFilter === "all") return categories;
+    return categories.filter((c) => c.id === viewFilter);
+  }, [categories, viewFilter]);
+
+  const subsByCategory = useMemo(() => {
+    const map = new Map<string, Subcategory[]>();
+    subcategories.forEach((sub) => {
+      const list = map.get(sub.categoryId) || [];
+      list.push(sub);
+      map.set(sub.categoryId, list);
+    });
+    return map;
+  }, [subcategories]);
+
   const handleCreateCategory = async (e: React.FormEvent) => {
     e.preventDefault();
     const res = await fetch("/api/admin/categories", {
@@ -93,32 +113,67 @@ export default function AdminCategoriesPage() {
     if (res.ok) {
       setCatName("");
       setCatDescription("");
+      showToast("Categoría creada");
       load();
     } else {
       const err = await res.json();
-      alert(err.error || "Error al crear categoría");
+      showToast(err.error || "Error al crear categoría", "error");
     }
   };
 
-  const handleCreateSubcategory = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const createSubcategory = async (
+    categoryId: string,
+    name: string,
+    description: string
+  ) => {
     const res = await fetch("/api/admin/subcategories", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        name: subName,
-        description: subDescription,
-        categoryId: subCategoryId,
-        slug: slugify(subName),
+        name,
+        description,
+        categoryId,
+        slug: slugify(name),
       }),
     });
     if (res.ok) {
+      showToast("Subcategoría creada");
+      load();
+      return true;
+    }
+    const err = await res.json();
+    showToast(err.error || "Error al crear subcategoría", "error");
+    return false;
+  };
+
+  const handleCreateSubcategory = async (
+    e: React.FormEvent,
+    categoryId: string
+  ) => {
+    e.preventDefault();
+    const form = e.target as HTMLFormElement;
+    const nameInput = form.elements.namedItem("subName") as HTMLInputElement;
+    const descInput = form.elements.namedItem(
+      "subDescription"
+    ) as HTMLInputElement;
+    const ok = await createSubcategory(
+      categoryId,
+      nameInput.value.trim(),
+      descInput.value.trim()
+    );
+    if (ok) form.reset();
+  };
+
+  const handleCreateSubcategoryManual = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const ok = await createSubcategory(
+      subCategoryId,
+      subName.trim(),
+      subDescription.trim()
+    );
+    if (ok) {
       setSubName("");
       setSubDescription("");
-      load();
-    } else {
-      const err = await res.json();
-      alert(err.error || "Error al crear subcategoría");
     }
   };
 
@@ -139,20 +194,24 @@ export default function AdminCategoriesPage() {
     });
     if (res.ok) {
       setEditingCatId(null);
+      showToast("Categoría actualizada");
       load();
     } else {
       const err = await res.json();
-      alert(err.error || "Error al guardar");
+      showToast(err.error || "Error al guardar", "error");
     }
   };
 
   const deleteCategory = async (id: string, name: string) => {
     if (!confirm(`¿Eliminar categoría "${name}"?`)) return;
     const res = await fetch(`/api/admin/categories/${id}`, { method: "DELETE" });
-    if (res.ok) load();
-    else {
+    if (res.ok) {
+      showToast("Categoría eliminada");
+      if (viewFilter === id) setViewFilter("all");
+      load();
+    } else {
       const err = await res.json();
-      alert(err.error || "No se pudo eliminar");
+      showToast(err.error || "No se pudo eliminar", "error");
     }
   };
 
@@ -175,146 +234,324 @@ export default function AdminCategoriesPage() {
     });
     if (res.ok) {
       setEditingSubId(null);
+      showToast("Subcategoría actualizada");
       load();
     } else {
       const err = await res.json();
-      alert(err.error || "Error al guardar");
+      showToast(err.error || "Error al guardar", "error");
     }
   };
 
   const deleteSubcategory = async (id: string, name: string) => {
     if (!confirm(`¿Eliminar subcategoría "${name}"?`)) return;
     const res = await fetch(`/api/admin/subcategories/${id}`, { method: "DELETE" });
-    if (res.ok) load();
-    else {
+    if (res.ok) {
+      showToast("Subcategoría eliminada");
+      load();
+    } else {
       const err = await res.json();
-      alert(err.error || "No se pudo eliminar");
+      showToast(err.error || "No se pudo eliminar", "error");
     }
   };
 
-  if (loading) return <p className={adminLoading}>Cargando...</p>;
+  if (loading) return <p className={adminLoading}>Cargando catálogo...</p>;
 
   return (
-    <div className="space-y-10">
-      <div>
-        <h1 className={`${adminPageTitle} mb-2`}>Categorías y subcategorías</h1>
-        <p className={adminMuted}>
-          Organiza tu catálogo: categorías principales (Hombre, Mujer…) y
-          subcategorías (EDP, Nicho, Ofertas…).
-        </p>
+    <div className="space-y-8">
+      <div className="flex flex-wrap justify-between items-start gap-4">
+        <div>
+          <h1 className={adminPageTitle}>Categorías y subcategorías</h1>
+          <p className={adminSubtitle}>
+            {categories.length} categorías · {subcategories.length} subcategorías
+          </p>
+        </div>
+        <Link href="/admin/productos/nuevo" className={adminBtnGhost}>
+          + Crear producto
+        </Link>
       </div>
 
-      <section>
-        <h2 className={adminSectionTitle}>Categorías</h2>
-        <form
-          onSubmit={handleCreateCategory}
-          className={`${adminPanelPadding} mb-6 max-w-lg space-y-4`}
-        >
-          <h3 className="text-sm font-medium text-gold">Nueva categoría</h3>
-          <div>
-            <label className={adminLabel}>Nombre</label>
-            <input
-              type="text"
-              required
-              placeholder="Ej: Hombre"
-              value={catName}
-              onChange={(e) => setCatName(e.target.value)}
-              className={adminInput}
-            />
-          </div>
-          <div>
-            <label className={adminLabel}>Descripción (opcional)</label>
-            <input
-              type="text"
-              value={catDescription}
-              onChange={(e) => setCatDescription(e.target.value)}
-              className={adminInput}
-            />
-          </div>
-          <button type="submit" className={adminBtnPrimary}>
-            Crear categoría
-          </button>
-        </form>
-
-        <div className={`${adminPanel} overflow-x-auto`}>
-          <table className="w-full text-sm min-w-[640px]">
-            <thead className={adminTableHead}>
-              <tr>
-                <th className={adminTh}>Nombre</th>
-                <th className={adminTh}>Slug</th>
-                <th className={adminTh}>Productos</th>
-                <th className={adminTh}>Subcategorías</th>
-                <th className={`${adminTh} text-right`}>Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {categories.map((cat) => (
-                <tr key={cat.id} className={adminTr}>
-                  <td className={adminTd}>
-                    {editingCatId === cat.id ? (
-                      <input
-                        value={editCatName}
-                        onChange={(e) => setEditCatName(e.target.value)}
-                        className={adminInput}
-                      />
-                    ) : (
-                      <span className="font-medium text-cream">{cat.name}</span>
-                    )}
-                  </td>
-                  <td className={adminTdMuted}>{cat.slug}</td>
-                  <td className={adminTd}>{cat._count.products}</td>
-                  <td className={adminTd}>{cat._count.subcategories}</td>
-                  <td className={`${adminTd} text-right space-x-3 whitespace-nowrap`}>
-                    {editingCatId === cat.id ? (
-                      <>
-                        <button
-                          type="button"
-                          onClick={() => saveCategory(cat.id)}
-                          className="text-green-400 hover:text-green-300"
-                        >
-                          Guardar
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setEditingCatId(null)}
-                          className="text-cream/50 hover:text-cream"
-                        >
-                          Cancelar
-                        </button>
-                      </>
-                    ) : (
-                      <>
-                        <button
-                          type="button"
-                          onClick={() => startEditCategory(cat)}
-                          className={adminLink}
-                        >
-                          Editar
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => deleteCategory(cat.id, cat.name)}
-                          className={adminLinkDanger}
-                        >
-                          Eliminar
-                        </button>
-                      </>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+      <form
+        onSubmit={handleCreateCategory}
+        className={`${adminPanelPadding} grid grid-cols-1 md:grid-cols-[1fr_1fr_auto] gap-4 items-end`}
+      >
+        <div>
+          <label className={adminLabel}>Nueva categoría</label>
+          <input
+            type="text"
+            required
+            placeholder="Ej: Hombre"
+            value={catName}
+            onChange={(e) => setCatName(e.target.value)}
+            className={adminInput}
+          />
         </div>
-      </section>
+        <div>
+          <label className={adminLabel}>Descripción (opcional)</label>
+          <input
+            type="text"
+            value={catDescription}
+            onChange={(e) => setCatDescription(e.target.value)}
+            className={adminInput}
+          />
+        </div>
+        <button type="submit" className={adminBtnPrimary}>
+          Crear categoría
+        </button>
+      </form>
 
-      <section>
-        <h2 className={adminSectionTitle}>Subcategorías</h2>
+      <div>
+        <p className={`${adminLabel} mb-3`}>Filtrar por categoría</p>
+        <div className={adminFilterGroup}>
+          <button
+            type="button"
+            onClick={() => setViewFilter("all")}
+            className={`${adminFilterPill} ${
+              viewFilter === "all"
+                ? adminFilterPillActive
+                : adminFilterPillInactive
+            }`}
+          >
+            Todas ({categories.length})
+          </button>
+          {categories.map((cat) => (
+            <button
+              key={cat.id}
+              type="button"
+              onClick={() => setViewFilter(cat.id)}
+              className={`${adminFilterPill} ${
+                viewFilter === cat.id
+                  ? adminFilterPillActive
+                  : adminFilterPillInactive
+              }`}
+            >
+              {cat.name} ({cat._count.products})
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {visibleCategories.length === 0 ? (
+        <div className={adminEmptyState}>
+          <p className="text-cream/70 mb-2">No hay categorías todavía.</p>
+          <p className={adminMuted}>Crea la primera categoría arriba.</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
+          {visibleCategories.map((cat) => {
+            const subs = subsByCategory.get(cat.id) || [];
+            const isEditing = editingCatId === cat.id;
+
+            return (
+              <article key={cat.id} className={adminCard}>
+                <div className="flex flex-wrap justify-between gap-3 mb-4 pb-4 border-b border-gold/10">
+                  <div className="flex-1 min-w-0">
+                    {isEditing ? (
+                      <div className="space-y-2">
+                        <input
+                          value={editCatName}
+                          onChange={(e) => setEditCatName(e.target.value)}
+                          className={adminInput}
+                        />
+                        <input
+                          value={editCatDescription}
+                          onChange={(e) => setEditCatDescription(e.target.value)}
+                          placeholder="Descripción"
+                          className={adminInput}
+                        />
+                      </div>
+                    ) : (
+                      <>
+                        <h2 className="font-medium text-lg text-cream">{cat.name}</h2>
+                        <p className={`${adminMuted} mt-1`}>
+                          /{cat.slug}
+                          {cat.description ? ` · ${cat.description}` : ""}
+                        </p>
+                      </>
+                    )}
+                  </div>
+                  <div className="flex flex-wrap gap-2 text-xs">
+                    <span className="px-2 py-1 rounded-full bg-gold/10 text-gold border border-gold/20">
+                      {cat._count.products} productos
+                    </span>
+                    <span className="px-2 py-1 rounded-full bg-luxury-black/50 text-cream/60 border border-gold/10">
+                      {subs.length} subcategorías
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap gap-2 mb-5">
+                  {isEditing ? (
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => saveCategory(cat.id)}
+                        className={adminBtnSuccess}
+                      >
+                        Guardar
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setEditingCatId(null)}
+                        className={adminBtnGhost}
+                      >
+                        Cancelar
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => startEditCategory(cat)}
+                        className={adminBtnGhost}
+                      >
+                        Editar
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => deleteCategory(cat.id, cat.name)}
+                        className={adminBtnDanger}
+                      >
+                        Eliminar
+                      </button>
+                    </>
+                  )}
+                </div>
+
+                <div className="space-y-2 mb-4">
+                  <p className={adminLabel}>Subcategorías</p>
+                  {subs.length === 0 ? (
+                    <p className={`${adminMuted} text-sm py-2`}>
+                      Sin subcategorías en esta categoría.
+                    </p>
+                  ) : (
+                    <ul className="space-y-2">
+                      {subs.map((sub) => (
+                        <li
+                          key={sub.id}
+                          className="flex flex-wrap items-center justify-between gap-2 p-3 rounded-lg bg-luxury-black/40 border border-gold/10"
+                        >
+                          {editingSubId === sub.id ? (
+                            <div className="flex-1 space-y-2 w-full">
+                              <input
+                                value={editSubName}
+                                onChange={(e) => setEditSubName(e.target.value)}
+                                className={adminInput}
+                              />
+                              <input
+                                value={editSubDescription}
+                                onChange={(e) =>
+                                  setEditSubDescription(e.target.value)
+                                }
+                                placeholder="Descripción"
+                                className={adminInput}
+                              />
+                              <select
+                                value={editSubCategoryId}
+                                onChange={(e) =>
+                                  setEditSubCategoryId(e.target.value)
+                                }
+                                className={adminSelect}
+                              >
+                                {categories.map((c) => (
+                                  <option key={c.id} value={c.id}>
+                                    {c.name}
+                                  </option>
+                                ))}
+                              </select>
+                              <div className="flex gap-2">
+                                <button
+                                  type="button"
+                                  onClick={() => saveSubcategory(sub.id)}
+                                  className={adminBtnSuccess}
+                                >
+                                  Guardar
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => setEditingSubId(null)}
+                                  className={adminBtnGhost}
+                                >
+                                  Cancelar
+                                </button>
+                              </div>
+                            </div>
+                          ) : (
+                            <>
+                              <div>
+                                <p className="text-sm font-medium text-cream">
+                                  {sub.name}
+                                </p>
+                                <p className="text-xs text-cream/45">
+                                  /{sub.slug} · {sub._count.products} productos
+                                  {sub.description ? ` · ${sub.description}` : ""}
+                                </p>
+                              </div>
+                              <div className="flex gap-2">
+                                <button
+                                  type="button"
+                                  onClick={() => startEditSubcategory(sub)}
+                                  className={adminLink}
+                                >
+                                  Editar
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    deleteSubcategory(sub.id, sub.name)
+                                  }
+                                  className="text-red-400 hover:text-red-300 text-sm"
+                                >
+                                  Eliminar
+                                </button>
+                              </div>
+                            </>
+                          )}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+
+                <form
+                  onSubmit={(e) => handleCreateSubcategory(e, cat.id)}
+                  className="pt-4 border-t border-gold/10 grid grid-cols-1 sm:grid-cols-[1fr_1fr_auto] gap-2 items-end"
+                >
+                  <div>
+                    <label className={adminLabel}>Nueva subcategoría</label>
+                    <input
+                      name="subName"
+                      type="text"
+                      required
+                      placeholder="Ej: Eau de Parfum"
+                      className={adminInput}
+                    />
+                  </div>
+                  <div>
+                    <label className={adminLabel}>Descripción</label>
+                    <input
+                      name="subDescription"
+                      type="text"
+                      className={adminInput}
+                    />
+                  </div>
+                  <button type="submit" className={adminBtnPrimary}>
+                    Agregar
+                  </button>
+                </form>
+              </article>
+            );
+          })}
+        </div>
+      )}
+
+      <section className={adminPanelPadding}>
+        <h2 className="text-sm font-medium text-gold mb-3">
+          Crear subcategoría (selector manual)
+        </h2>
         <form
-          onSubmit={handleCreateSubcategory}
-          className={`${adminPanelPadding} mb-6 max-w-lg space-y-4`}
+          onSubmit={handleCreateSubcategoryManual}
+          className="grid grid-cols-1 md:grid-cols-4 gap-3 items-end"
         >
-          <h3 className="text-sm font-medium text-gold">Nueva subcategoría</h3>
           <div>
             <label className={adminLabel}>Categoría</label>
             <select
@@ -323,9 +560,9 @@ export default function AdminCategoriesPage() {
               onChange={(e) => setSubCategoryId(e.target.value)}
               className={adminSelect}
             >
-              {categories.map((cat) => (
-                <option key={cat.id} value={cat.id}>
-                  {cat.name}
+              {categories.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name}
                 </option>
               ))}
             </select>
@@ -335,14 +572,13 @@ export default function AdminCategoriesPage() {
             <input
               type="text"
               required
-              placeholder="Ej: Eau de Parfum"
               value={subName}
               onChange={(e) => setSubName(e.target.value)}
               className={adminInput}
             />
           </div>
           <div>
-            <label className={adminLabel}>Descripción (opcional)</label>
+            <label className={adminLabel}>Descripción</label>
             <input
               type="text"
               value={subDescription}
@@ -351,112 +587,10 @@ export default function AdminCategoriesPage() {
             />
           </div>
           <button type="submit" className={adminBtnPrimary}>
-            Crear subcategoría
+            Crear
           </button>
         </form>
-
-        <div className={`${adminPanel} overflow-x-auto`}>
-          <table className="w-full text-sm min-w-[720px]">
-            <thead className={adminTableHead}>
-              <tr>
-                <th className={adminTh}>Nombre</th>
-                <th className={adminTh}>Categoría</th>
-                <th className={adminTh}>Slug</th>
-                <th className={adminTh}>Productos</th>
-                <th className={`${adminTh} text-right`}>Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {subcategories.length === 0 ? (
-                <tr>
-                  <td colSpan={5} className={`${adminTdMuted} p-6 text-center`}>
-                    Aún no hay subcategorías. Crea la primera arriba.
-                  </td>
-                </tr>
-              ) : (
-                subcategories.map((sub) => (
-                  <tr key={sub.id} className={adminTr}>
-                    <td className={adminTd}>
-                      {editingSubId === sub.id ? (
-                        <input
-                          value={editSubName}
-                          onChange={(e) => setEditSubName(e.target.value)}
-                          className={adminInput}
-                        />
-                      ) : (
-                        <span className="font-medium text-cream">{sub.name}</span>
-                      )}
-                    </td>
-                    <td className={adminTd}>
-                      {editingSubId === sub.id ? (
-                        <select
-                          value={editSubCategoryId}
-                          onChange={(e) => setEditSubCategoryId(e.target.value)}
-                          className={adminSelect}
-                        >
-                          {categories.map((cat) => (
-                            <option key={cat.id} value={cat.id}>
-                              {cat.name}
-                            </option>
-                          ))}
-                        </select>
-                      ) : (
-                        sub.category.name
-                      )}
-                    </td>
-                    <td className={adminTdMuted}>{sub.slug}</td>
-                    <td className={adminTd}>{sub._count.products}</td>
-                    <td className={`${adminTd} text-right space-x-3 whitespace-nowrap`}>
-                      {editingSubId === sub.id ? (
-                        <>
-                          <button
-                            type="button"
-                            onClick={() => saveSubcategory(sub.id)}
-                            className="text-green-400 hover:text-green-300"
-                          >
-                            Guardar
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => setEditingSubId(null)}
-                            className="text-cream/50 hover:text-cream"
-                          >
-                            Cancelar
-                          </button>
-                        </>
-                      ) : (
-                        <>
-                          <button
-                            type="button"
-                            onClick={() => startEditSubcategory(sub)}
-                            className={adminLink}
-                          >
-                            Editar
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => deleteSubcategory(sub.id, sub.name)}
-                            className={adminLinkDanger}
-                          >
-                            Eliminar
-                          </button>
-                        </>
-                      )}
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
       </section>
-
-      <p className={adminMuted}>
-        ¿Listo para agregar productos?{" "}
-        <Link href="/admin/productos/nuevo" className={adminLink}>
-          Crear producto →
-        </Link>
-      </p>
     </div>
   );
 }

@@ -1,9 +1,16 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import ProductForm from "@/components/admin/ProductForm";
+import { useAdminToast } from "@/components/admin/AdminToast";
 import { parseNotes, resolveProductImages } from "@/lib/product-utils";
-import { adminLoading, adminPageTitle } from "@/lib/admin-styles";
+import {
+  adminLink,
+  adminLoading,
+  adminPageTitle,
+  adminSubtitle,
+} from "@/lib/admin-styles";
 
 type Category = { id: string; name: string; slug: string };
 
@@ -35,6 +42,7 @@ export default function EditProductPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  const { showToast } = useAdminToast();
   const [product, setProduct] = useState<Product | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
   const [id, setId] = useState("");
@@ -61,24 +69,31 @@ export default function EditProductPage({
 
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));
-      alert(
-        (err as { error?: string }).error || "Error al actualizar producto"
+      showToast(
+        (err as { error?: string }).error || "Error al actualizar producto",
+        "error"
       );
       throw new Error("update failed");
     }
 
     const saved = (await res.json()) as Product;
     setProduct(saved);
-    alert("Producto guardado correctamente");
+    showToast("Producto guardado correctamente");
   };
 
   if (!product) {
-    return <p className={adminLoading}>Cargando...</p>;
+    return <p className={adminLoading}>Cargando producto...</p>;
   }
 
   return (
     <div>
-      <h1 className={`${adminPageTitle} mb-6`}>Editar producto</h1>
+      <Link href="/admin/productos" className={`${adminLink} text-xs uppercase tracking-wider`}>
+        ← Volver a productos
+      </Link>
+      <div className="mt-4 mb-8">
+        <h1 className={adminPageTitle}>Editar producto</h1>
+        <p className={adminSubtitle}>{product.name}</p>
+      </div>
       <ProductForm
         key={`${product.id}-${product.updatedAt ?? product.image}`}
         categories={categories}
@@ -103,6 +118,7 @@ export default function EditProductPage({
           subcategoryId: product.subcategoryId ?? undefined,
         }}
         onSubmit={handleSubmit}
+        mode="edit"
       />
     </div>
   );
