@@ -33,7 +33,7 @@ export default async function ShopPage({ searchParams }: PageProps) {
           Tienda
         </h1>
         <p className="text-cream/50 max-w-xl mx-auto">
-          {products.length} fragancias exclusivas para descubrir tu aroma perfecto
+          {products.length} perfumes originales para descubrir tu aroma perfecto
         </p>
       </div>
 

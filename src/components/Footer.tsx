@@ -26,8 +26,8 @@ export default function Footer() {
             </p>
             <p className="text-xs text-cream/40 mb-4">{LOCATION}</p>
             <p className="text-cream/70 text-sm leading-relaxed max-w-xs mx-auto md:mx-0">
-              Fragancias de autor creadas con pasión y los más finos ingredientes.
-              Cada perfume cuenta una historia única.
+              Vendemos perfumes 100% originales de las mejores marcas internacionales.
+              Asesoría personalizada y envíos a todo México.
             </p>
           </div>
 

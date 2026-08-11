@@ -92,8 +92,8 @@ export default function ContactSection() {
               Contacto
             </h2>
             <p className="text-cream/75 leading-relaxed mb-6 max-w-md">
-              Desde Nuevo Laredo, Tamaulipas, atendemos consultas sobre fragancias,
-              pedidos especiales y envíos a toda la República Mexicana.
+              Desde Nuevo Laredo, Tamaulipas, atendemos consultas sobre perfumes,
+              disponibilidad y pedidos especiales con envío a todo México.
             </p>
 
             <div className="mb-8">

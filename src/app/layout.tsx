@@ -22,9 +22,9 @@ const cormorant = Cormorant_Garamond({
 });
 
 export const metadata = {
-  title: "Jon Al Parfum | Perfumería de lujo",
+  title: "Jon Al Parfum | Tienda de perfumes de lujo",
   description:
-    "Perfumes que dejan huella. Descubre nuestra colección exclusiva de fragancias de autor para hombre, mujer y unisex.",
+    "Perfumes que dejan huella. Tienda de fragancias 100% originales para hombre, mujer y unisex. Envíos a toda la República Mexicana.",
 };
 
 export default function RootLayout({

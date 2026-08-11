@@ -69,8 +69,8 @@ export default async function HomePage() {
                 className="text-cream/75 text-base md:text-lg max-w-lg mx-auto lg:mx-0 mb-4 leading-relaxed font-light animate-fade-in-up"
                 style={{ animationDelay: "300ms" }}
               >
-                Fragancias exclusivas seleccionadas con dedicación. Cada aroma
-                cuenta una historia única, pensada para quienes buscan distinción.
+                Perfumes originales de las mejores casas perfumistas.
+                Te ayudamos a encontrar la fragancia perfecta para ti.
               </p>
 
               <p
@@ -133,14 +133,14 @@ export default async function HomePage() {
               </div>
               <div className="md:col-span-7 space-y-5 text-cream/75 leading-relaxed font-light">
                 <p>
-                  Jon Al Parfum nace en Nuevo Laredo con la misión de acercar las
-                  fragancias más exclusivas del mundo a quienes aprecian el buen gusto
-                  y la autenticidad.
+                  Jon Al Parfum es tu tienda de confianza en Nuevo Laredo.
+                  Vendemos las fragancias más exclusivas del mundo a quienes
+                  valoran la autenticidad y el buen gusto.
                 </p>
                 <p>
-                  Seleccionamos cada perfume con criterio, ofrecemos atención
-                  personalizada y enviamos con cuidado a cualquier rincón de México.
-                  Porque un aroma memorable merece llegar hasta ti.
+                  Curamos cada perfume del catálogo con criterio, ofrecemos
+                  atención personalizada y enviamos con cuidado a cualquier
+                  rincón de México.
                 </p>
                 <Link
                   href="/tienda"
@@ -202,7 +202,7 @@ export default async function HomePage() {
               {
                 num: "01",
                 title: "100% originales",
-                desc: "Fragancias auténticas de las casas perfumistas más prestigiosas del mundo.",
+                desc: "Vendemos fragancias auténticas de las casas perfumistas más prestigiosas del mundo.",
               },
               {
                 num: "02",
