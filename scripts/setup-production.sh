@@ -38,6 +38,8 @@ add_env AUTH_URL "https://www.jonalparfum.com"
 add_env NEXT_PUBLIC_APP_URL "https://www.jonalparfum.com"
 add_env NEXT_PUBLIC_SUPABASE_URL "https://${PROJECT_REF}.supabase.co"
 add_env NEXT_PUBLIC_SUPABASE_ANON_KEY "$ANON_KEY"
+add_env SUPABASE_URL "https://${PROJECT_REF}.supabase.co"
+add_env SUPABASE_SERVICE_ROLE_KEY "${SUPABASE_SERVICE_ROLE_KEY:?Define SUPABASE_SERVICE_ROLE_KEY}"
 
 echo "→ Desplegando..."
 npx vercel deploy --prod --yes
