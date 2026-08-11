@@ -99,6 +99,10 @@ body {
     transition: none !important;
   }
 
+  .reveal-on-scroll {
+    opacity: 1;
+  }
+
   .animate-marquee {
     animation: marquee 30s linear infinite;
   }

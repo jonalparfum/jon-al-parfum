@@ -34,8 +34,8 @@ export default async function HomePage() {
         <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-20 md:pt-32">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-8 items-center">
             {/* Logo */}
-            <div className="flex justify-center lg:justify-end order-1 lg:order-none max-md:overflow-visible">
-              <div className="relative animate-float max-md:scale-[1.75] md:scale-100 origin-center">
+            <div className="flex justify-center lg:justify-end order-1 lg:order-none">
+              <div className="relative animate-float max-md:scale-[1.35] md:scale-100 origin-center max-md:mb-6">
                 <BrandLogo size="hero" priority className="mx-auto" />
                 <div className="absolute inset-0 -z-10 blur-3xl bg-gold/10 scale-75 rounded-full" />
               </div>
@@ -165,13 +165,13 @@ export default async function HomePage() {
             </h2>
           </RevealOnScroll>
 
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 md:gap-8">
-            {featured.map((product, i) => (
-              <RevealOnScroll key={product.id} delay={i * 80}>
-                <ProductCard product={product} />
-              </RevealOnScroll>
-            ))}
-          </div>
+          <RevealOnScroll delay={120}>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 md:gap-8">
+              {featured.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
+          </RevealOnScroll>
 
           <RevealOnScroll className="text-center mt-16" delay={200}>
             <Link href="/tienda" className="btn-luxury-outline">
@@ -194,26 +194,29 @@ export default async function HomePage() {
             </h2>
           </RevealOnScroll>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-gold/10">
-            {[
-              {
-                num: "01",
-                title: "100% originales",
-                desc: "Vendemos fragancias auténticas de las casas perfumistas más prestigiosas del mundo.",
-              },
-              {
-                num: "02",
-                title: "Envío nacional",
-                desc: "Desde Nuevo Laredo enviamos a todo México con empaque seguro y rastreo.",
-              },
-              {
-                num: "03",
-                title: "Atención personal",
-                desc: "Asesoría por WhatsApp, Facebook o formulario. Te ayudamos a encontrar tu aroma ideal.",
-              },
-            ].map((item, i) => (
-              <RevealOnScroll key={item.num} delay={i * 100}>
-                <div className="bg-luxury-black p-10 md:p-12 h-full group hover:bg-luxury-panel/50 transition-colors duration-500">
+          <RevealOnScroll delay={120}>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-gold/10">
+              {[
+                {
+                  num: "01",
+                  title: "100% originales",
+                  desc: "Vendemos fragancias auténticas de las casas perfumistas más prestigiosas del mundo.",
+                },
+                {
+                  num: "02",
+                  title: "Envío nacional",
+                  desc: "Desde Nuevo Laredo enviamos a todo México con empaque seguro y rastreo.",
+                },
+                {
+                  num: "03",
+                  title: "Atención personal",
+                  desc: "Asesoría por WhatsApp, Facebook o formulario. Te ayudamos a encontrar tu aroma ideal.",
+                },
+              ].map((item) => (
+                <div
+                  key={item.num}
+                  className="bg-luxury-black p-10 md:p-12 h-full group hover:bg-luxury-panel/50 transition-colors duration-500"
+                >
                   <span className="text-gold/30 font-display text-3xl mb-6 block group-hover:text-gold/50 transition-colors">
                     {item.num}
                   </span>
@@ -222,9 +225,9 @@ export default async function HomePage() {
                     {item.desc}
                   </p>
                 </div>
-              </RevealOnScroll>
-            ))}
-          </div>
+              ))}
+            </div>
+          </RevealOnScroll>
         </div>
       </section>
 

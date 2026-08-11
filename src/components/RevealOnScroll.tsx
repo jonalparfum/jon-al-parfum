@@ -30,7 +30,10 @@ export default function RevealOnScroll({
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) setVisible(true);
+        if (entry.isIntersecting) {
+          setVisible(true);
+          observer.disconnect();
+        }
       },
       { threshold: 0.12, rootMargin: "0px 0px -40px 0px" }
     );
@@ -41,10 +44,10 @@ export default function RevealOnScroll({
   return (
     <div
       ref={ref}
-      className={`reveal-on-scroll transition-transform duration-[900ms] ease-out ${className} ${
+      className={`reveal-on-scroll opacity-100 transition-transform duration-[900ms] ease-out ${className} ${
         visible ? "translate-y-0" : "translate-y-10"
       }`}
-      style={{ transitionDelay: `${delay}ms` }}
+      style={{ transitionDelay: visible ? `${delay}ms` : "0ms" }}
     >
       {children}
     </div>

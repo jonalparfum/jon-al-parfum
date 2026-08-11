@@ -143,7 +143,7 @@ export default function ContactSection() {
         <div className="absolute inset-0 bg-radial-gold opacity-60 pointer-events-none" />
 
         <div
-          className={`reveal-on-scroll relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 transition-transform duration-1000 ${
+          className={`reveal-on-scroll relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 opacity-100 transition-transform duration-1000 ${
             visible ? "translate-y-0" : "translate-y-8"
           }`}
         >
