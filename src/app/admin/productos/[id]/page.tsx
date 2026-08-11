@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import ProductForm from "@/components/admin/ProductForm";
 import { parseNotes } from "@/lib/product-utils";
+import { adminLoading, adminPageTitle } from "@/lib/admin-styles";
 
 type Category = { id: string; name: string; slug: string };
 
@@ -67,12 +68,12 @@ export default function EditProductPage({
   };
 
   if (!product) {
-    return <p className="text-gray-500">Cargando...</p>;
+    return <p className={adminLoading}>Cargando...</p>;
   }
 
   return (
     <div>
-      <h1 className="font-serif text-2xl mb-6">Editar producto</h1>
+      <h1 className={`${adminPageTitle} mb-6`}>Editar producto</h1>
       <ProductForm
         categories={categories}
         initial={{

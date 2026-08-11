@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import ProductForm from "@/components/admin/ProductForm";
+import { adminPageTitle } from "@/lib/admin-styles";
 
 type Category = { id: string; name: string; slug: string };
 
@@ -33,7 +34,7 @@ export default function NewProductPage() {
 
   return (
     <div>
-      <h1 className="font-serif text-2xl mb-6">Nuevo producto</h1>
+      <h1 className={`${adminPageTitle} mb-6`}>Nuevo producto</h1>
       <ProductForm categories={categories} onSubmit={handleSubmit} />
     </div>
   );

@@ -2,6 +2,14 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
+import {
+  adminBtnPrimary,
+  adminInput,
+  adminLabel,
+  adminMuted,
+  adminPanelPadding,
+  adminSelect,
+} from "@/lib/admin-styles";
 
 type Category = { id: string; name: string; slug: string };
 type Subcategory = { id: string; name: string; categoryId: string };
@@ -125,56 +133,56 @@ export default function ProductForm({
   return (
     <form
       onSubmit={handleSubmit}
-      className="bg-white rounded-lg shadow-sm border border-gray-100 p-6 max-w-3xl space-y-6"
+      className={`${adminPanelPadding} max-w-3xl space-y-6`}
     >
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
-          <label className="block text-sm font-medium mb-1">Nombre *</label>
+          <label className={adminLabel}>Nombre *</label>
           <input
             type="text"
             required
             value={form.name}
             onChange={(e) => update("name", e.target.value)}
-            className="w-full border border-gray-200 rounded px-3 py-2 text-sm"
+            className={adminInput}
           />
         </div>
         <div>
-          <label className="block text-sm font-medium mb-1">Slug</label>
+          <label className={adminLabel}>Slug</label>
           <input
             type="text"
             value={form.slug}
             onChange={(e) => update("slug", e.target.value)}
-            className="w-full border border-gray-200 rounded px-3 py-2 text-sm"
+            className={adminInput}
             placeholder="auto-generado si vacío"
           />
         </div>
       </div>
 
       <div>
-        <label className="block text-sm font-medium mb-1">Descripción *</label>
+        <label className={adminLabel}>Descripción *</label>
         <textarea
           required
           rows={4}
           value={form.description}
           onChange={(e) => update("description", e.target.value)}
-          className="w-full border border-gray-200 rounded px-3 py-2 text-sm"
+          className={adminInput}
         />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div>
-          <label className="block text-sm font-medium mb-1">Precio (MXN) *</label>
+          <label className={adminLabel}>Precio (MXN) *</label>
           <input
             type="number"
             step="0.01"
             required
             value={form.price}
             onChange={(e) => update("price", parseFloat(e.target.value))}
-            className="w-full border border-gray-200 rounded px-3 py-2 text-sm"
+            className={adminInput}
           />
         </div>
         <div>
-          <label className="block text-sm font-medium mb-1">Precio original (MXN)</label>
+          <label className={adminLabel}>Precio original (MXN)</label>
           <input
             type="number"
             step="0.01"
@@ -185,33 +193,33 @@ export default function ProductForm({
                 e.target.value ? parseFloat(e.target.value) : undefined
               )
             }
-            className="w-full border border-gray-200 rounded px-3 py-2 text-sm"
+            className={adminInput}
           />
         </div>
         <div>
-          <label className="block text-sm font-medium mb-1">Stock</label>
+          <label className={adminLabel}>Stock</label>
           <input
             type="number"
             value={form.stock}
             onChange={(e) => update("stock", parseInt(e.target.value))}
-            className="w-full border border-gray-200 rounded px-3 py-2 text-sm"
+            className={adminInput}
           />
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div>
-          <label className="block text-sm font-medium mb-1">Marca</label>
+          <label className={adminLabel}>Marca</label>
           <input
             type="text"
             value={form.brand}
             onChange={(e) => update("brand", e.target.value)}
-            className="w-full border border-gray-200 rounded px-3 py-2 text-sm"
+            className={adminInput}
             placeholder="Ej: Dior, Tom Ford…"
           />
         </div>
         <div>
-          <label className="block text-sm font-medium mb-1">Categoría *</label>
+          <label className={adminLabel}>Categoría *</label>
           <select
             required
             value={form.categoryId}
@@ -219,7 +227,7 @@ export default function ProductForm({
               update("categoryId", e.target.value);
               update("subcategoryId", "");
             }}
-            className="w-full border border-gray-200 rounded px-3 py-2 text-sm"
+            className={adminInput}
           >
             {categories.map((cat) => (
               <option key={cat.id} value={cat.id}>
@@ -229,13 +237,13 @@ export default function ProductForm({
           </select>
         </div>
         <div>
-          <label className="block text-sm font-medium mb-1">Subcategoría</label>
+          <label className={adminLabel}>Subcategoría</label>
           <select
             value={form.subcategoryId || ""}
             onChange={(e) =>
               update("subcategoryId", e.target.value || undefined)
             }
-            className="w-full border border-gray-200 rounded px-3 py-2 text-sm"
+            className={adminInput}
           >
             <option value="">Sin subcategoría</option>
             {subcategories.map((sub) => (
@@ -249,21 +257,21 @@ export default function ProductForm({
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
-          <label className="block text-sm font-medium mb-1">Tamaño</label>
+          <label className={adminLabel}>Tamaño</label>
           <input
             type="text"
             value={form.size}
             onChange={(e) => update("size", e.target.value)}
-            className="w-full border border-gray-200 rounded px-3 py-2 text-sm"
+            className={adminInput}
           />
         </div>
       </div>
 
       <div>
-        <label className="block text-sm font-medium mb-1">Imagen del perfume</label>
+        <label className={adminLabel}>Imagen del perfume</label>
         <div className="flex items-start gap-4">
           {form.image && (
-            <div className="relative w-24 h-32 rounded overflow-hidden border">
+            <div className="relative w-24 h-32 rounded overflow-hidden border border-gold/20">
               <Image
                 src={form.image}
                 alt="Preview"
@@ -277,17 +285,17 @@ export default function ProductForm({
               type="file"
               accept="image/jpeg,image/png,image/webp"
               onChange={handleImageUpload}
-              className="text-sm"
+              className="text-sm text-cream/70"
             />
             {uploading && (
-              <p className="text-sm text-gray-500 mt-1">Subiendo...</p>
+              <p className={`${adminMuted} mt-1`}>Subiendo...</p>
             )}
             <input
               type="text"
               value={form.image}
               onChange={(e) => update("image", e.target.value)}
               placeholder="URL de imagen"
-              className="w-full border border-gray-200 rounded px-3 py-2 text-sm mt-2"
+              className={`${adminInput} mt-2`}
             />
           </div>
         </div>
@@ -295,40 +303,40 @@ export default function ProductForm({
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div>
-          <label className="block text-sm font-medium mb-1">
+          <label className={adminLabel}>
             Notas de salida (separadas por coma)
           </label>
           <input
             type="text"
             value={notesToString(form.notesTop)}
             onChange={(e) => update("notesTop", stringToNotes(e.target.value))}
-            className="w-full border border-gray-200 rounded px-3 py-2 text-sm"
+            className={adminInput}
           />
         </div>
         <div>
-          <label className="block text-sm font-medium mb-1">Notas de corazón</label>
+          <label className={adminLabel}>Notas de corazón</label>
           <input
             type="text"
             value={notesToString(form.notesHeart)}
             onChange={(e) =>
               update("notesHeart", stringToNotes(e.target.value))
             }
-            className="w-full border border-gray-200 rounded px-3 py-2 text-sm"
+            className={adminInput}
           />
         </div>
         <div>
-          <label className="block text-sm font-medium mb-1">Notas de fondo</label>
+          <label className={adminLabel}>Notas de fondo</label>
           <input
             type="text"
             value={notesToString(form.notesBase)}
             onChange={(e) => update("notesBase", stringToNotes(e.target.value))}
-            className="w-full border border-gray-200 rounded px-3 py-2 text-sm"
+            className={adminInput}
           />
         </div>
       </div>
 
       <div className="flex flex-wrap gap-6">
-        <label className="flex items-center gap-2 text-sm">
+        <label className="flex items-center gap-2 text-sm text-cream/80">
           <input
             type="checkbox"
             checked={form.featured}
@@ -336,7 +344,7 @@ export default function ProductForm({
           />
           Destacado
         </label>
-        <label className="flex items-center gap-2 text-sm">
+        <label className="flex items-center gap-2 text-sm text-cream/80">
           <input
             type="checkbox"
             checked={form.isNew}
@@ -344,7 +352,7 @@ export default function ProductForm({
           />
           Nuevo
         </label>
-        <label className="flex items-center gap-2 text-sm">
+        <label className="flex items-center gap-2 text-sm text-cream/80">
           <input
             type="checkbox"
             checked={form.active}
@@ -357,7 +365,7 @@ export default function ProductForm({
       <button
         type="submit"
         disabled={saving}
-        className="bg-charcoal text-white px-6 py-3 text-sm uppercase tracking-wider hover:bg-gold transition-colors disabled:opacity-50"
+        className={`${adminBtnPrimary} px-6 py-3 disabled:opacity-50`}
       >
         {saving ? "Guardando..." : "Guardar producto"}
       </button>

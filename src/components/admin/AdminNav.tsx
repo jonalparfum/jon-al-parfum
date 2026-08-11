@@ -14,7 +14,7 @@ export default function AdminNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="flex flex-wrap gap-2 border-b border-gray-200 pb-4">
+    <nav className="flex flex-wrap gap-2 border-b border-gold/10 pb-4">
       {links.map((link) => {
         const active = link.exact
           ? pathname === link.href
@@ -23,10 +23,10 @@ export default function AdminNav() {
           <Link
             key={link.href}
             href={link.href}
-            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+            className={`px-4 py-2.5 rounded text-xs uppercase tracking-[0.15em] font-medium transition-colors ${
               active
-                ? "bg-charcoal text-white"
-                : "bg-white text-gray-600 hover:bg-gray-100 border border-gray-200"
+                ? "bg-gold text-luxury-black"
+                : "bg-luxury-panel text-cream/70 border border-gold/15 hover:text-gold hover:border-gold/30"
             }`}
           >
             {link.label}

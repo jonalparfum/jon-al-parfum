@@ -2,6 +2,13 @@
 
 import { useEffect, useState } from "react";
 import { formatPrice } from "@/lib/product-utils";
+import {
+  adminInput,
+  adminLoading,
+  adminMuted,
+  adminPageTitle,
+  adminPanelPadding,
+} from "@/lib/admin-styles";
 
 type Order = {
   id: string;
@@ -58,38 +65,35 @@ export default function AdminOrdersPage() {
     load();
   };
 
-  if (loading) return <p className="text-gray-500">Cargando pedidos...</p>;
+  if (loading) return <p className={adminLoading}>Cargando pedidos...</p>;
 
   return (
     <div>
-      <h1 className="font-serif text-2xl mb-6">Pedidos</h1>
+      <h1 className={`${adminPageTitle} mb-6`}>Pedidos</h1>
 
       {orders.length === 0 ? (
-        <p className="text-gray-500">No hay pedidos todavía.</p>
+        <p className={adminMuted}>No hay pedidos todavía.</p>
       ) : (
         <div className="space-y-4">
           {orders.map((order) => (
-            <div
-              key={order.id}
-              className="bg-white rounded-lg shadow-sm border border-gray-100 p-6"
-            >
+            <div key={order.id} className={adminPanelPadding}>
               <div className="flex flex-wrap justify-between gap-4 mb-4">
                 <div>
-                  <p className="font-medium">
+                  <p className="font-medium text-cream">
                     {order.user.name || order.user.email}
                   </p>
-                  <p className="text-sm text-gray-500">
+                  <p className={adminMuted}>
                     {new Date(order.createdAt).toLocaleString("es-ES")}
                   </p>
                 </div>
                 <div className="flex items-center gap-4">
-                  <span className="font-semibold text-lg">
+                  <span className="font-semibold text-lg text-gold">
                     {formatPrice(order.total)}
                   </span>
                   <select
                     value={order.status}
                     onChange={(e) => updateStatus(order.id, e.target.value)}
-                    className="border border-gray-200 rounded px-3 py-1.5 text-sm"
+                    className={adminInput}
                   >
                     {statuses.map((s) => (
                       <option key={s} value={s}>
@@ -103,12 +107,14 @@ export default function AdminOrdersPage() {
                 {order.items.map((item, i) => (
                   <li
                     key={i}
-                    className="flex justify-between text-sm text-gray-600"
+                    className="flex justify-between text-sm text-cream/70"
                   >
                     <span>
                       {item.product.name} × {item.quantity}
                     </span>
-                    <span>{formatPrice(item.price * item.quantity)}</span>
+                    <span className="text-cream">
+                      {formatPrice(item.price * item.quantity)}
+                    </span>
                   </li>
                 ))}
               </ul>
