@@ -1,9 +1,14 @@
 import Link from "next/link";
 import EmailLink from "@/components/EmailLink";
+import { buildPageMetadata } from "@/lib/seo";
 
-export const metadata = {
-  title: "Política de cookies | Jon Al Parfum",
-};
+export const metadata = buildPageMetadata({
+  title: "Política de cookies",
+  description:
+    "Información sobre el uso de cookies en Jon Al Parfum: tipos de cookies, finalidad y cómo gestionar tu consentimiento.",
+  path: "/politica-cookies",
+  keywords: ["política de cookies", "Jon Al Parfum", "privacidad web"],
+});
 
 export default function PoliticaCookiesPage() {
   return (

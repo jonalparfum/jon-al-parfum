@@ -7,8 +7,14 @@ import {
   adminStatLabel,
   adminStatValue,
 } from "@/lib/admin-styles";
+import { NO_INDEX_METADATA } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
+
+export const metadata = {
+  ...NO_INDEX_METADATA,
+  title: "Panel Admin",
+};
 
 export default async function AdminLayout({
   children,

@@ -1,14 +1,57 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getProductFromDb } from "@/lib/products";
 import AddToCartButton, { ProductPrice } from "@/components/AddToCartButton";
 import ProductGallery from "@/components/ProductGallery";
+import JsonLd from "@/components/JsonLd";
+import {
+  breadcrumbJsonLd,
+  buildPageMetadata,
+  productJsonLd,
+  resolveImageUrl,
+} from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
 
 type PageProps = {
   params: Promise<{ id: string }>;
 };
+
+export async function generateMetadata({
+  params,
+}: PageProps): Promise<Metadata> {
+  const { id } = await params;
+  const product = await getProductFromDb(id);
+
+  if (!product) {
+    return buildPageMetadata({
+      title: "Producto no encontrado",
+      description: "El perfume que buscas no está disponible en Jon Al Parfum.",
+      path: `/tienda/${id}`,
+      noIndex: true,
+    });
+  }
+
+  const description =
+    product.description.length > 155
+      ? `${product.description.slice(0, 152)}...`
+      : product.description;
+
+  return buildPageMetadata({
+    title: `${product.name} · ${product.brand}`,
+    description: `${description} ${product.size}. Perfume original con envío a todo México.`,
+    path: `/tienda/${product.id}`,
+    image: resolveImageUrl(product.image),
+    keywords: [
+      product.name,
+      product.brand,
+      `perfume ${product.category}`,
+      "perfume original",
+      "Jon Al Parfum",
+    ],
+  });
+}
 
 export default async function ProductPage({ params }: PageProps) {
   const { id } = await params;
@@ -18,9 +61,17 @@ export default async function ProductPage({ params }: PageProps) {
     notFound();
   }
 
+  const breadcrumbs = breadcrumbJsonLd([
+    { name: "Inicio", path: "/" },
+    { name: "Tienda", path: "/tienda" },
+    { name: product.name, path: `/tienda/${product.id}` },
+  ]);
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <nav className="text-sm text-cream/50 mb-8">
+      <JsonLd data={[productJsonLd(product), breadcrumbs]} />
+
+      <nav className="text-sm text-cream/50 mb-8" aria-label="Breadcrumb">
         <Link href="/" className="hover:text-gold transition-colors">
           Inicio
         </Link>

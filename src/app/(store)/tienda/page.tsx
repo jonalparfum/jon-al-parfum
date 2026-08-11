@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
 import ProductCard from "@/components/ProductCard";
@@ -6,6 +7,7 @@ import ShopSort from "@/components/ShopSort";
 import ShopSubcategoryFilters from "@/components/ShopSubcategoryFilters";
 import { getProductsFromDb, parseProductSort } from "@/lib/products";
 import { getCatalogCategories, getShopSubcategories } from "@/lib/catalog";
+import { buildPageMetadata, shopDescription } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
 
@@ -17,6 +19,47 @@ type PageProps = {
     orden?: string;
   }>;
 };
+
+const CATEGORY_LABELS: Record<string, string> = {
+  hombre: "Perfumes para hombre",
+  mujer: "Perfumes para mujer",
+  unisex: "Perfumes unisex",
+};
+
+export async function generateMetadata({
+  searchParams,
+}: PageProps): Promise<Metadata> {
+  const { categoria, subcategoria, q } = await searchParams;
+
+  if (q?.trim()) {
+    return buildPageMetadata({
+      title: `Búsqueda: ${q.trim()}`,
+      description: `Resultados de búsqueda para “${q.trim()}” en Jon Al Parfum.`,
+      path: `/tienda?q=${encodeURIComponent(q.trim())}`,
+      noIndex: true,
+    });
+  }
+
+  const categoryLabel =
+    categoria && categoria !== "all" ? CATEGORY_LABELS[categoria] : undefined;
+  const title = categoryLabel ?? "Tienda de perfumes";
+  const path =
+    categoria && categoria !== "all"
+      ? `/tienda?categoria=${categoria}${subcategoria && subcategoria !== "all" ? `&subcategoria=${subcategoria}` : ""}`
+      : "/tienda";
+
+  return buildPageMetadata({
+    title,
+    description: shopDescription(categoria),
+    path,
+    keywords: [
+      title,
+      "perfumes originales",
+      "Jon Al Parfum",
+      "comprar perfume en línea",
+    ],
+  });
+}
 
 export default async function ShopPage({ searchParams }: PageProps) {
   const { categoria, subcategoria, q, orden } = await searchParams;

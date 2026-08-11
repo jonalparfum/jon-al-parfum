@@ -72,7 +72,7 @@ export default function Footer() {
               </li>
               <li>
                 <a
-                  href="/aviso-privacidad.html"
+                  href="/aviso-privacidad"
                   className="hover:text-gold transition-colors duration-300"
                 >
                   Aviso de privacidad
@@ -108,7 +108,7 @@ export default function Footer() {
           <p>&copy; {new Date().getFullYear()} Jon Al Parfum. Todos los derechos reservados.</p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <a
-              href="/aviso-privacidad.html"
+              href="/aviso-privacidad"
               className="text-xs uppercase tracking-[0.2em] text-cream/50 hover:text-gold transition-colors duration-300"
             >
               Aviso de privacidad

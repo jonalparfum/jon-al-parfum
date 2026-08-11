@@ -6,16 +6,41 @@ import ContactSection from "@/components/ContactSection";
 import RevealOnScroll from "@/components/RevealOnScroll";
 import FragranceMist from "@/components/FragranceMist";
 import DailyPerfumeTip from "@/components/DailyPerfumeTip";
+import JsonLd from "@/components/JsonLd";
 import { getFeaturedProducts } from "@/lib/products";
 import { LOCATION, SHIPPING_COVERAGE } from "@/lib/contact";
+import { FAQ_ITEMS } from "@/lib/faq-data";
+import {
+  buildPageMetadata,
+  faqJsonLd,
+  organizationJsonLd,
+  websiteJsonLd,
+} from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
+
+export const metadata = buildPageMetadata({
+  title: "Perfumes originales de lujo en México",
+  description:
+    "Perfumes 100% originales para hombre, mujer y unisex. Jon Al Parfum en Nuevo Laredo con envíos a toda la República Mexicana y asesoría personalizada.",
+  path: "/",
+  keywords: [
+    "perfumes originales México",
+    "tienda perfumes lujo",
+    "Jon Al Parfum",
+    "perfumes Nuevo Laredo",
+    "fragancias auténticas",
+  ],
+});
 
 export default async function HomePage() {
   const featured = await getFeaturedProducts();
 
   return (
     <>
+      <JsonLd
+        data={[organizationJsonLd(), websiteJsonLd(), faqJsonLd([...FAQ_ITEMS])]}
+      />
       {/* Hero */}
       <section className="hero-section relative min-h-0 md:min-h-[100svh] flex max-md:flex-col max-md:items-stretch md:items-center overflow-x-hidden bg-luxury-black">
         <div className="hero-ambient pointer-events-none absolute inset-0 max-md:hidden md:block" aria-hidden="true">
