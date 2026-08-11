@@ -47,7 +47,7 @@ export default function RevealOnScroll({
           observer.disconnect();
         }
       },
-      { threshold: 0.06, rootMargin: "100px 0px -8% 0px" }
+      { threshold: 0.04, rootMargin: "120px 0px -5% 0px" }
     );
     observer.observe(el);
     return () => observer.disconnect();
@@ -56,8 +56,8 @@ export default function RevealOnScroll({
   return (
     <div
       ref={ref}
-      className={`reveal-on-scroll opacity-100 will-change-transform transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${className} ${
-        visible ? "translate-y-0" : "translate-y-6"
+      className={`reveal-on-scroll opacity-100 transition-transform duration-[350ms] ease-[cubic-bezier(0.22,1,0.36,1)] ${className} ${
+        visible ? "translate-y-0" : "translate-y-5"
       }`}
       style={{ transitionDelay: visible ? `${delay}ms` : "0ms" }}
     >

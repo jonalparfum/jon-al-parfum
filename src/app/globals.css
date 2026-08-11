@@ -134,21 +134,105 @@ body {
   }
 
   /* Fragrance / scent effects */
-  .fragrance-particle {
+  .fragrance-glow {
+    position: absolute;
+    top: 33%;
+    left: 50%;
+    width: min(500px, 90vw);
+    height: 280px;
+    transform: translateX(-50%);
+    opacity: 0.55;
     background: radial-gradient(
-      circle,
-      rgba(232, 213, 163, 0.55) 0%,
-      rgba(201, 169, 98, 0.25) 40%,
-      transparent 70%
+      ellipse,
+      rgba(201, 169, 98, 0.2) 0%,
+      transparent 72%
     );
+    animation: scent-breathe 2.5s ease-in-out infinite;
+  }
+
+  .fragrance-particle {
+    position: absolute;
+    bottom: 0;
+    border-radius: 9999px;
+    background: rgba(201, 169, 98, 0.42);
+    box-shadow: 0 0 10px rgba(201, 169, 98, 0.28);
     animation: scent-rise linear infinite;
-    will-change: transform, opacity;
+  }
+
+  .fragrance-particle-a {
+    left: 12%;
+    width: 6px;
+    height: 6px;
+    animation-duration: 2s;
+  }
+
+  .fragrance-particle-b {
+    left: 32%;
+    width: 5px;
+    height: 5px;
+    animation-duration: 2.2s;
+    animation-delay: 0.15s;
+  }
+
+  .fragrance-particle-c {
+    left: 58%;
+    width: 7px;
+    height: 7px;
+    animation-duration: 1.9s;
+    animation-delay: 0.08s;
+  }
+
+  .fragrance-particle-d {
+    left: 74%;
+    width: 5px;
+    height: 5px;
+    animation-duration: 2.1s;
+    animation-delay: 0.22s;
+  }
+
+  .fragrance-particle-e {
+    left: 88%;
+    width: 6px;
+    height: 6px;
+    animation-duration: 2s;
+    animation-delay: 0.12s;
+  }
+
+  .fragrance-particle-f {
+    left: 46%;
+    width: 4px;
+    height: 4px;
+    animation-duration: 2.3s;
+    animation-delay: 0.18s;
+  }
+
+  .fragrance-wisp {
+    position: absolute;
+    bottom: 10%;
+    width: 2px;
+    height: 40px;
+    background: linear-gradient(
+      to top,
+      transparent,
+      rgba(201, 169, 98, 0.22),
+      transparent
+    );
+    animation: scent-wisp 2.5s ease-in-out infinite;
+  }
+
+  .fragrance-wisp-a {
+    left: 24%;
+  }
+
+  .fragrance-wisp-b {
+    left: 68%;
+    animation-delay: 0.4s;
   }
 
   @media (max-width: 768px) {
     .fragrance-glow {
-      width: 320px;
-      height: 200px;
+      height: 180px;
+      opacity: 0.65;
     }
   }
 
@@ -164,30 +248,6 @@ body {
     );
     animation: scent-rise-sm 3s ease-out infinite;
     filter: blur(0.5px);
-  }
-
-  .fragrance-wisp {
-    width: 2px;
-    height: 48px;
-    background: linear-gradient(
-      to top,
-      transparent,
-      rgba(201, 169, 98, 0.18),
-      rgba(232, 213, 163, 0.1),
-      transparent
-    );
-    animation: scent-wisp 4s ease-in-out infinite;
-    will-change: transform, opacity;
-  }
-
-  .fragrance-glow {
-    background: radial-gradient(
-      ellipse,
-      rgba(201, 169, 98, 0.16) 0%,
-      transparent 70%
-    );
-    animation: scent-breathe 5s ease-in-out infinite;
-    will-change: transform, opacity;
   }
 
   .whatsapp-scent-ring {
@@ -289,11 +349,11 @@ body {
 
 @keyframes scent-rise {
   0% {
-    transform: translateY(0) scale(0.85);
-    opacity: 0.35;
+    transform: translateY(0) scale(0.9);
+    opacity: 0.55;
   }
   100% {
-    transform: translateY(-100px) scale(1.6);
+    transform: translateY(-80px) scale(1.4);
     opacity: 0;
   }
 }
@@ -316,23 +376,23 @@ body {
   0%,
   100% {
     transform: translateY(0) scaleY(1);
-    opacity: 0.45;
+    opacity: 0.55;
   }
   50% {
-    transform: translateY(-24px) scaleY(1.2);
-    opacity: 0.7;
+    transform: translateY(-18px) scaleY(1.15);
+    opacity: 0.75;
   }
 }
 
 @keyframes scent-breathe {
   0%,
   100% {
-    transform: translate(-50%, 0) scale(1);
-    opacity: 0.35;
+    transform: translateX(-50%) scale(1);
+    opacity: 0.5;
   }
   50% {
-    transform: translate(-50%, -8px) scale(1.05);
-    opacity: 0.55;
+    transform: translateX(-50%) scale(1.04);
+    opacity: 0.65;
   }
 }
 
