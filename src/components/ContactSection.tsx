@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, FormEvent } from "react";
 import { WHATSAPP_NUMBER, CONTACT_EMAIL } from "@/lib/contact";
 import ContactChannels from "@/components/ContactChannels";
+import { isInViewport, shouldSkipEnterAnimations } from "@/lib/motion";
 
 type FormState = "idle" | "loading" | "error";
 
@@ -27,6 +28,16 @@ export default function ContactSection() {
   useEffect(() => {
     const el = sectionRef.current;
     if (!el) return;
+
+    if (
+      shouldSkipEnterAnimations() ||
+      document.documentElement.dataset.skipEnterMotion === "true" ||
+      isInViewport(el)
+    ) {
+      setVisible(true);
+      return;
+    }
+
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) setVisible(true);
@@ -132,8 +143,8 @@ export default function ContactSection() {
         <div className="absolute inset-0 bg-radial-gold opacity-60 pointer-events-none" />
 
         <div
-          className={`relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 transition-all duration-1000 ${
-            visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+          className={`reveal-on-scroll relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 transition-transform duration-1000 ${
+            visible ? "translate-y-0" : "translate-y-8"
           }`}
         >
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-20 items-stretch">

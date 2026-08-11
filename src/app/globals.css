@@ -78,16 +78,25 @@ body {
   }
 
   .animate-on-scroll {
-    opacity: 0;
     transform: translateY(24px);
-    transition:
-      opacity 0.8s ease-out,
-      transform 0.8s ease-out;
+    transition: transform 0.8s ease-out;
   }
 
   .animate-on-scroll.visible {
-    opacity: 1;
     transform: translateY(0);
+  }
+
+  /* Skip entrance motion on refresh — keeps content visible (set via inline script) */
+  html[data-skip-enter-motion] .animate-fade-in-up {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  html[data-skip-enter-motion] .reveal-on-scroll {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
   }
 
   .animate-marquee {
@@ -207,7 +216,7 @@ body {
 
 @keyframes fade-in-up {
   from {
-    opacity: 0;
+    opacity: 1;
     transform: translateY(24px);
   }
   to {

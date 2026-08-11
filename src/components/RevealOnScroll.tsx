@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, ReactNode } from "react";
+import { isInViewport, shouldSkipEnterAnimations } from "@/lib/motion";
 
 export default function RevealOnScroll({
   children,
@@ -17,6 +18,16 @@ export default function RevealOnScroll({
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
+
+    if (
+      shouldSkipEnterAnimations() ||
+      document.documentElement.dataset.skipEnterMotion === "true" ||
+      isInViewport(el)
+    ) {
+      setVisible(true);
+      return;
+    }
+
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) setVisible(true);
@@ -30,8 +41,8 @@ export default function RevealOnScroll({
   return (
     <div
       ref={ref}
-      className={`transition-all duration-[900ms] ease-out ${className} ${
-        visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
+      className={`reveal-on-scroll transition-transform duration-[900ms] ease-out ${className} ${
+        visible ? "translate-y-0" : "translate-y-10"
       }`}
       style={{ transitionDelay: `${delay}ms` }}
     >
