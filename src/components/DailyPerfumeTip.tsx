@@ -11,7 +11,7 @@ export default function DailyPerfumeTip({ className = "" }: DailyPerfumeTipProps
   return (
     <div
       className={`animate-fade-in-up border border-gold/15 bg-luxury-panel/40 backdrop-blur-sm px-5 py-4 md:px-6 md:py-5 gold-border-glow ${className}`}
-      style={{ animationDelay: "400ms" }}
+      style={{ animationDelay: "160ms" }}
     >
       <p className="text-[10px] uppercase tracking-[0.35em] text-gold/70 mb-2">
         Consejo del día · {dayOfYear}/365

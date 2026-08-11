@@ -19,13 +19,13 @@ export default async function HomePage() {
       {/* Hero */}
       <section className="relative min-h-[100svh] flex items-center overflow-x-hidden">
         <div className="absolute inset-0 bg-luxury-black" />
-        <div className="absolute inset-0 grain-overlay opacity-40" />
+        <div className="absolute inset-0 grain-overlay opacity-30 max-md:opacity-20" />
         <FragranceMist intensity="rich" />
 
         {/* Ambient light */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-radial-gold opacity-80" />
-        <div className="absolute bottom-0 left-0 w-96 h-96 bg-gold/5 rounded-full blur-[120px]" />
-        <div className="absolute top-20 right-0 w-72 h-72 bg-gold/8 rounded-full blur-[100px] animate-pulse-glow" />
+        <div className="absolute bottom-0 left-0 w-96 h-96 bg-gold/5 rounded-full blur-[80px] max-md:blur-[48px]" />
+        <div className="absolute top-20 right-0 w-72 h-72 bg-gold/8 rounded-full blur-[80px] max-md:blur-[48px] animate-pulse-glow" />
 
         {/* Vertical gold accent lines */}
         <div className="absolute left-8 md:left-16 top-1/4 bottom-1/4 w-px bg-gradient-to-b from-transparent via-gold/20 to-transparent hidden lg:block" />
@@ -153,8 +153,7 @@ export default async function HomePage() {
 
       {/* Featured */}
       <section className="py-28 md:py-36 relative bg-luxury-panel/20 overflow-hidden">
-        <FragranceMist intensity="subtle" className="opacity-60" />
-        <div className="absolute inset-0 grain-overlay opacity-20" />
+        <div className="absolute inset-0 grain-overlay opacity-15" />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <RevealOnScroll className="text-center mb-16">
             <p className="text-gold uppercase tracking-[0.4em] text-[10px] mb-5">

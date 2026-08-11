@@ -27,9 +27,9 @@ const config: Config = {
       },
       animation: {
         "fade-in-up": "fade-in-up 0.45s cubic-bezier(0.22, 1, 0.36, 1) forwards",
-        float: "float 6s ease-in-out infinite",
+        float: "float 4s ease-in-out infinite",
         shimmer: "shimmer 4s linear infinite",
-        "pulse-glow": "pulse-glow 4s ease-in-out infinite",
+        "pulse-glow": "pulse-glow 3s ease-in-out infinite",
         marquee: "marquee 30s linear infinite",
       },
       keyframes: {

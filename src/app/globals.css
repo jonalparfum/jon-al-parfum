@@ -142,7 +142,14 @@ body {
       transparent 70%
     );
     animation: scent-rise linear infinite;
-    filter: blur(1px);
+    will-change: transform, opacity;
+  }
+
+  @media (max-width: 768px) {
+    .fragrance-glow {
+      width: 320px;
+      height: 200px;
+    }
   }
 
   .fragrance-particle-sm {
@@ -161,25 +168,26 @@ body {
 
   .fragrance-wisp {
     width: 2px;
-    height: 60px;
+    height: 48px;
     background: linear-gradient(
       to top,
       transparent,
-      rgba(201, 169, 98, 0.15),
-      rgba(232, 213, 163, 0.08),
+      rgba(201, 169, 98, 0.18),
+      rgba(232, 213, 163, 0.1),
       transparent
     );
-    animation: scent-wisp 6s ease-in-out infinite;
-    filter: blur(2px);
+    animation: scent-wisp 4s ease-in-out infinite;
+    will-change: transform, opacity;
   }
 
   .fragrance-glow {
     background: radial-gradient(
       ellipse,
-      rgba(201, 169, 98, 0.12) 0%,
+      rgba(201, 169, 98, 0.16) 0%,
       transparent 70%
     );
-    animation: scent-breathe 8s ease-in-out infinite;
+    animation: scent-breathe 5s ease-in-out infinite;
+    will-change: transform, opacity;
   }
 
   .whatsapp-scent-ring {
@@ -281,14 +289,11 @@ body {
 
 @keyframes scent-rise {
   0% {
-    transform: translateY(0) scale(0.6);
-    opacity: 0;
-  }
-  15% {
-    opacity: 0.7;
+    transform: translateY(0) scale(0.85);
+    opacity: 0.35;
   }
   100% {
-    transform: translateY(-120px) scale(1.8);
+    transform: translateY(-100px) scale(1.6);
     opacity: 0;
   }
 }
@@ -311,11 +316,11 @@ body {
   0%,
   100% {
     transform: translateY(0) scaleY(1);
-    opacity: 0.3;
+    opacity: 0.45;
   }
   50% {
-    transform: translateY(-30px) scaleY(1.3);
-    opacity: 0.6;
+    transform: translateY(-24px) scaleY(1.2);
+    opacity: 0.7;
   }
 }
 
@@ -323,11 +328,11 @@ body {
   0%,
   100% {
     transform: translate(-50%, 0) scale(1);
-    opacity: 0.2;
+    opacity: 0.35;
   }
   50% {
-    transform: translate(-50%, -10px) scale(1.08);
-    opacity: 0.45;
+    transform: translate(-50%, -8px) scale(1.05);
+    opacity: 0.55;
   }
 }
 
