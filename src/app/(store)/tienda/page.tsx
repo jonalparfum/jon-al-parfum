@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 import ProductCard from "@/components/ProductCard";
 import ShopSearch from "@/components/ShopSearch";
+import ShopSubcategoryFilters from "@/components/ShopSubcategoryFilters";
 import { getProductsFromDb } from "@/lib/products";
 import { getCatalogCategories, getShopSubcategories } from "@/lib/catalog";
 
@@ -59,10 +60,6 @@ export default async function ShopPage({ searchParams }: PageProps) {
     });
   }
 
-  function subcategoryHref(catSlug: string, subSlug: string) {
-    return buildHref({ categoria: catSlug, subcategoria: subSlug });
-  }
-
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
       <div className="text-center mb-10">
@@ -109,28 +106,13 @@ export default async function ShopPage({ searchParams }: PageProps) {
       </div>
 
       {activeCategory !== "all" && subcategories.length > 0 && (
-        <div className="mb-14 max-w-3xl mx-auto">
-          <p className="text-center text-[10px] uppercase tracking-[0.25em] text-gold/60 mb-3">
-            Subcategorías · {currentCategory?.name}
-          </p>
-          <div className="flex flex-wrap justify-center gap-2">
-            <Link
-              href={categoryHref(activeCategory)}
-              className={`px-4 py-2 text-[11px] uppercase tracking-[0.12em] border transition-all duration-300 ${filterClass(activeSubcategory === "all")}`}
-            >
-              Todas
-            </Link>
-            {subcategories.map((sub) => (
-              <Link
-                key={sub.id}
-                href={subcategoryHref(activeCategory, sub.slug)}
-                className={`px-4 py-2 text-[11px] uppercase tracking-[0.12em] border transition-all duration-300 ${filterClass(activeSubcategory === sub.slug)}`}
-              >
-                {sub.name}
-              </Link>
-            ))}
-          </div>
-        </div>
+        <ShopSubcategoryFilters
+          categoryName={currentCategory?.name ?? activeCategory}
+          categorySlug={activeCategory}
+          activeSubcategory={activeSubcategory}
+          subcategories={subcategories}
+          searchQuery={searchQuery}
+        />
       )}
 
       <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6 md:gap-8">

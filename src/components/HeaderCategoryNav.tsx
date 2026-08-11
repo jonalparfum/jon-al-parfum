@@ -20,31 +20,74 @@ export default function HeaderCategoryNav({
   if (variant === "mobile") {
     return (
       <>
-        {categories.map((category) => (
-          <div key={category.id}>
-            <Link
-              href={`/tienda?categoria=${category.slug}`}
-              onClick={onNavigate}
-              className="block py-3 text-xs uppercase tracking-[0.2em] text-cream/70 hover:text-gold transition-colors"
-            >
-              {category.name}
-            </Link>
-            {category.subcategories.length > 0 && (
-              <div className="pl-4 border-l border-gold/10 ml-2 mb-2 space-y-1">
-                {category.subcategories.map((sub) => (
+        {categories.map((category) => {
+          const hasSubs = category.subcategories.length > 0;
+          const isOpen = openCategoryId === category.id;
+
+          if (!hasSubs) {
+            return (
+              <Link
+                key={category.id}
+                href={`/tienda?categoria=${category.slug}`}
+                onClick={onNavigate}
+                className="block py-3 text-xs uppercase tracking-[0.2em] text-cream/70 hover:text-gold transition-colors"
+              >
+                {category.name}
+              </Link>
+            );
+          }
+
+          return (
+            <div key={category.id}>
+              <button
+                type="button"
+                onClick={() =>
+                  setOpenCategoryId(isOpen ? null : category.id)
+                }
+                aria-expanded={isOpen}
+                className="w-full flex items-center justify-between gap-2 py-3 text-xs uppercase tracking-[0.2em] text-cream/70 hover:text-gold transition-colors"
+              >
+                <span>{category.name}</span>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                  className={`w-4 h-4 shrink-0 opacity-60 transition-transform duration-200 ${
+                    isOpen ? "rotate-180" : ""
+                  }`}
+                  aria-hidden="true"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.94a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </button>
+              {isOpen && (
+                <div className="pl-4 border-l border-gold/10 ml-2 mb-2 space-y-1">
                   <Link
-                    key={sub.id}
-                    href={`/tienda?categoria=${category.slug}&subcategoria=${sub.slug}`}
+                    href={`/tienda?categoria=${category.slug}`}
                     onClick={onNavigate}
-                    className="block py-2 text-[11px] uppercase tracking-[0.15em] text-cream/50 hover:text-gold transition-colors"
+                    className="block py-2 text-[11px] uppercase tracking-[0.15em] text-gold/80 hover:text-gold transition-colors"
                   >
-                    {sub.name}
+                    Ver todo {category.name}
                   </Link>
-                ))}
-              </div>
-            )}
-          </div>
-        ))}
+                  {category.subcategories.map((sub) => (
+                    <Link
+                      key={sub.id}
+                      href={`/tienda?categoria=${category.slug}&subcategoria=${sub.slug}`}
+                      onClick={onNavigate}
+                      className="block py-2 text-[11px] uppercase tracking-[0.15em] text-cream/50 hover:text-gold transition-colors"
+                    >
+                      {sub.name}
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+          );
+        })}
       </>
     );
   }
