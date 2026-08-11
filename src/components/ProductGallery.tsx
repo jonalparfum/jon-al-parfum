@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import ProductImage from "@/components/ProductImage";
 
 type ProductGalleryProps = {
@@ -8,6 +8,8 @@ type ProductGalleryProps = {
   alt: string;
   category?: string;
 };
+
+const SWIPE_THRESHOLD = 40;
 
 export default function ProductGallery({
   images,
@@ -17,6 +19,8 @@ export default function ProductGallery({
   const gallery = images.filter(Boolean);
   const [activeIndex, setActiveIndex] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
+  const lightboxRef = useRef<HTMLDivElement>(null);
+  const blockClickRef = useRef(false);
   const activeImage = gallery[activeIndex] || gallery[0] || "";
 
   const goNext = useCallback(() => {
@@ -59,6 +63,55 @@ export default function ProductGallery({
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, [lightboxOpen, closeLightbox, goNext, goPrev]);
+
+  useEffect(() => {
+    if (!lightboxOpen || gallery.length <= 1) return;
+
+    const el = lightboxRef.current;
+    if (!el) return;
+
+    let startX = 0;
+    let startY = 0;
+
+    const onTouchStart = (e: TouchEvent) => {
+      startX = e.touches[0].clientX;
+      startY = e.touches[0].clientY;
+    };
+
+    const onTouchEnd = (e: TouchEvent) => {
+      const touch = e.changedTouches[0];
+      const deltaX = touch.clientX - startX;
+      const deltaY = touch.clientY - startY;
+
+      if (
+        Math.abs(deltaX) < SWIPE_THRESHOLD ||
+        Math.abs(deltaX) < Math.abs(deltaY)
+      ) {
+        return;
+      }
+
+      blockClickRef.current = true;
+      window.setTimeout(() => {
+        blockClickRef.current = false;
+      }, 350);
+
+      if (deltaX < 0) goNext();
+      else goPrev();
+    };
+
+    el.addEventListener("touchstart", onTouchStart, { passive: true });
+    el.addEventListener("touchend", onTouchEnd, { passive: true });
+
+    return () => {
+      el.removeEventListener("touchstart", onTouchStart);
+      el.removeEventListener("touchend", onTouchEnd);
+    };
+  }, [lightboxOpen, gallery.length, goNext, goPrev]);
+
+  const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (blockClickRef.current) return;
+    if (e.target === e.currentTarget) closeLightbox();
+  };
 
   const mainImage = (
     <button
@@ -119,15 +172,19 @@ export default function ProductGallery({
 
       {lightboxOpen && activeImage && (
         <div
+          ref={lightboxRef}
           className="fixed inset-0 z-[70] flex items-center justify-center bg-black"
           role="dialog"
           aria-modal="true"
           aria-label={`Galería de ${alt}`}
-          onClick={closeLightbox}
+          onClick={handleBackdropClick}
         >
           <button
             type="button"
-            onClick={closeLightbox}
+            onClick={(e) => {
+              e.stopPropagation();
+              if (!blockClickRef.current) closeLightbox();
+            }}
             className="absolute top-4 right-4 z-10 p-2 text-cream/70 hover:text-gold transition-colors"
             aria-label="Cerrar visor"
           >
@@ -200,27 +257,18 @@ export default function ProductGallery({
             </>
           )}
 
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              if (gallery.length > 1) goNext();
-            }}
-            className="relative flex items-center justify-center w-full h-full px-12 sm:px-20 py-16 cursor-default sm:cursor-pointer"
-            aria-label={
-              gallery.length > 1
-                ? "Siguiente imagen"
-                : "Imagen del producto"
-            }
+          <div
+            className="relative flex items-center justify-center w-full h-full px-12 sm:px-20 py-16 pointer-events-none"
+            aria-hidden
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={activeImage}
               alt={alt}
-              className="max-h-[85vh] max-w-[90vw] w-auto h-auto object-contain select-none"
+              className="max-h-[85vh] max-w-[90vw] w-auto h-auto object-contain select-none pointer-events-auto touch-pan-y"
               draggable={false}
             />
-          </button>
+          </div>
 
           {gallery.length > 1 && (
             <p className="absolute bottom-4 left-1/2 -translate-x-1/2 text-xs uppercase tracking-widest text-gold/70 pointer-events-none">

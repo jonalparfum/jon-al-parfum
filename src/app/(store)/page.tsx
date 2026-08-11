@@ -167,13 +167,13 @@ export default async function HomePage() {
 
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 md:gap-8">
             {featured.map((product, i) => (
-              <RevealOnScroll key={product.id} delay={i * 80}>
+              <RevealOnScroll key={product.id} delay={i * 35}>
                 <ProductCard product={product} />
               </RevealOnScroll>
             ))}
           </div>
 
-          <RevealOnScroll className="text-center mt-16" delay={200}>
+          <RevealOnScroll className="text-center mt-16" delay={60}>
             <Link href="/tienda" className="btn-luxury-outline">
               Ver toda la colección
             </Link>
@@ -212,7 +212,7 @@ export default async function HomePage() {
                 desc: "Asesoría por WhatsApp, Facebook o formulario. Te ayudamos a encontrar tu aroma ideal.",
               },
             ].map((item, i) => (
-              <RevealOnScroll key={item.num} delay={i * 100}>
+              <RevealOnScroll key={item.num} delay={i * 45}>
                 <div className="bg-luxury-black p-10 md:p-12 h-full group hover:bg-luxury-panel/50 transition-colors duration-500">
                   <span className="text-gold/30 font-display text-3xl mb-6 block group-hover:text-gold/50 transition-colors">
                     {item.num}
