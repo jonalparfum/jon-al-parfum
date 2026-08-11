@@ -33,8 +33,8 @@ export default async function HomePage() {
         <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-20 md:pt-32">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-8 items-center">
             {/* Logo */}
-            <div className="flex justify-center lg:justify-end order-1 lg:order-none">
-              <div className="relative animate-float max-md:scale-[1.35] md:scale-100 origin-center">
+            <div className="flex justify-center lg:justify-end order-1 lg:order-none overflow-hidden max-md:px-2">
+              <div className="relative animate-float max-md:scale-[1.2] md:scale-100 origin-center">
                 <BrandLogo size="hero" priority className="mx-auto" />
                 <div className="absolute inset-0 -z-10 blur-3xl bg-gold/10 scale-75 rounded-full" />
               </div>

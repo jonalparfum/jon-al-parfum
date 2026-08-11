@@ -22,6 +22,9 @@ export default function Header() {
   useEffect(() => {
     if (!menuOpen) return;
 
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
     function handleOutside(event: MouseEvent | TouchEvent) {
       const target = event.target as Node;
       if (mobileMenuRef.current?.contains(target)) return;
@@ -46,6 +49,7 @@ export default function Header() {
       document.removeEventListener("mousedown", handleOutside);
       document.removeEventListener("touchstart", handleOutside);
       document.removeEventListener("keydown", handleEscape);
+      document.body.style.overflow = previousOverflow;
     };
   }, [menuOpen]);
 
@@ -61,18 +65,28 @@ export default function Header() {
   return (
     <header
       className={`sticky top-0 z-40 transition-all duration-500 ${
-        scrolled
-          ? "bg-luxury-black/95 backdrop-blur-md border-b border-gold/10 shadow-[0_4px_30px_rgba(0,0,0,0.5)]"
-          : "bg-transparent border-b border-transparent"
+        menuOpen
+          ? "max-md:bg-luxury-black/98 max-md:backdrop-blur-md max-md:border-b max-md:border-gold/10 max-md:shadow-[0_4px_30px_rgba(0,0,0,0.5)]"
+          : scrolled
+            ? "bg-luxury-black/95 backdrop-blur-md border-b border-gold/10 shadow-[0_4px_30px_rgba(0,0,0,0.5)]"
+            : "bg-transparent border-b border-transparent"
       }`}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {menuOpen && (
+        <div
+          className="fixed inset-0 z-30 bg-black/50 md:hidden"
+          onClick={() => setMenuOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+
+      <div className="relative z-50 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 md:h-20">
           <Link href="/" className="flex items-center gap-3 group">
             <BrandLogo
               size="sm"
               priority
-              className="origin-left max-md:scale-[1.35] md:scale-100 group-hover:md:scale-105 transition-transform duration-500"
+              className="origin-left max-md:scale-110 md:scale-100 group-hover:md:scale-105 transition-transform duration-500"
             />
             <span className="hidden sm:block font-display text-lg md:text-xl tracking-wide text-cream group-hover:text-gold transition-colors duration-300">
               Jon Al Parfum
@@ -186,14 +200,6 @@ export default function Header() {
           </nav>
         </div>
       </div>
-
-      {menuOpen && (
-        <div
-          className="fixed inset-0 top-16 z-30 bg-black/40 md:hidden"
-          onClick={() => setMenuOpen(false)}
-          aria-hidden="true"
-        />
-      )}
     </header>
   );
 }

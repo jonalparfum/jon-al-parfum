@@ -15,7 +15,7 @@ export default function StoreLayout({
     <CartProvider>
       <ScrollToTop />
       <Header />
-      <main className="min-h-screen bg-luxury-black">{children}</main>
+      <main className="min-h-screen bg-luxury-black overflow-x-hidden">{children}</main>
       <Footer />
       <CartDrawer />
       <WhatsAppButton />
