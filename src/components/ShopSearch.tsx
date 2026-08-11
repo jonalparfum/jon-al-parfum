@@ -16,30 +16,9 @@ export default function ShopSearch({ initialQuery = "" }: ShopSearchProps) {
     setQuery(initialQuery);
   }, [initialQuery]);
 
-  useEffect(() => {
-    const trimmed = query.trim();
-    if (trimmed === initialQuery.trim()) return;
-
-    const timeout = setTimeout(() => {
-      const params = new URLSearchParams(searchParams.toString());
-
-      if (trimmed) {
-        params.set("q", trimmed);
-      } else {
-        params.delete("q");
-      }
-
-      const next = params.toString();
-      router.replace(next ? `/tienda?${next}` : "/tienda", { scroll: false });
-    }, 350);
-
-    return () => clearTimeout(timeout);
-  }, [query, initialQuery, router, searchParams]);
-
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
+  function pushQuery(nextQuery: string) {
     const params = new URLSearchParams(searchParams.toString());
-    const trimmed = query.trim();
+    const trimmed = nextQuery.trim();
 
     if (trimmed) {
       params.set("q", trimmed);
@@ -51,12 +30,14 @@ export default function ShopSearch({ initialQuery = "" }: ShopSearchProps) {
     router.replace(next ? `/tienda?${next}` : "/tienda", { scroll: false });
   }
 
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    pushQuery(query);
+  }
+
   function clearSearch() {
     setQuery("");
-    const params = new URLSearchParams(searchParams.toString());
-    params.delete("q");
-    const next = params.toString();
-    router.replace(next ? `/tienda?${next}` : "/tienda", { scroll: false });
+    pushQuery("");
   }
 
   return (
