@@ -1,6 +1,7 @@
 "use client";
 
 import type { ShippingInput } from "@/lib/shipping";
+import { DEFAULT_WHATSAPP_PREFIX, filterWhatsAppPhone } from "@/lib/shipping";
 
 const inputClass =
   "w-full bg-luxury-black border border-gold/20 px-3 py-2.5 text-sm text-cream placeholder:text-cream/30 focus:outline-none focus:border-gold transition-colors";
@@ -65,13 +66,18 @@ export default function ShippingAddressForm({
           type="tel"
           inputMode="tel"
           value={value.shippingPhone}
-          onChange={(e) => set("shippingPhone", e.target.value.replace(/[^\d+\s()-]/g, ""))}
+          onFocus={() => {
+            if (!value.shippingPhone.trim()) {
+              set("shippingPhone", DEFAULT_WHATSAPP_PREFIX);
+            }
+          }}
+          onChange={(e) => set("shippingPhone", filterWhatsAppPhone(e.target.value))}
           className={fieldClass}
-          placeholder="10 dígitos (ej. 6141234567)"
+          placeholder="+52 8671234567"
           autoComplete="tel"
         />
         <p className={`mt-1 text-[11px] ${variant === "light" ? "text-charcoal/45" : "text-cream/40"}`}>
-          Lo usamos para avisarte sobre tu envío.
+          Prefijo +52 por defecto. Para otro país escribe su prefijo (ej. +1).
         </p>
       </div>
 

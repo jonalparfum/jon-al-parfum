@@ -9,6 +9,7 @@ import ShippingAddressForm from "@/components/ShippingAddressForm";
 import { formatPrice } from "@/lib/product-utils";
 import {
   emptyShipping,
+  displayWhatsAppPhone,
   resolveOrderShippingDisplay,
   validateShipping,
   type ShippingInput,
@@ -84,7 +85,7 @@ export default function AccountPage() {
         if (data?.profile) {
           setShipping({
             shippingName: data.profile.shippingName || data.profile.name || "",
-            shippingPhone: data.profile.shippingPhone || "",
+            shippingPhone: displayWhatsAppPhone(data.profile.shippingPhone || ""),
             shippingStreet: data.profile.shippingStreet || "",
             shippingColony: data.profile.shippingColony || "",
             shippingCity: data.profile.shippingCity || "",

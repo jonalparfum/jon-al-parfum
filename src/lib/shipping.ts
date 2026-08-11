@@ -13,17 +13,69 @@ export type ShippingRecord = ShippingInput & {
   shippingEmail?: string | null;
 };
 
+export const DEFAULT_WHATSAPP_PREFIX = "+52";
+
+/** Normaliza lo que el usuario escribe: +52 por defecto u otro prefijo internacional. */
+export function filterWhatsAppPhone(input: string): string {
+  const trimmed = input.trim();
+  if (!trimmed) return DEFAULT_WHATSAPP_PREFIX;
+
+  const sanitized = trimmed.replace(/[^\d+]/g, "");
+  if (!sanitized) return DEFAULT_WHATSAPP_PREFIX;
+
+  if (sanitized.startsWith("+")) {
+    const digits = sanitized.slice(1).replace(/\D/g, "");
+    if (!digits) return "+";
+    return `+${digits}`;
+  }
+
+  const digits = sanitized.replace(/\D/g, "");
+  if (!digits) return DEFAULT_WHATSAPP_PREFIX;
+  return `${DEFAULT_WHATSAPP_PREFIX}${digits}`;
+}
+
+/** Para mostrar números guardados sin prefijo (legacy). */
+export function displayWhatsAppPhone(phone: string): string {
+  if (!phone.trim()) return DEFAULT_WHATSAPP_PREFIX;
+  if (phone.trim().startsWith("+")) return filterWhatsAppPhone(phone);
+
+  const digits = phone.replace(/\D/g, "");
+  if (!digits) return DEFAULT_WHATSAPP_PREFIX;
+  if (digits.startsWith("52") && digits.length === 12) return `+${digits}`;
+  return `${DEFAULT_WHATSAPP_PREFIX}${digits}`;
+}
+
+function validateWhatsAppPhone(phone: string): string | null {
+  const formatted = filterWhatsAppPhone(phone);
+  if (formatted === DEFAULT_WHATSAPP_PREFIX || formatted === "+") {
+    return "El número de WhatsApp es obligatorio";
+  }
+
+  if (formatted.startsWith("+52")) {
+    const local = formatted.slice(3).replace(/\D/g, "");
+    if (local.length !== 10) {
+      return "Ingresa un WhatsApp de 10 dígitos (México +52)";
+    }
+    return null;
+  }
+
+  if (formatted.startsWith("+")) {
+    const intl = formatted.slice(1).replace(/\D/g, "");
+    if (intl.length < 10 || intl.length > 15) {
+      return "Ingresa un número de WhatsApp válido con prefijo internacional";
+    }
+    return null;
+  }
+
+  return "Ingresa un número de WhatsApp válido";
+}
+
 export function validateShipping(data: Partial<ShippingInput>): string | null {
   if (!data.shippingName?.trim()) {
     return "El nombre de quien recibe el paquete es obligatorio";
   }
-  if (!data.shippingPhone?.trim()) {
-    return "El número de WhatsApp es obligatorio";
-  }
-  const phoneDigits = data.shippingPhone.replace(/\D/g, "");
-  if (phoneDigits.length < 10 || phoneDigits.length > 15) {
-    return "Ingresa un número de WhatsApp válido (10 dígitos)";
-  }
+  const phoneError = validateWhatsAppPhone(data.shippingPhone ?? "");
+  if (phoneError) return phoneError;
   if (!data.shippingStreet?.trim()) {
     return "El domicilio es obligatorio";
   }
@@ -39,7 +91,7 @@ export function validateShipping(data: Partial<ShippingInput>): string | null {
 export function normalizeShipping(data: ShippingInput): ShippingInput {
   return {
     shippingName: data.shippingName.trim(),
-    shippingPhone: data.shippingPhone.trim(),
+    shippingPhone: filterWhatsAppPhone(data.shippingPhone),
     shippingStreet: data.shippingStreet.trim(),
     shippingColony: data.shippingColony?.trim() || undefined,
     shippingCity: data.shippingCity.trim(),
@@ -147,7 +199,7 @@ export function shippingToUserFields(data: ShippingInput) {
 
 export const emptyShipping = (): ShippingInput => ({
   shippingName: "",
-  shippingPhone: "",
+  shippingPhone: DEFAULT_WHATSAPP_PREFIX,
   shippingStreet: "",
   shippingColony: "",
   shippingCity: "",
