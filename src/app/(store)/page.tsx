@@ -5,6 +5,7 @@ import FaqSection from "@/components/FaqSection";
 import ContactSection from "@/components/ContactSection";
 import RevealOnScroll from "@/components/RevealOnScroll";
 import FragranceMist from "@/components/FragranceMist";
+import DailyPerfumeTip from "@/components/DailyPerfumeTip";
 import { getFeaturedProducts } from "@/lib/products";
 import { LOCATION, SHIPPING_COVERAGE } from "@/lib/contact";
 
@@ -74,15 +75,17 @@ export default async function HomePage() {
               </p>
 
               <p
-                className="text-gold/80 text-xs uppercase tracking-[0.25em] mb-10 animate-fade-in-up"
+                className="text-gold/80 text-xs uppercase tracking-[0.25em] mb-6 animate-fade-in-up"
                 style={{ animationDelay: "350ms" }}
               >
                 {SHIPPING_COVERAGE}
               </p>
 
+              <DailyPerfumeTip className="mb-8 max-w-lg mx-auto lg:mx-0" />
+
               <div
                 className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start animate-fade-in-up"
-                style={{ animationDelay: "450ms" }}
+                style={{ animationDelay: "500ms" }}
               >
                 <Link href="/tienda" className="btn-luxury-primary">
                   Explorar colección
