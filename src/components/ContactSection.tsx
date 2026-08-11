@@ -136,8 +136,8 @@ export default function ContactSection() {
             visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
           }`}
         >
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-20 items-start">
-            <div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-20 items-stretch">
+            <div className="flex flex-col">
               <p className="text-gold uppercase tracking-[0.4em] text-xs mb-5">
                 Escríbenos
               </p>
@@ -176,12 +176,12 @@ export default function ContactSection() {
               </div>
             </div>
 
-            <div className="relative">
+            <div className="relative flex flex-col h-full min-h-[520px] lg:min-h-0">
               <div className="absolute -inset-px bg-gradient-to-br from-gold/20 via-transparent to-gold/10 pointer-events-none" />
               <form
                 ref={formRef}
                 onSubmit={handleSubmit}
-                className="relative bg-luxury-panel/80 backdrop-blur-sm border border-gold/15 p-8 md:p-10 space-y-5 gold-border-glow"
+                className="relative flex flex-col flex-1 h-full bg-luxury-panel/80 backdrop-blur-sm border border-gold/15 p-8 md:p-10 lg:p-12 space-y-5 lg:space-y-6 gold-border-glow"
               >
                 {state === "error" && errorMsg && (
                   <div className="border border-red-900/50 bg-red-950/30 px-4 py-3 text-sm text-red-300">
@@ -243,7 +243,7 @@ export default function ContactSection() {
                   />
                 </div>
 
-                <div>
+                <div className="flex flex-col flex-1 min-h-[140px]">
                   <label htmlFor="contact-message" className="block text-xs uppercase tracking-[0.2em] text-gold/70 mb-2">
                     Mensaje
                   </label>
@@ -251,12 +251,13 @@ export default function ContactSection() {
                     id="contact-message"
                     name="message"
                     required
-                    rows={5}
+                    rows={8}
                     placeholder="Cuéntanos qué fragancia buscas o en qué podemos ayudarte..."
-                    className={`${inputClass} resize-none`}
+                    className={`${inputClass} resize-none flex-1 min-h-[160px] lg:min-h-[220px]`}
                   />
                 </div>
 
+                <div className="mt-auto pt-2 space-y-5">
                 <button
                   type="submit"
                   disabled={state === "loading"}
@@ -283,6 +284,7 @@ export default function ContactSection() {
                     WhatsApp
                   </a>
                 </p>
+                </div>
               </form>
             </div>
           </div>
