@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { signIn, getSession, useSession } from "next-auth/react";
 import Link from "next/link";
 import LoadingSpinner from "@/components/LoadingSpinner";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 
 function resolveDestination(callbackUrl: string, role?: string) {
@@ -17,8 +17,16 @@ function resolveDestination(callbackUrl: string, role?: string) {
   return callbackUrl;
 }
 
+async function waitForSession(maxAttempts = 8) {
+  for (let i = 0; i < maxAttempts; i++) {
+    const session = await getSession();
+    if (session?.user) return session;
+    await new Promise((resolve) => setTimeout(resolve, 150));
+  }
+  return null;
+}
+
 function LoginForm() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/";
   const { status } = useSession();
@@ -33,41 +41,48 @@ function LoginForm() {
     if (hasRedirected.current) return;
     hasRedirected.current = true;
     setRedirecting(true);
+    setLoading(false);
 
-    const currentSession = await getSession();
+    const currentSession = await waitForSession();
     const destination = resolveDestination(
       callbackUrl,
       currentSession?.user?.role
     );
 
-    router.refresh();
-    router.replace(destination);
-  }, [callbackUrl, router]);
+    window.location.assign(destination);
+  }, [callbackUrl]);
 
   useEffect(() => {
-    if (status === "authenticated" && !hasRedirected.current) {
+    if (status === "authenticated" && !hasRedirected.current && !loading) {
       goToDestination();
     }
-  }, [status, goToDestination]);
+  }, [status, goToDestination, loading]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError("");
 
-    const result = await signIn("credentials", {
-      email,
-      password,
-      redirect: false,
-    });
+    try {
+      const result = await signIn("credentials", {
+        email,
+        password,
+        redirect: false,
+      });
 
-    if (result?.error) {
-      setError("Email o contraseña incorrectos");
+      if (result?.error || result?.ok === false) {
+        setError("Email o contraseña incorrectos");
+        setLoading(false);
+        return;
+      }
+
+      await goToDestination();
+    } catch {
+      hasRedirected.current = false;
+      setRedirecting(false);
+      setError("No se pudo iniciar sesión. Intenta de nuevo.");
       setLoading(false);
-      return;
     }
-
-    await goToDestination();
   };
 
   if (redirecting) {

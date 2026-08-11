@@ -35,6 +35,11 @@ export default function Header() {
   const isAdmin = session?.user?.role === "ADMIN";
 
   const goTo = (href: string, action: NavAction) => {
+    const targetPath = href.split("?")[0].split("#")[0];
+    if (pathname === targetPath) {
+      setNavAction(null);
+      return;
+    }
     setNavAction(action);
     router.push(href);
   };
