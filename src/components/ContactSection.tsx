@@ -42,7 +42,7 @@ export default function ContactSection() {
       ([entry]) => {
         if (entry.isIntersecting) setVisible(true);
       },
-      { threshold: 0.08, rootMargin: "0px 0px -8% 0px" }
+      { threshold: 0.15 }
     );
     observer.observe(el);
     return () => observer.disconnect();
@@ -143,8 +143,8 @@ export default function ContactSection() {
         <div className="absolute inset-0 bg-radial-gold opacity-60 pointer-events-none" />
 
         <div
-          className={`reveal-on-scroll relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 transition-all duration-500 ${
-            visible ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"
+          className={`reveal-on-scroll relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 transition-transform duration-1000 ${
+            visible ? "translate-y-0" : "translate-y-8"
           }`}
         >
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-20 items-stretch">
