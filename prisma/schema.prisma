@@ -67,6 +67,7 @@ model Product {
   price         Float
   originalPrice Float?
   image         String
+  images        String       @default("[]")
   size          String       @default("100ml")
   notesTop      String
   notesHeart    String

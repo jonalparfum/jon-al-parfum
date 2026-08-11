@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const gradients: Record<string, string> = {
   hombre: "from-stone-800 via-amber-900 to-stone-950",
@@ -27,6 +27,10 @@ export default function ProductImage({
   const [error, setError] = useState(false);
   const gradient = gradients[category] || gradients.unisex;
 
+  useEffect(() => {
+    setError(false);
+  }, [src]);
+
   if (error || !src || src.includes("placeholder")) {
     return (
       <div
@@ -40,12 +44,14 @@ export default function ProductImage({
   return (
     <div className={`relative overflow-hidden ${className}`}>
       <Image
+        key={src}
         src={src}
         alt={alt}
         fill
         className="object-cover"
         sizes="(max-width: 768px) 100vw, 25vw"
         priority={priority}
+        unoptimized={src.startsWith("/uploads/")}
         onError={() => setError(true)}
       />
     </div>

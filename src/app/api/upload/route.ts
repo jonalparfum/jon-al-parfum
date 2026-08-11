@@ -1,7 +1,6 @@
-import { writeFile, mkdir } from "fs/promises";
-import path from "path";
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin, unauthorized } from "@/lib/api-auth";
+import { uploadProductImage } from "@/lib/upload-product-image";
 
 export async function POST(request: NextRequest) {
   const session = await requireAdmin();
@@ -31,12 +30,20 @@ export async function POST(request: NextRequest) {
 
   const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
   const filename = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-  const uploadDir = path.join(process.cwd(), "public", "uploads", "products");
 
-  await mkdir(uploadDir, { recursive: true });
-
-  const bytes = await file.arrayBuffer();
-  await writeFile(path.join(uploadDir, filename), Buffer.from(bytes));
-
-  return NextResponse.json({ url: `/uploads/products/${filename}` });
+  try {
+    const { url, storage } = await uploadProductImage(file, filename);
+    return NextResponse.json({ url, storage });
+  } catch (error) {
+    console.error("Upload error:", error);
+    return NextResponse.json(
+      {
+        error:
+          error instanceof Error
+            ? error.message
+            : "No se pudo subir la imagen",
+      },
+      { status: 500 }
+    );
+  }
 }

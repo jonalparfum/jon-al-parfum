@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import ProductForm from "@/components/admin/ProductForm";
-import { parseNotes } from "@/lib/product-utils";
+import { parseNotes, resolveProductImages } from "@/lib/product-utils";
 import { adminLoading, adminPageTitle } from "@/lib/admin-styles";
 
 type Category = { id: string; name: string; slug: string };
@@ -17,6 +17,7 @@ type Product = {
   price: number;
   originalPrice: number | null;
   image: string;
+  images: string;
   size: string;
   notesTop: string;
   notesHeart: string;
@@ -87,6 +88,7 @@ export default function EditProductPage({
           price: product.price,
           originalPrice: product.originalPrice ?? undefined,
           image: product.image,
+          images: resolveProductImages(product.image, product.images),
           size: product.size,
           notesTop: parseNotes(product.notesTop),
           notesHeart: parseNotes(product.notesHeart),

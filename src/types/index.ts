@@ -6,6 +6,7 @@ export type Product = {
   price: number;
   originalPrice?: number;
   image: string;
+  images?: string[];
   category: "hombre" | "mujer" | "unisex";
   notes: {
     top: string[];

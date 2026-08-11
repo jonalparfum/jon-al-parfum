@@ -16,7 +16,30 @@ export function serializeNotes(notes: string[]): string {
   return JSON.stringify(notes);
 }
 
+export function parseImages(json: string | null | undefined): string[] {
+  if (!json) return [];
+  try {
+    const parsed = JSON.parse(json);
+    return Array.isArray(parsed)
+      ? parsed.filter((item): item is string => typeof item === "string" && !!item)
+      : [];
+  } catch {
+    return [];
+  }
+}
+
+export function serializeImages(images: string[]): string {
+  return JSON.stringify(images.filter(Boolean));
+}
+
+export function resolveProductImages(image: string, imagesJson?: string | null) {
+  const parsed = parseImages(imagesJson);
+  if (parsed.length > 0) return parsed;
+  return image ? [image] : [];
+}
+
 export function toProductDTO(product: ProductWithCategory): Product {
+  const images = resolveProductImages(product.image, product.images);
   return {
     id: product.id,
     name: product.name,
@@ -24,7 +47,8 @@ export function toProductDTO(product: ProductWithCategory): Product {
     description: product.description,
     price: product.price,
     originalPrice: product.originalPrice ?? undefined,
-    image: product.image,
+    image: images[0] || product.image,
+    images,
     category: product.category.slug as Product["category"],
     notes: {
       top: parseNotes(product.notesTop),
@@ -61,6 +85,7 @@ export type ProductFormPayload = {
   price: number;
   originalPrice?: number;
   image: string;
+  images: string[];
   size: string;
   notesTop: string[];
   notesHeart: string[];
@@ -74,10 +99,18 @@ export type ProductFormPayload = {
 };
 
 export function prepareProductPayload(form: ProductFormPayload) {
+  const images = (form.images?.length ? form.images : form.image ? [form.image] : [])
+    .map((url) => url.trim())
+    .filter(Boolean);
+  const primaryImage =
+    images[0] || form.image.trim() || "/uploads/products/placeholder.jpg";
+
   return {
     ...form,
     slug: form.slug.trim() || undefined,
     subcategoryId: form.subcategoryId?.trim() ? form.subcategoryId : null,
     originalPrice: form.originalPrice ?? null,
+    images,
+    image: primaryImage,
   };
 }

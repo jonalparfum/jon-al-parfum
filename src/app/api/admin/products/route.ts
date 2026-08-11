@@ -5,7 +5,7 @@ import {
   unauthorized,
   parseJsonBody,
 } from "@/lib/api-auth";
-import { serializeNotes, slugify } from "@/lib/product-utils";
+import { serializeNotes, slugify, serializeImages } from "@/lib/product-utils";
 
 type ProductBody = {
   name: string;
@@ -14,7 +14,8 @@ type ProductBody = {
   description: string;
   price: number;
   originalPrice?: number;
-  image: string;
+  image?: string;
+  images?: string[];
   size?: string;
   notesTop?: string[];
   notesHeart?: string[];
@@ -57,6 +58,13 @@ export async function POST(request: NextRequest) {
   }
 
   const slug = body.slug || slugify(body.name);
+  const images = body.images?.length
+    ? body.images
+    : body.image
+      ? [body.image]
+      : [];
+  const primaryImage =
+    images[0] || body.image || "/uploads/products/placeholder.jpg";
 
   try {
     const product = await prisma.product.create({
@@ -67,7 +75,8 @@ export async function POST(request: NextRequest) {
         description: body.description,
         price: body.price,
         originalPrice: body.originalPrice ?? null,
-        image: body.image || "/uploads/products/placeholder.jpg",
+        image: primaryImage,
+        images: serializeImages(images),
         size: body.size || "100ml",
         notesTop: serializeNotes(body.notesTop || []),
         notesHeart: serializeNotes(body.notesHeart || []),

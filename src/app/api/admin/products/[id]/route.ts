@@ -5,7 +5,7 @@ import {
   unauthorized,
   parseJsonBody,
 } from "@/lib/api-auth";
-import { serializeNotes, slugify } from "@/lib/product-utils";
+import { serializeNotes, slugify, serializeImages } from "@/lib/product-utils";
 
 type RouteParams = { params: Promise<{ id: string }> };
 
@@ -17,6 +17,7 @@ type ProductBody = {
   price?: number;
   originalPrice?: number | null;
   image?: string;
+  images?: string[];
   size?: string;
   notesTop?: string[];
   notesHeart?: string[];
@@ -57,6 +58,13 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
   }
 
   try {
+    const images =
+      body.images !== undefined
+        ? body.images
+        : body.image !== undefined
+          ? [body.image]
+          : undefined;
+
     const product = await prisma.product.update({
       where: { id },
       data: {
@@ -72,7 +80,12 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
         ...(body.originalPrice !== undefined && {
           originalPrice: body.originalPrice,
         }),
-        ...(body.image !== undefined && { image: body.image }),
+        ...(images !== undefined && {
+          images: serializeImages(images),
+          image: images[0] || body.image || "",
+        }),
+        ...(body.image !== undefined &&
+          images === undefined && { image: body.image }),
         ...(body.size !== undefined && { size: body.size }),
         ...(body.notesTop !== undefined && {
           notesTop: serializeNotes(body.notesTop),

@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Image from "next/image";
 import {
   adminBtnPrimary,
   adminInput,
@@ -46,7 +45,13 @@ export default function ProductForm({
     description: initial?.description || "",
     price: initial?.price || 0,
     originalPrice: initial?.originalPrice,
-    image: initial?.image || "",
+    image: initial?.image || initial?.images?.[0] || "",
+    images:
+      initial?.images?.length
+        ? initial.images
+        : initial?.image
+          ? [initial.image]
+          : [],
     size: initial?.size || "100ml",
     notesTop: initial?.notesTop || [],
     notesHeart: initial?.notesHeart || [],
@@ -95,22 +100,84 @@ export default function ProductForm({
   };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const files = e.target.files;
+    if (!files?.length) return;
 
     setUploading(true);
-    const formData = new FormData();
-    formData.append("file", file);
+    const uploaded: string[] = [];
 
-    const res = await fetch("/api/upload", { method: "POST", body: formData });
-    const data = await res.json();
+    for (const file of Array.from(files)) {
+      const formData = new FormData();
+      formData.append("file", file);
 
-    if (res.ok) {
-      update("image", data.url);
-    } else {
-      alert(data.error || "Error al subir imagen");
+      try {
+        const res = await fetch("/api/upload", {
+          method: "POST",
+          body: formData,
+        });
+        const data = await res.json();
+
+        if (res.ok) {
+          uploaded.push(data.url);
+        } else {
+          alert(data.error || "Error al subir imagen");
+        }
+      } catch {
+        alert("Error al subir imagen");
+      }
     }
+
+    if (uploaded.length > 0) {
+      setForm((prev) => {
+        const images = [...prev.images, ...uploaded];
+        return {
+          ...prev,
+          images,
+          image: images[0] || prev.image,
+        };
+      });
+    }
+
     setUploading(false);
+    e.target.value = "";
+  };
+
+  const removeImage = (index: number) => {
+    setForm((prev) => {
+      const images = prev.images.filter((_, i) => i !== index);
+      return {
+        ...prev,
+        images,
+        image: images[0] || "",
+      };
+    });
+  };
+
+  const setPrimaryImage = (index: number) => {
+    setForm((prev) => {
+      const images = [...prev.images];
+      const [selected] = images.splice(index, 1);
+      if (!selected) return prev;
+      images.unshift(selected);
+      return {
+        ...prev,
+        images,
+        image: images[0],
+      };
+    });
+  };
+
+  const addImageUrl = (url: string) => {
+    const trimmed = url.trim();
+    if (!trimmed) return;
+    setForm((prev) => {
+      const images = [...prev.images, trimmed];
+      return {
+        ...prev,
+        images,
+        image: prev.image || images[0],
+      };
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -277,35 +344,92 @@ export default function ProductForm({
       </div>
 
       <div>
-        <label className={adminLabel}>Imagen del perfume</label>
-        <div className="flex items-start gap-4">
-          {form.image && (
-            <div className="relative w-24 h-32 rounded overflow-hidden border border-gold/20">
-              <Image
-                src={form.image}
-                alt="Preview"
-                fill
-                className="object-cover"
-              />
-            </div>
+        <label className={adminLabel}>Fotos del perfume</label>
+        <p className={`${adminMuted} mb-3`}>
+          Puedes subir varias imágenes. La primera es la foto principal en la
+          tienda.
+        </p>
+
+        {form.images.length > 0 && (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 mb-4">
+            {form.images.map((url, index) => (
+              <div
+                key={`${url}-${index}`}
+                className="relative rounded overflow-hidden border border-gold/20 bg-luxury-black/50"
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={url}
+                  alt={`Foto ${index + 1}`}
+                  className="w-full aspect-[3/4] object-cover"
+                />
+                {index === 0 && (
+                  <span className="absolute top-1 left-1 bg-gold text-luxury-black text-[9px] uppercase tracking-wider px-1.5 py-0.5">
+                    Principal
+                  </span>
+                )}
+                <div className="flex flex-wrap gap-1 p-2 bg-luxury-black/80">
+                  {index !== 0 && (
+                    <button
+                      type="button"
+                      onClick={() => setPrimaryImage(index)}
+                      className="text-[9px] uppercase tracking-wider text-gold hover:text-gold-light"
+                    >
+                      Principal
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => removeImage(index)}
+                    className="text-[9px] uppercase tracking-wider text-red-400 hover:text-red-300"
+                  >
+                    Quitar
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        <div className="space-y-2">
+          <input
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            multiple
+            onChange={handleImageUpload}
+            className="text-sm text-cream/70"
+          />
+          {uploading && (
+            <p className={adminMuted}>Subiendo imágenes...</p>
           )}
-          <div>
-            <input
-              type="file"
-              accept="image/jpeg,image/png,image/webp"
-              onChange={handleImageUpload}
-              className="text-sm text-cream/70"
-            />
-            {uploading && (
-              <p className={`${adminMuted} mt-1`}>Subiendo...</p>
-            )}
+          <div className="flex gap-2">
             <input
               type="text"
-              value={form.image}
-              onChange={(e) => update("image", e.target.value)}
-              placeholder="URL de imagen"
-              className={`${adminInput} mt-2`}
+              id="manual-image-url"
+              placeholder="Pegar URL de imagen"
+              className={`${adminInput} flex-1`}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  addImageUrl((e.currentTarget as HTMLInputElement).value);
+                  (e.currentTarget as HTMLInputElement).value = "";
+                }
+              }}
             />
+            <button
+              type="button"
+              onClick={() => {
+                const input = document.getElementById(
+                  "manual-image-url"
+                ) as HTMLInputElement | null;
+                if (!input) return;
+                addImageUrl(input.value);
+                input.value = "";
+              }}
+              className="shrink-0 px-3 py-2 text-[10px] uppercase tracking-wider border border-gold/30 text-gold hover:border-gold"
+            >
+              Agregar URL
+            </button>
           </div>
         </div>
       </div>
