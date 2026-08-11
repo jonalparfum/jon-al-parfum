@@ -221,7 +221,7 @@ export default function ContactSection() {
                         onChange={(e) => handlePhoneChange(e.target.value)}
                         onKeyDown={handlePhoneKeyDown}
                         onPaste={handlePhonePaste}
-                        placeholder="8672990689"
+                        placeholder="tu numero"
                         maxLength={10}
                         className={`${inputClass} rounded-none border-l-0`}
                       />
