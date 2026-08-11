@@ -1,12 +1,11 @@
 "use client";
 
-const WHATSAPP_URL =
-  process.env.NEXT_PUBLIC_WHATSAPP_URL ?? "https://wa.me/34900123456";
+import { WHATSAPP_URL } from "@/lib/contact";
 
 export default function WhatsAppButton() {
   return (
     <a
-      href={WHATSAPP_URL}
+      href={process.env.NEXT_PUBLIC_WHATSAPP_URL ?? WHATSAPP_URL}
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Contactar por WhatsApp"
