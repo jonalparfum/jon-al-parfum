@@ -1,13 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { signIn } from "next-auth/react";
+import { signIn, getSession } from "next-auth/react";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 
 function LoginForm() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/";
   const [email, setEmail] = useState("");
@@ -29,16 +28,21 @@ function LoginForm() {
     if (result?.error) {
       setError("Email o contraseña incorrectos");
       setLoading(false);
-    } else {
-      const sessionRes = await fetch("/api/auth/session");
-      const session = await sessionRes.json();
-      if (session?.user?.role === "ADMIN") {
-        router.push("/admin");
-      } else {
-        router.push(callbackUrl);
-      }
-      router.refresh();
+      return;
     }
+
+    const session = await getSession();
+    let destination = callbackUrl;
+
+    if (session?.user?.role === "ADMIN") {
+      if (destination === "/" || destination.startsWith("/admin")) {
+        destination = destination.startsWith("/admin") ? destination : "/admin";
+      }
+    } else if (destination.startsWith("/admin")) {
+      destination = "/";
+    }
+
+    window.location.href = destination;
   };
 
   return (
