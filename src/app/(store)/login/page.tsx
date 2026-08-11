@@ -1,18 +1,34 @@
 "use client";
 
-import { useState } from "react";
-import { signIn, getSession } from "next-auth/react";
+import { useState, useEffect } from "react";
+import { signIn, getSession, useSession } from "next-auth/react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 
+function resolveDestination(callbackUrl: string, role?: string) {
+  if (role === "ADMIN") {
+    if (callbackUrl.startsWith("/admin")) return callbackUrl;
+    if (callbackUrl === "/") return "/admin";
+    return callbackUrl;
+  }
+  if (callbackUrl.startsWith("/admin")) return "/";
+  return callbackUrl;
+}
+
 function LoginForm() {
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/";
+  const { data: session, status } = useSession();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (status !== "authenticated") return;
+    window.location.href = resolveDestination(callbackUrl, session?.user?.role);
+  }, [status, session, callbackUrl]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,18 +48,19 @@ function LoginForm() {
     }
 
     const session = await getSession();
-    let destination = callbackUrl;
-
-    if (session?.user?.role === "ADMIN") {
-      if (destination === "/" || destination.startsWith("/admin")) {
-        destination = destination.startsWith("/admin") ? destination : "/admin";
-      }
-    } else if (destination.startsWith("/admin")) {
-      destination = "/";
-    }
-
-    window.location.href = destination;
+    window.location.href = resolveDestination(
+      callbackUrl,
+      session?.user?.role
+    );
   };
+
+  if (status === "loading" || status === "authenticated") {
+    return (
+      <div className="min-h-[70vh] flex items-center justify-center px-4">
+        <p className="text-cream/60 text-sm">Redirigiendo...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-[70vh] flex items-center justify-center px-4">
