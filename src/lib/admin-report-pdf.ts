@@ -15,11 +15,13 @@ const LOGO = { full: 54, compact: 30, footer: 16 };
 
 const COLORS = {
   gold: "#c9a962",
+  goldDark: "#9a7b3c",
   charcoal: "#1a1816",
   cream: "#f5f0e8",
   muted: "#6b7280",
   border: "#e5e7eb",
-  headerBg: "#1a1816",
+  headerBg: "#faf8f5",
+  headerBorder: "#e8e4dc",
   rowAlt: "#fafaf9",
   warn: "#b45309",
   danger: "#dc2626",
@@ -148,18 +150,24 @@ function drawCompactPageHeader(doc: PdfDoc, ctx: PdfContext) {
 
   doc.save();
   doc.rect(0, 0, w, headerH).fill(COLORS.headerBg);
+  doc
+    .moveTo(0, headerH)
+    .lineTo(w, headerH)
+    .strokeColor(COLORS.headerBorder)
+    .lineWidth(0.5)
+    .stroke();
   doc.rect(0, headerH - 2, w, 2).fill(COLORS.gold);
 
   drawLogo(doc, ctx.logo, M.left, logoY, logoSize);
 
   doc
-    .fillColor(COLORS.gold)
+    .fillColor(COLORS.goldDark)
     .font("Helvetica-Bold")
     .fontSize(10)
     .text("Jon Al Parfum", textX, 14, { lineBreak: false });
 
   doc
-    .fillColor(COLORS.cream)
+    .fillColor(COLORS.muted)
     .font("Helvetica")
     .fontSize(8)
     .text("Reporte de operaciones", textX, 28, { lineBreak: false });
@@ -178,24 +186,30 @@ function drawPageHeader(doc: PdfDoc, ctx: PdfContext) {
 
   doc.save();
   doc.rect(0, 0, w, headerH).fill(COLORS.headerBg);
+  doc
+    .moveTo(0, headerH)
+    .lineTo(w, headerH)
+    .strokeColor(COLORS.headerBorder)
+    .lineWidth(0.5)
+    .stroke();
   doc.rect(0, headerH - 3, w, 3).fill(COLORS.gold);
 
   drawLogo(doc, ctx.logo, M.left, logoY, logoSize);
 
   doc
-    .fillColor(COLORS.gold)
+    .fillColor(COLORS.goldDark)
     .font("Helvetica-Bold")
     .fontSize(17)
     .text("Jon Al Parfum", textX, 24, { lineBreak: false });
 
   doc
-    .fillColor(COLORS.cream)
+    .fillColor(COLORS.charcoal)
     .font("Helvetica")
     .fontSize(10)
     .text("Reporte global de operaciones", textX, 44, { lineBreak: false });
 
   doc
-    .fillColor("#9ca3af")
+    .fillColor(COLORS.muted)
     .fontSize(8)
     .font("Helvetica")
     .text(`Generado: ${formatDate(ctx.generatedAt)}`, M.left, 58, {
