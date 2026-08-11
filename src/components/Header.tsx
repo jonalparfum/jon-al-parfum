@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import BrandLogo from "@/components/BrandLogo";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useSession } from "next-auth/react";
 import { useCart } from "@/context/CartContext";
 
@@ -11,12 +11,43 @@ export default function Header() {
   const { totalItems, openCart } = useCart();
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const mobileMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+
+    function handleOutside(event: MouseEvent | TouchEvent) {
+      const target = event.target as Node;
+      if (mobileMenuRef.current?.contains(target)) return;
+      if (
+        target instanceof Element &&
+        target.closest("[data-mobile-menu-toggle]")
+      ) {
+        return;
+      }
+      setMenuOpen(false);
+    }
+
+    function handleEscape(event: KeyboardEvent) {
+      if (event.key === "Escape") setMenuOpen(false);
+    }
+
+    document.addEventListener("mousedown", handleOutside);
+    document.addEventListener("touchstart", handleOutside);
+    document.addEventListener("keydown", handleEscape);
+
+    return () => {
+      document.removeEventListener("mousedown", handleOutside);
+      document.removeEventListener("touchstart", handleOutside);
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, [menuOpen]);
 
   const navLinks = [
     { href: "/", label: "Inicio" },
@@ -105,8 +136,10 @@ export default function Header() {
 
             <button
               onClick={() => setMenuOpen(!menuOpen)}
+              data-mobile-menu-toggle
               className="md:hidden p-2 text-cream"
-              aria-label="Menú"
+              aria-label={menuOpen ? "Cerrar menú" : "Abrir menú"}
+              aria-expanded={menuOpen}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -127,6 +160,7 @@ export default function Header() {
         </div>
 
         <div
+          ref={mobileMenuRef}
           className={`md:hidden overflow-hidden transition-all duration-500 ${
             menuOpen ? "max-h-96 border-t border-gold/10" : "max-h-0"
           }`}
@@ -152,6 +186,14 @@ export default function Header() {
           </nav>
         </div>
       </div>
+
+      {menuOpen && (
+        <div
+          className="fixed inset-0 top-16 z-30 bg-black/40 md:hidden"
+          onClick={() => setMenuOpen(false)}
+          aria-hidden="true"
+        />
+      )}
     </header>
   );
 }
