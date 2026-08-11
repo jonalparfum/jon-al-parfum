@@ -2,6 +2,13 @@ import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { parseJsonBody } from "@/lib/api-auth";
+import { validatePassword } from "@/lib/password-policy";
+import {
+  AUTH_LIMITS,
+  consumeRateLimit,
+  getClientIp,
+  rateLimitResponse,
+} from "@/lib/rate-limit";
 
 type RegisterBody = {
   name?: string;
@@ -10,6 +17,17 @@ type RegisterBody = {
 };
 
 export async function POST(request: Request) {
+  const ip = getClientIp(request);
+  const ipLimit = await consumeRateLimit(
+    `auth:register:ip:${ip}`,
+    AUTH_LIMITS.registerIp.limit,
+    AUTH_LIMITS.registerIp.windowSeconds
+  );
+
+  if (!ipLimit.ok) {
+    return rateLimitResponse(ipLimit.retryAfterSeconds);
+  }
+
   const body = await parseJsonBody<RegisterBody>(request as never);
 
   if (!body?.email || !body?.password) {
@@ -19,15 +37,15 @@ export async function POST(request: Request) {
     );
   }
 
-  if (body.password.length < 6) {
-    return NextResponse.json(
-      { error: "La contraseña debe tener al menos 6 caracteres" },
-      { status: 400 }
-    );
+  const passwordError = validatePassword(body.password);
+  if (passwordError) {
+    return NextResponse.json({ error: passwordError }, { status: 400 });
   }
 
+  const email = body.email.trim().toLowerCase();
+
   const existing = await prisma.user.findUnique({
-    where: { email: body.email.toLowerCase() },
+    where: { email },
   });
 
   if (existing) {
@@ -41,8 +59,8 @@ export async function POST(request: Request) {
 
   const user = await prisma.user.create({
     data: {
-      name: body.name || null,
-      email: body.email.toLowerCase(),
+      name: body.name?.trim() || null,
+      email,
       passwordHash,
     },
     select: { id: true, email: true, name: true },

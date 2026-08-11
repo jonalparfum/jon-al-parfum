@@ -70,6 +70,12 @@ function LoginForm() {
         redirect: false,
       });
 
+      if (result?.error === "rate_limit") {
+        setError("Demasiados intentos. Espera unos minutos e inténtalo de nuevo.");
+        setLoading(false);
+        return;
+      }
+
       if (result?.error || result?.ok === false) {
         setError("Email o contraseña incorrectos");
         setLoading(false);

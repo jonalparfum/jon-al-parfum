@@ -110,3 +110,12 @@ model OrderItem {
   quantity  Int
   price     Float
 }
+
+model RateLimitEntry {
+  key       String   @id
+  count     Int      @default(1)
+  expiresAt DateTime
+  updatedAt DateTime @updatedAt
+
+  @@index([expiresAt])
+}

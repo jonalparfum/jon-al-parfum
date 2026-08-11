@@ -6,6 +6,7 @@ import {
   unauthorized,
   parseJsonBody,
 } from "@/lib/api-auth";
+import { validatePassword } from "@/lib/password-policy";
 
 type ProfileBody = {
   name?: string;
@@ -77,11 +78,9 @@ export async function PATCH(request: Request) {
   }
 
   if (body.newPassword) {
-    if (body.newPassword.length < 6) {
-      return NextResponse.json(
-        { error: "La nueva contraseña debe tener al menos 6 caracteres" },
-        { status: 400 }
-      );
+    const passwordError = validatePassword(body.newPassword);
+    if (passwordError) {
+      return NextResponse.json({ error: passwordError }, { status: 400 });
     }
 
     if (!body.currentPassword) {

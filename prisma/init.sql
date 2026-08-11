@@ -108,3 +108,15 @@ ALTER TABLE "OrderItem" ADD CONSTRAINT "OrderItem_orderId_fkey" FOREIGN KEY ("or
 
 -- AddForeignKey
 ALTER TABLE "OrderItem" ADD CONSTRAINT "OrderItem_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Product"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- Rate limiting (auth brute-force protection)
+CREATE TABLE IF NOT EXISTS "RateLimitEntry" (
+    "key" TEXT NOT NULL,
+    "count" INTEGER NOT NULL DEFAULT 1,
+    "expiresAt" TIMESTAMP(3) NOT NULL,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "RateLimitEntry_pkey" PRIMARY KEY ("key")
+);
+
+CREATE INDEX IF NOT EXISTS "RateLimitEntry_expiresAt_idx" ON "RateLimitEntry"("expiresAt");

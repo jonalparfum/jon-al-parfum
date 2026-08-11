@@ -4,6 +4,7 @@ import { useState } from "react";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { PASSWORD_REQUIREMENTS_HINT } from "@/lib/password-policy";
 
 const inputClass =
   "w-full bg-luxury-black border border-gold/20 px-3 py-2.5 text-sm text-cream placeholder:text-cream/30 focus:outline-none focus:border-gold transition-colors";
@@ -102,12 +103,13 @@ export default function RegisterPage() {
             <input
               type="password"
               required
-              minLength={6}
+              minLength={8}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className={inputClass}
-              placeholder="Mínimo 6 caracteres"
+              placeholder={PASSWORD_REQUIREMENTS_HINT}
             />
+            <p className="mt-1.5 text-[11px] text-cream/40">{PASSWORD_REQUIREMENTS_HINT}</p>
           </div>
 
           <button

@@ -11,6 +11,7 @@ import {
   adminPageTitle,
   adminPanelPadding,
 } from "@/lib/admin-styles";
+import { PASSWORD_REQUIREMENTS_HINT } from "@/lib/password-policy";
 
 type Profile = {
   id: string;
@@ -164,8 +165,9 @@ export default function AdminProfilePage() {
               onChange={(e) => setNewPassword(e.target.value)}
               className={adminInput}
               autoComplete="new-password"
-              minLength={6}
+              minLength={8}
             />
+            <p className="mt-1 text-xs text-cream/40">{PASSWORD_REQUIREMENTS_HINT}</p>
           </div>
 
           <div>
@@ -176,7 +178,7 @@ export default function AdminProfilePage() {
               onChange={(e) => setConfirmPassword(e.target.value)}
               className={adminInput}
               autoComplete="new-password"
-              minLength={6}
+              minLength={8}
             />
           </div>
         </div>
