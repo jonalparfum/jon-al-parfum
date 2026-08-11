@@ -1,6 +1,6 @@
-import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin, unauthorized, parseJsonBody } from "@/lib/api-auth";
+import { updateOrderStatus } from "@/lib/order-fulfillment";
 import { OrderStatus } from "@prisma/client";
 
 type RouteParams = { params: Promise<{ id: string }> };
@@ -16,10 +16,12 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     return NextResponse.json({ error: "Estado requerido" }, { status: 400 });
   }
 
-  const order = await prisma.order.update({
-    where: { id },
-    data: { status: body.status },
-  });
-
-  return NextResponse.json(order);
+  try {
+    const order = await updateOrderStatus(id, body.status);
+    return NextResponse.json(order);
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "Error al actualizar pedido";
+    return NextResponse.json({ error: message }, { status: 400 });
+  }
 }

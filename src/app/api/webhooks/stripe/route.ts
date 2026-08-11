@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { stripe } from "@/lib/stripe";
+import { markOrderPaid } from "@/lib/order-fulfillment";
 import Stripe from "stripe";
 
 export async function POST(request: Request) {
@@ -28,32 +29,21 @@ export async function POST(request: Request) {
     const orderId = session.metadata?.orderId;
 
     if (orderId) {
-      const order = await prisma.order.findUnique({
-        where: { id: orderId },
-        include: { items: true },
-      });
-
-      if (order && order.status === "PENDING") {
-        await prisma.$transaction([
-          prisma.order.update({
-            where: { id: orderId },
-            data: {
-              status: "PAID",
-              stripePaymentId: session.payment_intent as string,
-              shippingName: session.customer_details?.name || null,
-              shippingEmail: session.customer_details?.email || null,
-              shippingAddress: session.customer_details?.address
-                ? JSON.stringify(session.customer_details.address)
-                : null,
-            },
-          }),
-          ...order.items.map((item) =>
-            prisma.product.update({
-              where: { id: item.productId },
-              data: { stock: { decrement: item.quantity } },
-            })
-          ),
-        ]);
+      try {
+        await markOrderPaid(orderId, {
+          stripePaymentId: session.payment_intent as string,
+          shippingName: session.customer_details?.name || null,
+          shippingEmail: session.customer_details?.email || null,
+          shippingAddress: session.customer_details?.address
+            ? JSON.stringify(session.customer_details.address)
+            : null,
+        });
+      } catch (error) {
+        console.error("Error al confirmar pedido pagado:", error);
+        return NextResponse.json(
+          { error: "No se pudo actualizar el pedido" },
+          { status: 500 }
+        );
       }
     }
   }
