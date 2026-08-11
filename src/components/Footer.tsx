@@ -49,6 +49,22 @@ export default function Footer() {
                   Unisex
                 </Link>
               </li>
+              <li>
+                <a
+                  href="/aviso-privacidad.html"
+                  className="hover:text-gold transition-colors"
+                >
+                  Aviso de privacidad
+                </a>
+              </li>
+              <li>
+                <Link
+                  href="/politica-cookies"
+                  className="hover:text-gold transition-colors"
+                >
+                  Política de cookies
+                </Link>
+              </li>
             </ul>
           </div>
 
@@ -64,8 +80,23 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="border-t border-cream/10 mt-12 pt-8 text-center text-sm text-cream/50">
+        <div className="border-t border-cream/10 mt-12 pt-8 text-center text-sm text-cream/50 space-y-4">
           <p>&copy; {new Date().getFullYear()} Jon Al Parfum. Todos los derechos reservados.</p>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+            <a
+              href="/aviso-privacidad.html"
+              className="inline-block text-xs uppercase tracking-widest text-cream/60 hover:text-gold transition-colors"
+            >
+              Aviso de privacidad
+            </a>
+            <span className="hidden sm:inline text-cream/30">|</span>
+            <a
+              href="/atrix.html"
+              className="inline-block text-xs uppercase tracking-widest text-gold/80 hover:text-gold border border-gold/30 hover:border-gold px-4 py-2 transition-colors"
+            >
+              Desarrollado por ATRIX Technologies
+            </a>
+          </div>
         </div>
       </div>
     </footer>
