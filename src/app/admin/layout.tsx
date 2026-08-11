@@ -3,9 +3,8 @@ import { prisma } from "@/lib/prisma";
 import { AdminShell } from "@/components/admin/AdminShell";
 import { AdminToastProvider } from "@/components/admin/AdminToast";
 import AdminBodyTheme from "@/components/admin/AdminBodyTheme";
+import { getAdminBadgeCounts } from "@/lib/admin-notifications";
 import { NO_INDEX_METADATA } from "@/lib/seo";
-
-export const dynamic = "force-dynamic";
 
 export const metadata = {
   ...NO_INDEX_METADATA,
@@ -19,11 +18,12 @@ export default async function AdminLayout({
 }) {
   const session = await auth();
 
-  const [products, categories, orders, users] = await Promise.all([
+  const [products, categories, orders, users, badges] = await Promise.all([
     prisma.product.count(),
     prisma.category.count(),
     prisma.order.count(),
     prisma.user.count(),
+    getAdminBadgeCounts(),
   ]);
 
   const stats = [
@@ -36,7 +36,7 @@ export default async function AdminLayout({
   return (
     <AdminToastProvider>
       <AdminBodyTheme />
-      <AdminShell email={session?.user?.email} stats={stats}>
+      <AdminShell email={session?.user?.email} stats={stats} badges={badges}>
         {children}
       </AdminShell>
     </AdminToastProvider>

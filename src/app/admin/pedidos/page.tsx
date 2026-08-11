@@ -14,6 +14,7 @@ import {
   adminFilterPillInactive,
   adminInput,
   adminLabel,
+  adminLinkDanger,
   adminLoading,
   adminMuted,
   adminOrderStatus,
@@ -35,7 +36,6 @@ type Order = {
 
 const statuses = [
   "ALL",
-  "PENDING",
   "PAID",
   "PROCESSING",
   "SHIPPED",
@@ -45,7 +45,6 @@ const statuses = [
 
 const statusLabels: Record<string, string> = {
   ALL: "Todos",
-  PENDING: "Pendiente",
   PAID: "Pagado",
   PROCESSING: "Procesando",
   SHIPPED: "Enviado",
@@ -59,6 +58,7 @@ export default function AdminOrdersPage() {
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
   const [search, setSearch] = useState("");
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const load = () => {
     fetchJsonArray<Order>("/api/admin/orders").then(({ ok, data, error }) => {
@@ -106,13 +106,41 @@ export default function AdminOrdersPage() {
     }
   };
 
+  const handleDelete = async (order: Order) => {
+    const label = order.user.name || order.user.email;
+    if (
+      !confirm(
+        `¿Eliminar el pedido de "${label}"?\n\nSe devolverá el inventario si ya se había descontado.`
+      )
+    ) {
+      return;
+    }
+
+    setDeletingId(order.id);
+    const res = await fetch(`/api/admin/orders/${order.id}`, {
+      method: "DELETE",
+    });
+
+    if (res.ok) {
+      setOrders((prev) => prev.filter((o) => o.id !== order.id));
+      showToast("Pedido eliminado");
+    } else {
+      const err = await res.json().catch(() => ({}));
+      showToast(
+        (err as { error?: string }).error || "No se pudo eliminar el pedido",
+        "error"
+      );
+    }
+    setDeletingId(null);
+  };
+
   if (loading) return <p className={adminLoading}>Cargando pedidos...</p>;
 
   return (
     <div>
       <AdminPageHeader
         title="Pedidos"
-        subtitle={`${filtered.length} de ${orders.length} pedidos registrados`}
+        subtitle={`${filtered.length} pedido${filtered.length === 1 ? "" : "s"} pagado${filtered.length === 1 ? "" : "s"}`}
       />
 
       <div className="mb-6 max-w-md">
@@ -147,7 +175,7 @@ export default function AdminOrdersPage() {
         <div className={adminEmptyState}>
           <p className="text-charcoal/70">
             {orders.length === 0
-              ? "No hay pedidos todavía."
+              ? "No hay pedidos pagados todavía."
               : "Ningún pedido coincide con los filtros."}
           </p>
         </div>
@@ -194,6 +222,14 @@ export default function AdminOrdersPage() {
                         </option>
                       ))}
                   </select>
+                  <button
+                    type="button"
+                    onClick={() => handleDelete(order)}
+                    disabled={deletingId === order.id}
+                    className={adminLinkDanger}
+                  >
+                    {deletingId === order.id ? "Eliminando…" : "Eliminar"}
+                  </button>
                 </div>
               </div>
               <ul className="space-y-2 pt-3 border-t border-stone-200">

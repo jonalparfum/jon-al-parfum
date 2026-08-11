@@ -152,17 +152,43 @@ export default function AdminProductsPage() {
 
   const handleDelete = async (id: string, name: string) => {
     if (!confirm(`¿Eliminar "${name}"?`)) return;
+
     const res = await fetch(`/api/admin/products/${id}`, { method: "DELETE" });
+
     if (res.ok) {
       setProducts((prev) => prev.filter((p) => p.id !== id));
       showToast("Producto eliminado");
-    } else {
-      const err = await res.json().catch(() => ({}));
-      showToast(
-        (err as { error?: string }).error || "No se pudo eliminar el producto",
-        "error"
-      );
+      return;
     }
+
+    const err = (await res.json().catch(() => ({}))) as {
+      error?: string;
+      canDeactivate?: boolean;
+    };
+
+    if (res.status === 409 && err.canDeactivate) {
+      const deactivate = confirm(
+        `${err.error || "No se puede eliminar este producto."}\n\n¿Desactivarlo para ocultarlo de la tienda?`
+      );
+
+      if (deactivate) {
+        const updateRes = await fetch(`/api/admin/products/${id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ active: false }),
+        });
+
+        if (updateRes.ok) {
+          setProducts((prev) =>
+            prev.map((p) => (p.id === id ? { ...p, active: false } : p))
+          );
+          showToast("Producto desactivado (ya no aparece en la tienda)");
+          return;
+        }
+      }
+    }
+
+    showToast(err.error || "No se pudo eliminar el producto", "error");
   };
 
   const clearFilters = () => {

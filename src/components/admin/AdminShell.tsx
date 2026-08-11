@@ -19,25 +19,43 @@ import {
   adminTopbar,
   adminMain,
 } from "@/lib/admin-styles";
+import type { AdminBadgeCounts } from "@/lib/admin-notifications";
 
-const links = [
+const links: {
+  href: string;
+  label: string;
+  exact?: boolean;
+  badgeKey?: keyof AdminBadgeCounts;
+}[] = [
   { href: "/admin", label: "Resumen", exact: true },
   { href: "/admin/productos", label: "Productos" },
   { href: "/admin/catalogos", label: "Categorías" },
-  { href: "/admin/pedidos", label: "Pedidos" },
-  { href: "/admin/comprobantes", label: "Comprobantes" },
+  { href: "/admin/pedidos", label: "Pedidos", badgeKey: "pedidos" },
+  { href: "/admin/comprobantes", label: "Comprobantes", badgeKey: "comprobantes" },
   { href: "/admin/cuentas-bancarias", label: "Cuentas bancarias" },
-  { href: "/admin/usuarios", label: "Usuarios" },
-  { href: "/admin/accesos", label: "Accesos" },
+  { href: "/admin/usuarios", label: "Usuarios", badgeKey: "usuarios" },
   { href: "/admin/perfil", label: "Mi perfil" },
 ];
 
+function NavBadge({ count }: { count: number }) {
+  if (count <= 0) return null;
+  return (
+    <span
+      className="ml-auto min-w-[1.25rem] h-5 px-1.5 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center tabular-nums shrink-0"
+      aria-label={`${count} pendiente${count === 1 ? "" : "s"}`}
+    >
+      {count > 99 ? "99+" : count}
+    </span>
+  );
+}
+
 type AdminSidebarProps = {
   email?: string | null;
+  badges: AdminBadgeCounts;
   onNavigate?: () => void;
 };
 
-function AdminSidebar({ email, onNavigate }: AdminSidebarProps) {
+function AdminSidebar({ email, badges, onNavigate }: AdminSidebarProps) {
   const pathname = usePathname();
 
   return (
@@ -73,11 +91,12 @@ function AdminSidebar({ email, onNavigate }: AdminSidebarProps) {
               key={link.href}
               href={link.href}
               onClick={onNavigate}
-              className={`${adminNavLink} ${
+              className={`${adminNavLink} flex items-center gap-2 ${
                 active ? adminNavLinkActive : adminNavLinkInactive
               }`}
             >
-              {link.label}
+              <span>{link.label}</span>
+              {link.badgeKey && <NavBadge count={badges[link.badgeKey]} />}
             </Link>
           );
         })}
@@ -100,9 +119,10 @@ type AdminShellProps = {
   children: React.ReactNode;
   email?: string | null;
   stats: { label: string; href: string; value: number }[];
+  badges: AdminBadgeCounts;
 };
 
-export function AdminShell({ children, email, stats }: AdminShellProps) {
+export function AdminShell({ children, email, stats, badges }: AdminShellProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
@@ -121,7 +141,7 @@ export function AdminShell({ children, email, stats }: AdminShellProps) {
   return (
     <div className={adminShell}>
       <aside className={`hidden md:flex ${adminSidebar}`}>
-        <AdminSidebar email={email} />
+        <AdminSidebar email={email} badges={badges} />
       </aside>
 
       {mobileOpen && (
@@ -135,6 +155,7 @@ export function AdminShell({ children, email, stats }: AdminShellProps) {
           <aside className={adminSidebarMobile}>
             <AdminSidebar
               email={email}
+              badges={badges}
               onNavigate={() => setMobileOpen(false)}
             />
           </aside>

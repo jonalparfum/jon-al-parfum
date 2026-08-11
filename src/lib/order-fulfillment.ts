@@ -188,3 +188,35 @@ export async function updateOrderStatus(
     data: { status: nextStatus },
   });
 }
+
+const STOCK_RESERVED_STATUSES: OrderStatus[] = [
+  "PAID",
+  "PROCESSING",
+  "SHIPPED",
+  "DELIVERED",
+];
+
+/** Elimina un pedido y devuelve inventario si ya se había descontado. */
+export async function deleteOrder(orderId: string) {
+  return prisma.$transaction(async (tx) => {
+    const order = await tx.order.findUnique({
+      where: { id: orderId },
+      include: { items: true },
+    });
+
+    if (!order) {
+      throw new Error("Pedido no encontrado");
+    }
+
+    if (STOCK_RESERVED_STATUSES.includes(order.status)) {
+      for (const item of order.items) {
+        await tx.product.update({
+          where: { id: item.productId },
+          data: { stock: { increment: item.quantity } },
+        });
+      }
+    }
+
+    await tx.order.delete({ where: { id: orderId } });
+  });
+}

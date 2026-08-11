@@ -10,6 +10,7 @@ import {
   validateProductPricing,
   validateSubcategoryForCategory,
 } from "@/lib/product-validation";
+import { deleteProduct, ProductDeleteError } from "@/lib/delete-product";
 
 type RouteParams = { params: Promise<{ id: string }> };
 
@@ -164,28 +165,21 @@ export async function DELETE(_request: NextRequest, { params }: RouteParams) {
   const { id } = await params;
 
   try {
-    const orderItems = await prisma.orderItem.count({ where: { productId: id } });
-    if (orderItems > 0) {
+    await deleteProduct(id);
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    if (error instanceof ProductDeleteError) {
+      const status = error.code === "NOT_FOUND" ? 404 : 409;
       return NextResponse.json(
         {
-          error:
-            "No se puede eliminar: el producto tiene pedidos asociados. Desactívalo en su lugar.",
+          error: error.message,
+          canDeactivate: error.code === "HAS_ORDERS",
         },
-        { status: 409 }
+        { status }
       );
     }
 
-    await prisma.product.delete({ where: { id } });
-    return NextResponse.json({ success: true });
-  } catch (error) {
     console.error("Error deleting product:", error);
-    const code =
-      error instanceof Error && "code" in error
-        ? (error as { code?: string }).code
-        : undefined;
-    if (code === "P2025") {
-      return NextResponse.json({ error: "Producto no encontrado" }, { status: 404 });
-    }
     return NextResponse.json(
       { error: "No se pudo eliminar el producto" },
       { status: 500 }
