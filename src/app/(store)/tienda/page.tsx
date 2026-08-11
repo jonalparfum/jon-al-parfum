@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 import ProductCard from "@/components/ProductCard";
 import ShopSearch from "@/components/ShopSearch";
+import ShopSort, { parseProductSort } from "@/components/ShopSort";
 import ShopSubcategoryFilters from "@/components/ShopSubcategoryFilters";
 import { getProductsFromDb } from "@/lib/products";
 import { getCatalogCategories, getShopSubcategories } from "@/lib/catalog";
@@ -9,20 +10,27 @@ import { getCatalogCategories, getShopSubcategories } from "@/lib/catalog";
 export const dynamic = "force-dynamic";
 
 type PageProps = {
-  searchParams: Promise<{ categoria?: string; subcategoria?: string; q?: string }>;
+  searchParams: Promise<{
+    categoria?: string;
+    subcategoria?: string;
+    q?: string;
+    orden?: string;
+  }>;
 };
 
 export default async function ShopPage({ searchParams }: PageProps) {
-  const { categoria, subcategoria, q } = await searchParams;
+  const { categoria, subcategoria, q, orden } = await searchParams;
   const activeCategory = categoria || "all";
   const activeSubcategory = subcategoria || "all";
   const searchQuery = q?.trim() || "";
+  const activeSort = parseProductSort(orden);
 
   const [products, categories, subcategories] = await Promise.all([
     getProductsFromDb({
       category: activeCategory,
       subcategory: activeSubcategory,
       search: searchQuery,
+      sort: activeSort,
     }),
     getCatalogCategories(),
     activeCategory !== "all"
@@ -44,10 +52,12 @@ export default async function ShopPage({ searchParams }: PageProps) {
       params.subcategoria ??
       (activeSubcategory !== "all" ? activeSubcategory : undefined);
     const query = params.q ?? (searchQuery || undefined);
+    const sort = params.orden ?? (activeSort !== "newest" ? activeSort : undefined);
 
     if (cat && cat !== "all") sp.set("categoria", cat);
     if (sub && sub !== "all") sp.set("subcategoria", sub);
     if (query) sp.set("q", query);
+    if (sort && sort !== "newest") sp.set("orden", sort);
 
     const qs = sp.toString();
     return qs ? `/tienda?${qs}` : "/tienda";
@@ -87,6 +97,10 @@ export default async function ShopPage({ searchParams }: PageProps) {
         <ShopSearch initialQuery={searchQuery} />
       </Suspense>
 
+      <Suspense fallback={null}>
+        <ShopSort activeSort={activeSort} />
+      </Suspense>
+
       <div className="flex flex-wrap justify-center gap-3 mb-8">
         <Link
           href={categoryHref("all")}
@@ -112,6 +126,7 @@ export default async function ShopPage({ searchParams }: PageProps) {
           activeSubcategory={activeSubcategory}
           subcategories={subcategories}
           searchQuery={searchQuery}
+          activeSort={activeSort}
         />
       )}
 

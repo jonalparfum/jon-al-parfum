@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import type { ProductSort } from "@/lib/products";
 
 type Subcategory = { id: string; name: string; slug: string };
 
@@ -11,6 +12,7 @@ type ShopSubcategoryFiltersProps = {
   activeSubcategory: string;
   subcategories: Subcategory[];
   searchQuery: string;
+  activeSort?: ProductSort;
 };
 
 function filterClass(active: boolean) {
@@ -22,7 +24,8 @@ function filterClass(active: boolean) {
 function buildHref(
   categorySlug: string,
   subcategorySlug: string | undefined,
-  searchQuery: string
+  searchQuery: string,
+  activeSort?: ProductSort
 ) {
   const sp = new URLSearchParams();
   sp.set("categoria", categorySlug);
@@ -30,6 +33,7 @@ function buildHref(
     sp.set("subcategoria", subcategorySlug);
   }
   if (searchQuery) sp.set("q", searchQuery);
+  if (activeSort && activeSort !== "newest") sp.set("orden", activeSort);
   return `/tienda?${sp.toString()}`;
 }
 
@@ -59,6 +63,7 @@ export default function ShopSubcategoryFilters({
   activeSubcategory,
   subcategories,
   searchQuery,
+  activeSort = "newest",
 }: ShopSubcategoryFiltersProps) {
   const [open, setOpen] = useState(activeSubcategory !== "all");
   const activeSubName = subcategories.find(
@@ -68,7 +73,7 @@ export default function ShopSubcategoryFilters({
   const links = (
     <>
       <Link
-        href={buildHref(categorySlug, undefined, searchQuery)}
+        href={buildHref(categorySlug, undefined, searchQuery, activeSort)}
         className={`px-4 py-2 text-[11px] uppercase tracking-[0.12em] border transition-all duration-300 ${filterClass(activeSubcategory === "all")}`}
       >
         Todas
@@ -76,7 +81,7 @@ export default function ShopSubcategoryFilters({
       {subcategories.map((sub) => (
         <Link
           key={sub.id}
-          href={buildHref(categorySlug, sub.slug, searchQuery)}
+          href={buildHref(categorySlug, sub.slug, searchQuery, activeSort)}
           className={`px-4 py-2 text-[11px] uppercase tracking-[0.12em] border transition-all duration-300 ${filterClass(activeSubcategory === sub.slug)}`}
         >
           {sub.name}
