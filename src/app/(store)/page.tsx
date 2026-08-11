@@ -162,7 +162,7 @@ export default async function HomePage() {
             </h2>
           </RevealOnScroll>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 md:gap-8">
             {featured.map((product, i) => (
               <RevealOnScroll key={product.id} delay={i * 80}>
                 <ProductCard product={product} />

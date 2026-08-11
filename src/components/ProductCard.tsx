@@ -32,40 +32,40 @@ export default function ProductCard({ product }: ProductCardProps) {
             className="w-full h-full group-hover:scale-105 transition-transform duration-700 ease-out"
           />
           {product.new && (
-            <span className="absolute top-3 left-3 bg-gold text-luxury-black text-[10px] uppercase tracking-[0.15em] px-2.5 py-1 z-10 font-medium">
+            <span className="absolute top-2 left-2 sm:top-3 sm:left-3 bg-gold text-luxury-black text-[8px] sm:text-[10px] uppercase tracking-[0.12em] sm:tracking-[0.15em] px-1.5 sm:px-2.5 py-0.5 sm:py-1 z-10 font-medium">
               Nuevo
             </span>
           )}
           {product.originalPrice && (
-            <span className="absolute top-3 right-3 bg-red-900/90 text-cream text-[10px] uppercase tracking-[0.15em] px-2.5 py-1 z-10">
+            <span className="absolute top-2 right-2 sm:top-3 sm:right-3 bg-red-900/90 text-cream text-[8px] sm:text-[10px] uppercase tracking-[0.12em] sm:tracking-[0.15em] px-1.5 sm:px-2.5 py-0.5 sm:py-1 z-10">
               Oferta
             </span>
           )}
         </div>
 
-        <div className="relative p-5">
-          <p className="text-[10px] uppercase tracking-[0.2em] text-gold/80 mb-1.5">
+        <div className="relative p-3 sm:p-5">
+          <p className="text-[8px] sm:text-[10px] uppercase tracking-[0.15em] sm:tracking-[0.2em] text-gold/80 mb-1">
             {product.category}
           </p>
-          <h3 className="font-display text-lg text-cream group-hover:text-gold transition-colors duration-300">
+          <h3 className="font-display text-sm sm:text-lg text-cream group-hover:text-gold transition-colors duration-300 line-clamp-2">
             {product.name}
           </h3>
-          <p className="text-sm text-cream/40 mt-1">{product.size}</p>
+          <p className="text-xs sm:text-sm text-cream/40 mt-0.5 sm:mt-1">{product.size}</p>
 
-          <div className="flex items-center justify-between mt-4 pt-4 border-t border-gold/10">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0 mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-gold/10">
             <div>
-              <span className="font-medium text-cream">
+              <span className="font-medium text-cream text-sm sm:text-base">
                 {formatPrice(product.price)}
               </span>
               {product.originalPrice && (
-                <span className="ml-2 text-sm text-cream/30 line-through">
+                <span className="ml-1 sm:ml-2 text-xs sm:text-sm text-cream/30 line-through">
                   {formatPrice(product.originalPrice)}
                 </span>
               )}
             </div>
             <button
               onClick={handleAddToCart}
-              className="text-[10px] uppercase tracking-[0.15em] text-gold border border-gold/40 hover:bg-gold hover:text-luxury-black px-3 py-1.5 transition-all duration-300"
+              className="text-[8px] sm:text-[10px] uppercase tracking-[0.12em] sm:tracking-[0.15em] text-gold border border-gold/40 hover:bg-gold hover:text-luxury-black px-2 sm:px-3 py-1 sm:py-1.5 transition-all duration-300 w-full sm:w-auto text-center"
               aria-label={`Añadir ${product.name} al carrito`}
             >
               Añadir
