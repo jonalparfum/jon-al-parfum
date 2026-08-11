@@ -24,7 +24,7 @@ export default async function HomePage() {
 
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-radial-gold opacity-80" />
           <div className="absolute bottom-0 left-0 w-96 h-96 bg-gold/5 rounded-full blur-[80px] max-md:blur-0 max-md:opacity-40" />
-          <div className="absolute top-20 right-0 w-72 h-72 bg-gold/8 rounded-full blur-[80px] max-md:blur-0 max-md:opacity-30 md:opacity-40" />
+          <div className="absolute top-20 right-0 w-72 h-72 bg-gold/8 rounded-full blur-[80px] max-md:blur-0 max-md:opacity-30 md:animate-pulse-glow" />
 
           <div className="absolute left-8 md:left-16 top-1/4 bottom-1/4 w-px bg-gradient-to-b from-transparent via-gold/20 to-transparent hidden lg:block" />
           <div className="absolute right-8 md:right-16 top-1/3 bottom-1/3 w-px bg-gradient-to-b from-transparent via-gold/15 to-transparent hidden lg:block" />
@@ -33,15 +33,15 @@ export default async function HomePage() {
         <div className="hero-content relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-20 md:pt-32">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-8 items-center">
             {/* Logo */}
-            <div className="flex justify-center lg:justify-end order-1 lg:order-none">
-              <div className="relative min-h-[200px] sm:min-h-[240px] md:min-h-0 max-md:scale-[1.35] md:scale-100 origin-center max-md:mb-6">
+            <div className="flex justify-center lg:justify-end order-1 lg:order-none animate-hero-in">
+              <div className="relative min-h-[200px] sm:min-h-[240px] md:min-h-0 max-md:scale-[1.35] md:scale-100 origin-center max-md:mb-6 md:animate-float">
                 <BrandLogo size="hero" priority className="mx-auto" />
                 <div className="absolute inset-0 -z-10 blur-3xl bg-gold/10 scale-75 rounded-full" />
               </div>
             </div>
 
             {/* Copy */}
-            <div className="text-center lg:text-left order-2">
+            <div className="text-center lg:text-left order-2 animate-hero-in [animation-delay:120ms]">
               <div className="inline-flex items-center gap-3 mb-8">
                 <span className="h-px w-8 bg-gold/50" />
                 <span className="text-[10px] uppercase tracking-[0.35em] text-gold/80">

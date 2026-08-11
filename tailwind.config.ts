@@ -25,8 +25,9 @@ const config: Config = {
         sans: ["var(--font-inter)", "system-ui", "sans-serif"],
         display: ["var(--font-cormorant)", "var(--font-playfair)", "serif"],
       },
-      animation: {
+        animation: {
         "fade-in-up": "fade-in-up 0.35s cubic-bezier(0.22, 1, 0.36, 1) forwards",
+        "hero-in": "hero-in 0.75s cubic-bezier(0.22, 1, 0.36, 1) forwards",
         float: "float 4s ease-in-out infinite",
         shimmer: "shimmer 4s linear infinite",
         "pulse-glow": "pulse-glow 3s ease-in-out infinite",
@@ -35,6 +36,10 @@ const config: Config = {
       keyframes: {
         "fade-in-up": {
           "0%": { opacity: "1", transform: "translateY(24px)" },
+          "100%": { opacity: "1", transform: "translateY(0)" },
+        },
+        "hero-in": {
+          "0%": { opacity: "0.88", transform: "translateY(14px)" },
           "100%": { opacity: "1", transform: "translateY(0)" },
         },
         float: {

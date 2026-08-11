@@ -93,6 +93,12 @@ body {
     transform: none !important;
   }
 
+  html[data-skip-enter-motion] .animate-hero-in {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
   html[data-skip-enter-motion] .reveal-on-scroll {
     opacity: 1 !important;
     transform: none !important;
@@ -126,63 +132,10 @@ body {
     z-index: 1;
   }
 
-  .hero-section .hero-ambient *,
-  .hero-section .hero-content * {
-    animation: none !important;
-  }
-
-  .hero-section .fragrance-glow {
-    opacity: 0.58 !important;
-  }
-
-  .hero-section .fragrance-particle {
-    opacity: 0.32 !important;
-  }
-
-  .hero-section .fragrance-particle-a {
-    transform: translateY(-42px);
-  }
-
-  .hero-section .fragrance-particle-b {
-    transform: translateY(-68px);
-  }
-
-  .hero-section .fragrance-particle-c {
-    transform: translateY(-36px);
-  }
-
-  .hero-section .fragrance-particle-d {
-    transform: translateY(-55px);
-  }
-
-  .hero-section .fragrance-particle-e {
-    transform: translateY(-48px);
-  }
-
-  .hero-section .fragrance-particle-f {
-    transform: translateY(-72px);
-  }
-
-  .hero-section .fragrance-wisp {
-    opacity: 0.5 !important;
-  }
-
-  .hero-section .fragrance-wisp-a {
-    transform: translateY(-12px);
-  }
-
-  .hero-section .fragrance-wisp-b {
-    transform: translateY(-18px);
-  }
-
   @media (max-width: 768px) {
     .hero-section .fragrance-mist .fragrance-particle,
     .hero-section .fragrance-mist .fragrance-wisp {
       display: none;
-    }
-
-    .hero-section .fragrance-glow {
-      opacity: 0.7 !important;
     }
   }
 
