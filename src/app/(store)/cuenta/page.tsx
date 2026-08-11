@@ -9,7 +9,7 @@ import ShippingAddressForm from "@/components/ShippingAddressForm";
 import { formatPrice } from "@/lib/product-utils";
 import {
   emptyShipping,
-  formatShippingAddress,
+  resolveOrderShippingDisplay,
   validateShipping,
   type ShippingInput,
 } from "@/lib/shipping";
@@ -59,17 +59,7 @@ const adminLinks = [
 ];
 
 function orderShippingLabel(order: Order): string {
-  if (order.shippingAddress) return order.shippingAddress;
-  return formatShippingAddress({
-    shippingName: order.shippingName ?? undefined,
-    shippingStreet: order.shippingStreet ?? undefined,
-    shippingColony: order.shippingColony ?? undefined,
-    shippingCity: order.shippingCity ?? undefined,
-    shippingState: order.shippingState ?? undefined,
-    shippingZip: order.shippingZip ?? undefined,
-    shippingPhone: order.shippingPhone ?? undefined,
-    shippingNotes: order.shippingNotes ?? undefined,
-  });
+  return resolveOrderShippingDisplay(order);
 }
 
 export default function AccountPage() {

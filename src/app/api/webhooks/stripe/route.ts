@@ -32,11 +32,6 @@ export async function POST(request: Request) {
       try {
         await markOrderPaid(orderId, {
           stripePaymentId: session.payment_intent as string,
-          shippingName: session.customer_details?.name || null,
-          shippingEmail: session.customer_details?.email || null,
-          shippingAddress: session.customer_details?.address
-            ? JSON.stringify(session.customer_details.address)
-            : null,
         });
       } catch (error) {
         console.error("Error al confirmar pedido pagado:", error);

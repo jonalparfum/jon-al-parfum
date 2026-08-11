@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { formatPrice } from "@/lib/product-utils";
-import { formatShippingAddress } from "@/lib/shipping";
+import { formatShippingAddress, resolveOrderShippingDisplay } from "@/lib/shipping";
 import { useAdminToast } from "@/components/admin/AdminToast";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import { fetchJsonArray } from "@/lib/admin-fetch";
@@ -313,7 +313,7 @@ export default function AdminOrdersPage() {
                     <p className="font-medium text-charcoal">{order.shippingName}</p>
                   )}
                   <p>
-                    {order.shippingAddress ||
+                    {resolveOrderShippingDisplay(order) ||
                       formatShippingAddress({
                         shippingStreet: order.shippingStreet ?? undefined,
                         shippingColony: order.shippingColony ?? undefined,

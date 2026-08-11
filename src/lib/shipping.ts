@@ -60,6 +60,59 @@ export function formatShippingAddress(data: Partial<ShippingRecord>): string {
   return parts.join(" · ");
 }
 
+/** Detecta JSON de dirección vacío que Stripe guarda en checkout sin envío. */
+export function isUselessShippingAddress(value: string | null | undefined): boolean {
+  if (!value?.trim()) return true;
+  const trimmed = value.trim();
+  if (!trimmed.startsWith("{")) return false;
+  try {
+    const parsed = JSON.parse(trimmed) as Record<string, unknown>;
+    if (!parsed || typeof parsed !== "object") return false;
+    const hasContent = ["line1", "line2", "city", "state", "postal_code"].some(
+      (key) => {
+        const v = parsed[key];
+        return v != null && String(v).trim() !== "";
+      }
+    );
+    return !hasContent;
+  } catch {
+    return false;
+  }
+}
+
+export type OrderShippingFields = {
+  shippingName?: string | null;
+  shippingStreet?: string | null;
+  shippingColony?: string | null;
+  shippingCity?: string | null;
+  shippingState?: string | null;
+  shippingZip?: string | null;
+  shippingPhone?: string | null;
+  shippingNotes?: string | null;
+  shippingAddress?: string | null;
+};
+
+/** Texto legible para mostrar envío en cuenta/admin (ignora JSON de Stripe). */
+export function resolveOrderShippingDisplay(order: OrderShippingFields): string {
+  const fromFields = formatShippingAddress({
+    shippingStreet: order.shippingStreet ?? undefined,
+    shippingColony: order.shippingColony ?? undefined,
+    shippingCity: order.shippingCity ?? undefined,
+    shippingState: order.shippingState ?? undefined,
+    shippingZip: order.shippingZip ?? undefined,
+    shippingPhone: order.shippingPhone ?? undefined,
+    shippingNotes: order.shippingNotes ?? undefined,
+  });
+
+  if (fromFields) return fromFields;
+
+  if (order.shippingAddress && !isUselessShippingAddress(order.shippingAddress)) {
+    return order.shippingAddress;
+  }
+
+  return "";
+}
+
 export function shippingToOrderFields(
   data: ShippingInput,
   email?: string | null

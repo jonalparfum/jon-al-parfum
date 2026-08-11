@@ -1,5 +1,10 @@
 import { prisma } from "@/lib/prisma";
 import type { OrderStatus } from "@prisma/client";
+import { isUselessShippingAddress } from "@/lib/shipping";
+
+function isUselessStripeAddressString(value: string): boolean {
+  return isUselessShippingAddress(value);
+}
 
 type MarkOrderPaidData = {
   stripePaymentId?: string | null;
@@ -36,11 +41,32 @@ export async function markOrderPaid(
       }
     }
 
+    const hasFormShipping = Boolean(
+      order.shippingStreet?.trim() ||
+        order.shippingPhone?.trim() ||
+        order.shippingCity?.trim()
+    );
+
+    const paidData: MarkOrderPaidData = {
+      stripePaymentId: data.stripePaymentId,
+    };
+
+    if (!hasFormShipping) {
+      if (data.shippingName?.trim()) paidData.shippingName = data.shippingName.trim();
+      if (data.shippingEmail?.trim()) paidData.shippingEmail = data.shippingEmail.trim();
+      if (
+        data.shippingAddress?.trim() &&
+        !isUselessStripeAddressString(data.shippingAddress)
+      ) {
+        paidData.shippingAddress = data.shippingAddress.trim();
+      }
+    }
+
     await tx.order.update({
       where: { id: orderId },
       data: {
         status: "PAID",
-        ...data,
+        ...paidData,
       },
     });
 
