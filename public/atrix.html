@@ -38,6 +38,8 @@
 
       html {
         scroll-behavior: smooth;
+        overflow-y: auto;
+        overflow-x: clip;
       }
 
       body {
@@ -46,6 +48,8 @@
         color: var(--cream);
         line-height: 1.65;
         -webkit-font-smoothing: antialiased;
+        min-height: 100%;
+        overflow: visible;
       }
 
       a {

@@ -42,7 +42,7 @@ export default async function HomePage() {
         data={[organizationJsonLd(), websiteJsonLd(), faqJsonLd([...FAQ_ITEMS])]}
       />
       {/* Hero */}
-      <section className="hero-section relative min-h-0 flex max-md:flex-col max-md:items-stretch md:items-center md:py-24 lg:py-28 overflow-x-hidden bg-luxury-black">
+      <section className="hero-section relative min-h-0 flex max-md:flex-col max-md:items-stretch md:items-center md:py-24 lg:py-28 overflow-x-clip bg-luxury-black">
         <div className="hero-ambient pointer-events-none absolute inset-0 max-md:hidden md:block" aria-hidden="true">
           <FragranceMist variant="hero" />
 
