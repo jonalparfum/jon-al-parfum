@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { signOut } from "next-auth/react";
+import { fetchJson } from "@/lib/admin-fetch";
 import {
   adminBtnPrimary,
   adminInput,
@@ -35,14 +36,16 @@ export default function AdminProfilePage() {
   const [confirmPassword, setConfirmPassword] = useState("");
 
   useEffect(() => {
-    fetch("/api/admin/profile")
-      .then((r) => r.json())
-      .then((data: Profile) => {
+    fetchJson<Profile>("/api/admin/profile").then(({ ok, data, error }) => {
+      if (ok && data?.id) {
         setProfile(data);
         setName(data.name || "");
         setEmail(data.email);
-      })
-      .finally(() => setLoading(false));
+      } else if (error) {
+        setError(error);
+      }
+      setLoading(false);
+    });
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {

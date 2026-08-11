@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { formatPrice } from "@/lib/product-utils";
 import { useAdminToast } from "@/components/admin/AdminToast";
+import { fetchJsonArray } from "@/lib/admin-fetch";
 import {
   adminCard,
   adminEmptyState,
@@ -69,10 +70,11 @@ export default function AdminOrdersPage() {
   const [search, setSearch] = useState("");
 
   const load = () => {
-    fetch("/api/admin/orders")
-      .then((r) => r.json())
-      .then(setOrders)
-      .finally(() => setLoading(false));
+    fetchJsonArray<Order>("/api/admin/orders").then(({ ok, data, error }) => {
+      setOrders(data);
+      if (!ok && error) showToast(error, "error");
+      setLoading(false);
+    });
   };
 
   useEffect(() => {

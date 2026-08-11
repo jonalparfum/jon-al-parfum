@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { formatPrice } from "@/lib/product-utils";
 import { useAdminToast } from "@/components/admin/AdminToast";
+import { fetchJsonArray } from "@/lib/admin-fetch";
 import {
   adminBadgeActive,
   adminBadgeFeatured,
@@ -61,10 +62,12 @@ export default function AdminProductsPage() {
   const [sort, setSort] = useState<SortOption>("newest");
 
   useEffect(() => {
-    fetch("/api/admin/products")
-      .then((r) => r.json())
-      .then(setProducts)
-      .finally(() => setLoading(false));
+    fetchJsonArray<Product>("/api/admin/products").then(({ ok, data, error }) => {
+      setProducts(data);
+      if (!ok && error) showToast(error, "error");
+      setLoading(false);
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const categories = useMemo(() => {
@@ -155,7 +158,11 @@ export default function AdminProductsPage() {
       setProducts((prev) => prev.filter((p) => p.id !== id));
       showToast("Producto eliminado");
     } else {
-      showToast("No se pudo eliminar el producto", "error");
+      const err = await res.json().catch(() => ({}));
+      showToast(
+        (err as { error?: string }).error || "No se pudo eliminar el producto",
+        "error"
+      );
     }
   };
 

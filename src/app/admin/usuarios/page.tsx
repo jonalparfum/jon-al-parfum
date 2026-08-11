@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useAdminToast } from "@/components/admin/AdminToast";
+import { fetchJsonArray } from "@/lib/admin-fetch";
 import {
   adminBadgeActive,
   adminBadgeInactive,
@@ -38,16 +40,19 @@ const roleLabels = {
 };
 
 export default function AdminUsersPage() {
+  const { showToast } = useAdminToast();
   const [users, setUsers] = useState<UserRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState<"all" | "USER" | "ADMIN">("all");
 
   useEffect(() => {
-    fetch("/api/admin/users")
-      .then((r) => r.json())
-      .then(setUsers)
-      .finally(() => setLoading(false));
+    fetchJsonArray<UserRow>("/api/admin/users").then(({ ok, data, error }) => {
+      setUsers(data);
+      if (!ok && error) showToast(error, "error");
+      setLoading(false);
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const filtered = useMemo(() => {

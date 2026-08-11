@@ -13,7 +13,6 @@ import {
   adminMuted,
   adminSectionTitle,
   adminSelect,
-  adminSubtitle,
 } from "@/lib/admin-styles";
 import {
   prepareProductPayload,
@@ -105,8 +104,12 @@ export default function ProductForm({
     }
     setLoadingSubs(true);
     fetch(`/api/admin/subcategories?categoryId=${categoryId}`)
-      .then((r) => r.json())
-      .then((data: Subcategory[]) => setSubcategories(data))
+      .then(async (r) => {
+        if (!r.ok) return [] as Subcategory[];
+        const data: unknown = await r.json();
+        return Array.isArray(data) ? (data as Subcategory[]) : [];
+      })
+      .then((data) => setSubcategories(data))
       .catch(() => setSubcategories([]))
       .finally(() => setLoadingSubs(false));
   };
@@ -116,14 +119,24 @@ export default function ProductForm({
   }, [form.categoryId]);
 
   useEffect(() => {
+    if (categories.length > 0 && !form.categoryId) {
+      setForm((prev) =>
+        prev.categoryId ? prev : { ...prev, categoryId: categories[0].id }
+      );
+    }
+  }, [categories, form.categoryId]);
+
+  useEffect(() => {
+    if (loadingSubs) return;
     if (
       form.subcategoryId &&
+      subcategories.length > 0 &&
       !subcategories.some((sub) => sub.id === form.subcategoryId)
     ) {
       update("subcategoryId", "");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [subcategories]);
+  }, [subcategories, loadingSubs]);
 
   const update = (field: keyof ProductFormPayload, value: unknown) => {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -223,8 +236,6 @@ export default function ProductForm({
     setSaving(true);
     try {
       await onSubmit(prepareProductPayload(form));
-    } catch {
-      showToast("Error al guardar el producto. Intenta de nuevo.", "error");
     } finally {
       setSaving(false);
     }
@@ -286,7 +297,10 @@ export default function ProductForm({
               step="0.01"
               required
               value={form.price}
-              onChange={(e) => update("price", parseFloat(e.target.value))}
+              onChange={(e) => {
+                const val = parseFloat(e.target.value);
+                update("price", Number.isFinite(val) ? val : 0);
+              }}
               className={adminInput}
             />
           </div>
@@ -299,7 +313,12 @@ export default function ProductForm({
               onChange={(e) =>
                 update(
                   "originalPrice",
-                  e.target.value ? parseFloat(e.target.value) : undefined
+                  e.target.value
+                    ? (() => {
+                        const val = parseFloat(e.target.value);
+                        return Number.isFinite(val) ? val : undefined;
+                      })()
+                    : undefined
                 )
               }
               className={adminInput}
@@ -311,7 +330,10 @@ export default function ProductForm({
             <input
               type="number"
               value={form.stock}
-              onChange={(e) => update("stock", parseInt(e.target.value))}
+              onChange={(e) => {
+                const val = parseInt(e.target.value, 10);
+                update("stock", Number.isFinite(val) ? val : 0);
+              }}
               className={adminInput}
             />
           </div>

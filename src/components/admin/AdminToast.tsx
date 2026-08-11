@@ -4,6 +4,7 @@ import {
   createContext,
   useCallback,
   useContext,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
@@ -26,10 +27,17 @@ const AdminToastContext = createContext<{
 
 export function AdminToastProvider({ children }: { children: ReactNode }) {
   const [toast, setToast] = useState<ToastState>(null);
+  const timeoutRef = useRef<number | null>(null);
 
   const showToast = useCallback((message: string, type: ToastType = "success") => {
+    if (timeoutRef.current !== null) {
+      window.clearTimeout(timeoutRef.current);
+    }
     setToast({ message, type });
-    window.setTimeout(() => setToast(null), 3200);
+    timeoutRef.current = window.setTimeout(() => {
+      setToast(null);
+      timeoutRef.current = null;
+    }, 3200);
   }, []);
 
   return (

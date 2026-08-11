@@ -128,7 +128,33 @@ export async function DELETE(_request: NextRequest, { params }: RouteParams) {
   if (!session) return unauthorized();
 
   const { id } = await params;
-  await prisma.product.delete({ where: { id } });
 
-  return NextResponse.json({ success: true });
+  try {
+    const orderItems = await prisma.orderItem.count({ where: { productId: id } });
+    if (orderItems > 0) {
+      return NextResponse.json(
+        {
+          error:
+            "No se puede eliminar: el producto tiene pedidos asociados. Desactívalo en su lugar.",
+        },
+        { status: 409 }
+      );
+    }
+
+    await prisma.product.delete({ where: { id } });
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("Error deleting product:", error);
+    const code =
+      error instanceof Error && "code" in error
+        ? (error as { code?: string }).code
+        : undefined;
+    if (code === "P2025") {
+      return NextResponse.json({ error: "Producto no encontrado" }, { status: 404 });
+    }
+    return NextResponse.json(
+      { error: "No se pudo eliminar el producto" },
+      { status: 500 }
+    );
+  }
 }

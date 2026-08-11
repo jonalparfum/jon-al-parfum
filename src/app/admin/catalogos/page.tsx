@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { slugify } from "@/lib/product-utils";
 import { useAdminToast } from "@/components/admin/AdminToast";
+import { fetchJsonArray } from "@/lib/admin-fetch";
 import {
   adminBtnDanger,
   adminBtnGhost,
@@ -67,15 +68,21 @@ export default function AdminCategoriesPage() {
   const [editSubCategoryId, setEditSubCategoryId] = useState("");
 
   const load = async () => {
-    const [catsRes, subsRes] = await Promise.all([
-      fetch("/api/admin/categories"),
-      fetch("/api/admin/subcategories"),
+    const [catsResult, subsResult] = await Promise.all([
+      fetchJsonArray<Category>("/api/admin/categories"),
+      fetchJsonArray<Subcategory>("/api/admin/subcategories"),
     ]);
-    const cats = await catsRes.json();
-    const subs = await subsRes.json();
-    setCategories(cats);
-    setSubcategories(subs);
-    if (!subCategoryId && cats[0]?.id) setSubCategoryId(cats[0].id);
+    setCategories(catsResult.data);
+    setSubcategories(subsResult.data);
+    if (!subCategoryId && catsResult.data[0]?.id) {
+      setSubCategoryId(catsResult.data[0].id);
+    }
+    if (!catsResult.ok && catsResult.error) {
+      showToast(catsResult.error, "error");
+    }
+    if (!subsResult.ok && subsResult.error) {
+      showToast(subsResult.error, "error");
+    }
     setLoading(false);
   };
 

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import ProductForm from "@/components/admin/ProductForm";
 import { useAdminToast } from "@/components/admin/AdminToast";
+import { fetchJsonArray } from "@/lib/admin-fetch";
 import {
   adminLink,
   adminPageTitle,
@@ -19,9 +20,11 @@ export default function NewProductPage() {
   const [categories, setCategories] = useState<Category[]>([]);
 
   useEffect(() => {
-    fetch("/api/admin/categories")
-      .then((r) => r.json())
-      .then(setCategories);
+    fetchJsonArray<Category>("/api/admin/categories").then(({ ok, data, error }) => {
+      setCategories(data);
+      if (!ok && error) showToast(error, "error");
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleSubmit = async (data: Record<string, unknown>) => {

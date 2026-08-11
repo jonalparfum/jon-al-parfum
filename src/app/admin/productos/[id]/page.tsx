@@ -4,8 +4,10 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import ProductForm from "@/components/admin/ProductForm";
 import { useAdminToast } from "@/components/admin/AdminToast";
+import { fetchJson, fetchJsonArray } from "@/lib/admin-fetch";
 import { parseNotes, resolveProductImages } from "@/lib/product-utils";
 import {
+  adminEmptyState,
   adminLink,
   adminLoading,
   adminPageTitle,
@@ -45,23 +47,38 @@ export default function EditProductPage({
   const { showToast } = useAdminToast();
   const [product, setProduct] = useState<Product | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
-  const [id, setId] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
 
   useEffect(() => {
-    params.then(({ id: productId }) => {
-      setId(productId);
-      Promise.all([
-        fetch(`/api/admin/products/${productId}`).then((r) => r.json()),
-        fetch("/api/admin/categories").then((r) => r.json()),
-      ]).then(([prod, cats]) => {
-        setProduct(prod);
-        setCategories(cats);
-      });
+    params.then(async ({ id: productId }) => {
+      const [prodResult, catsResult] = await Promise.all([
+        fetchJson<Product>(`/api/admin/products/${productId}`),
+        fetchJsonArray<Category>("/api/admin/categories"),
+      ]);
+
+      setCategories(catsResult.data);
+
+      if (!prodResult.ok || !prodResult.data?.id) {
+        setLoadError(prodResult.error || "Producto no encontrado");
+        setLoading(false);
+        return;
+      }
+
+      setProduct(prodResult.data);
+      setLoading(false);
+
+      if (!catsResult.ok && catsResult.error) {
+        showToast(catsResult.error, "error");
+      }
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params]);
 
   const handleSubmit = async (data: Record<string, unknown>) => {
-    const res = await fetch(`/api/admin/products/${id}`, {
+    if (!product) return;
+
+    const res = await fetch(`/api/admin/products/${product.id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
@@ -81,8 +98,19 @@ export default function EditProductPage({
     showToast("Producto guardado correctamente");
   };
 
-  if (!product) {
+  if (loading) {
     return <p className={adminLoading}>Cargando producto...</p>;
+  }
+
+  if (loadError || !product) {
+    return (
+      <div className={adminEmptyState}>
+        <p className="text-cream/70 mb-4">{loadError || "Producto no encontrado"}</p>
+        <Link href="/admin/productos" className={adminLink}>
+          ← Volver a productos
+        </Link>
+      </div>
+    );
   }
 
   return (
