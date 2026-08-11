@@ -3,95 +3,978 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Desarrollado por ATRIX Technologies</title>
+    <title>Jon Al Parfum — Caso de estudio · ATRIX Technologies</title>
+    <meta
+      name="description"
+      content="Desarrollo de la tienda digital Jon Al Parfum: e-commerce de perfumes de lujo, catálogo, SEO, WhatsApp y panel administrativo. Proyecto por ATRIX Technologies."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
     <style>
-      * {
+      :root {
+        --gold: #c9a962;
+        --gold-light: #e8d5a3;
+        --gold-dark: #9a7b3c;
+        --cream: #f5f0e8;
+        --charcoal: #1a1816;
+        --black: #080808;
+        --panel: #121212;
+        --muted: rgba(245, 240, 232, 0.62);
+        --border: rgba(201, 169, 98, 0.22);
+        --max: 1120px;
+      }
+
+      *,
+      *::before,
+      *::after {
         box-sizing: border-box;
         margin: 0;
         padding: 0;
       }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
       body {
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-          "Helvetica Neue", Arial, sans-serif;
-        background: linear-gradient(145deg, #1a1612 0%, #2c2825 50%, #3d2e1f 100%);
-        color: #f5f0e8;
-        min-height: 100vh;
+        font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        background: var(--black);
+        color: var(--cream);
+        line-height: 1.65;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      .display {
+        font-family: "Cormorant Garamond", Georgia, serif;
+      }
+
+      .wrap {
+        width: min(100% - 2rem, var(--max));
+        margin-inline: auto;
+      }
+
+      /* ── Top bar ── */
+      .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        backdrop-filter: blur(12px);
+        background: rgba(8, 8, 8, 0.88);
+        border-bottom: 1px solid var(--border);
+      }
+
+      .topbar-inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        padding: 0.9rem 0;
+      }
+
+      .topbar-back {
+        font-size: 0.72rem;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--muted);
+        transition: color 0.2s;
+      }
+
+      .topbar-back:hover {
+        color: var(--gold);
+      }
+
+      .topbar-brand {
+        font-size: 0.72rem;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--gold);
+        font-weight: 600;
+      }
+
+      /* ── Hero ── */
+      .hero {
+        position: relative;
+        padding: 4rem 0 3.5rem;
+        overflow: hidden;
+      }
+
+      .hero::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background:
+          radial-gradient(ellipse 80% 60% at 50% 0%, rgba(201, 169, 98, 0.16), transparent 70%),
+          radial-gradient(ellipse 40% 30% at 90% 20%, rgba(201, 169, 98, 0.08), transparent 60%);
+        pointer-events: none;
+      }
+
+      .hero-grid {
+        position: relative;
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 2.5rem;
+      }
+
+      @media (min-width: 900px) {
+        .hero-grid {
+          grid-template-columns: 1.15fr 0.85fr;
+          align-items: end;
+        }
+      }
+
+      .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.68rem;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+        color: var(--gold);
+        margin-bottom: 1.25rem;
+      }
+
+      .eyebrow::before {
+        content: "";
+        width: 2rem;
+        height: 1px;
+        background: var(--gold);
+        opacity: 0.6;
+      }
+
+      .hero h1 {
+        font-family: "Cormorant Garamond", Georgia, serif;
+        font-size: clamp(2.4rem, 6vw, 4rem);
+        font-weight: 500;
+        line-height: 1.08;
+        margin-bottom: 1rem;
+      }
+
+      .hero-lead {
+        font-size: 1.05rem;
+        color: var(--muted);
+        max-width: 38rem;
+        margin-bottom: 1.75rem;
+      }
+
+      .meta-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .pill {
+        font-size: 0.65rem;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        padding: 0.45rem 0.75rem;
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        color: rgba(245, 240, 232, 0.78);
+        background: rgba(255, 255, 255, 0.03);
+      }
+
+      .pill-gold {
+        border-color: rgba(201, 169, 98, 0.45);
+        color: var(--gold-light);
+      }
+
+      .hero-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.4rem;
+        font-size: 0.68rem;
+        font-weight: 600;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        padding: 0.85rem 1.35rem;
+        border-radius: 2px;
+        transition: all 0.2s;
+      }
+
+      .btn-primary {
+        background: var(--gold);
+        color: var(--charcoal);
+      }
+
+      .btn-primary:hover {
+        background: var(--gold-light);
+      }
+
+      .btn-outline {
+        border: 1px solid var(--border);
+        color: var(--cream);
+      }
+
+      .btn-outline:hover {
+        border-color: var(--gold);
+        color: var(--gold);
+      }
+
+      .hero-card {
+        background: rgba(18, 18, 18, 0.85);
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        padding: 1.5rem;
+      }
+
+      .hero-card-label {
+        font-size: 0.65rem;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--gold);
+        margin-bottom: 0.75rem;
+      }
+
+      .hero-card-url {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 1.25rem;
+        word-break: break-all;
+      }
+
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.75rem;
+      }
+
+      .stat {
+        padding: 0.85rem;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 3px;
+      }
+
+      .stat-value {
+        font-family: "Cormorant Garamond", Georgia, serif;
+        font-size: 1.65rem;
+        font-weight: 600;
+        color: var(--gold);
+        line-height: 1.1;
+      }
+
+      .stat-label {
+        font-size: 0.68rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--muted);
+        margin-top: 0.25rem;
+      }
+
+      /* ── Sections ── */
+      section {
+        padding: 3.5rem 0;
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
+      }
+
+      .section-label {
+        font-size: 0.68rem;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+        color: var(--gold);
+        margin-bottom: 0.75rem;
+      }
+
+      .section-title {
+        font-family: "Cormorant Garamond", Georgia, serif;
+        font-size: clamp(1.75rem, 4vw, 2.35rem);
+        font-weight: 500;
+        margin-bottom: 1rem;
+        line-height: 1.15;
+      }
+
+      .section-text {
+        color: var(--muted);
+        max-width: 46rem;
+        font-size: 0.98rem;
+      }
+
+      .section-text + .section-text {
+        margin-top: 1rem;
+      }
+
+      .two-col {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 2rem;
+        margin-top: 2rem;
+      }
+
+      @media (min-width: 768px) {
+        .two-col {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+
+      .list-check {
+        list-style: none;
+        display: grid;
+        gap: 0.65rem;
+      }
+
+      .list-check li {
+        position: relative;
+        padding-left: 1.35rem;
+        color: var(--muted);
+        font-size: 0.92rem;
+      }
+
+      .list-check li::before {
+        content: "·";
+        position: absolute;
+        left: 0;
+        color: var(--gold);
+        font-weight: 700;
+      }
+
+      /* ── Module cards ── */
+      .grid-3 {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        margin-top: 2rem;
+      }
+
+      @media (min-width: 640px) {
+        .grid-3 {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+
+      @media (min-width: 960px) {
+        .grid-3 {
+          grid-template-columns: repeat(3, 1fr);
+        }
+      }
+
+      .grid-2 {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        margin-top: 2rem;
+      }
+
+      @media (min-width: 768px) {
+        .grid-2 {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+
+      .card {
+        background: var(--panel);
+        border: 1px solid rgba(255, 255, 255, 0.07);
+        border-radius: 4px;
+        padding: 1.35rem 1.25rem;
+        transition: border-color 0.2s;
+      }
+
+      .card:hover {
+        border-color: var(--border);
+      }
+
+      .card-num {
+        font-size: 0.65rem;
+        letter-spacing: 0.16em;
+        color: var(--gold-dark);
+        margin-bottom: 0.65rem;
+      }
+
+      .card h3 {
+        font-size: 1rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+      }
+
+      .card p {
+        font-size: 0.88rem;
+        color: var(--muted);
+        line-height: 1.6;
+      }
+
+      /* ── Tech stack ── */
+      .tech-list {
+        display: grid;
+        gap: 0.75rem;
+        margin-top: 1.75rem;
+      }
+
+      @media (min-width: 640px) {
+        .tech-list {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+
+      .tech-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.85rem;
+        padding: 1rem 1.1rem;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 3px;
+      }
+
+      .tech-name {
+        font-size: 0.82rem;
+        font-weight: 600;
+        color: var(--gold-light);
+        min-width: 7rem;
+      }
+
+      .tech-desc {
+        font-size: 0.84rem;
+        color: var(--muted);
+      }
+
+      /* ── Process steps ── */
+      .steps {
+        display: grid;
+        gap: 1rem;
+        margin-top: 2rem;
+      }
+
+      @media (min-width: 768px) {
+        .steps {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+
+      @media (min-width: 1024px) {
+        .steps {
+          grid-template-columns: repeat(4, 1fr);
+        }
+      }
+
+      .step {
+        padding: 1.25rem;
+        border-left: 2px solid var(--gold-dark);
+        background: rgba(201, 169, 98, 0.04);
+      }
+
+      .step-num {
+        font-size: 0.65rem;
+        letter-spacing: 0.14em;
+        color: var(--gold);
+        margin-bottom: 0.5rem;
+      }
+
+      .step h3 {
+        font-size: 0.95rem;
+        margin-bottom: 0.4rem;
+      }
+
+      .step p {
+        font-size: 0.84rem;
+        color: var(--muted);
+      }
+
+      /* ── Profile ── */
+      .profile {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+        margin-top: 2rem;
+        padding: 1.75rem;
+        background: linear-gradient(135deg, rgba(201, 169, 98, 0.08), rgba(18, 18, 18, 0.9));
+        border: 1px solid var(--border);
+        border-radius: 4px;
+      }
+
+      @media (min-width: 768px) {
+        .profile {
+          grid-template-columns: auto 1fr;
+          align-items: start;
+        }
+      }
+
+      .profile-badge {
+        width: 4.5rem;
+        height: 4.5rem;
+        border-radius: 4px;
+        background: rgba(201, 169, 98, 0.15);
+        border: 1px solid var(--border);
         display: flex;
         align-items: center;
         justify-content: center;
-        padding: 2rem;
+        font-family: "Cormorant Garamond", Georgia, serif;
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: var(--gold);
       }
-      .card {
-        max-width: 520px;
-        width: 100%;
-        background: rgba(250, 248, 245, 0.04);
-        border: 1px solid rgba(201, 169, 98, 0.35);
-        border-radius: 4px;
-        padding: 2.5rem 2rem;
+
+      .profile-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.4rem;
+        margin: 0.65rem 0 0.85rem;
+      }
+
+      .profile-tags span {
+        font-size: 0.62rem;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        padding: 0.3rem 0.55rem;
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        color: var(--muted);
+      }
+
+      /* ── CTA footer ── */
+      .cta {
         text-align: center;
+        padding: 4rem 0 5rem;
       }
-      .label {
-        font-size: 0.7rem;
-        letter-spacing: 0.25em;
-        text-transform: uppercase;
-        color: #c9a962;
-        margin-bottom: 1rem;
+
+      .cta .section-title {
+        max-width: 28rem;
+        margin-inline: auto;
       }
-      h1 {
-        font-size: 1.75rem;
-        font-weight: 600;
-        margin-bottom: 0.5rem;
-        letter-spacing: 0.02em;
-      }
-      .brand {
-        color: #c9a962;
-      }
-      p {
+
+      .cta-text {
+        color: var(--muted);
+        max-width: 34rem;
+        margin: 0.75rem auto 2rem;
         font-size: 0.95rem;
-        line-height: 1.7;
-        color: rgba(245, 240, 232, 0.75);
-        margin: 1.25rem 0 2rem;
       }
-      a.btn {
-        display: inline-block;
-        background: #c9a962;
-        color: #1a1612;
-        text-decoration: none;
+
+      .cta-actions {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.75rem;
+        margin-bottom: 2.5rem;
+      }
+
+      .bullets-grid {
+        display: grid;
+        gap: 0.5rem;
+        max-width: 36rem;
+        margin: 0 auto 2rem;
+        text-align: left;
+      }
+
+      .bullets-grid li {
+        font-size: 0.88rem;
+        color: var(--muted);
+        padding-left: 1rem;
+        position: relative;
+      }
+
+      .bullets-grid li::before {
+        content: "·";
+        position: absolute;
+        left: 0;
+        color: var(--gold);
+      }
+
+      .site-footer {
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
+        padding: 1.5rem 0 2rem;
+        text-align: center;
         font-size: 0.75rem;
-        font-weight: 600;
-        letter-spacing: 0.15em;
-        text-transform: uppercase;
-        padding: 0.875rem 1.75rem;
-        transition: background 0.2s;
+        color: rgba(245, 240, 232, 0.4);
       }
-      a.btn:hover {
-        background: #e8d5a3;
+
+      .site-footer a {
+        color: var(--gold);
       }
-      .back {
-        display: block;
-        margin-top: 2rem;
-        font-size: 0.8rem;
-        color: rgba(245, 240, 232, 0.5);
-        text-decoration: none;
+
+      .site-footer a:hover {
+        color: var(--gold-light);
       }
-      .back:hover {
-        color: #c9a962;
+
+      .divider {
+        width: 3rem;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, var(--gold), transparent);
+        margin: 0 auto 1.5rem;
       }
     </style>
   </head>
   <body>
-    <div class="card">
-      <p class="label">Sitio desarrollado por</p>
-      <h1><span class="brand">ATRIX</span> Technologies</h1>
-      <p>
-        Desarrollo web, e-commerce y soluciones digitales a medida.
-        Jon Al Parfum fue diseñado e implementado por el equipo de
-        ATRIX Technologies.
-      </p>
-      <a class="btn" href="https://atrixnld.com" target="_blank" rel="noopener noreferrer">
-        Visitar ATRIX Technologies
-      </a>
-      <a class="back" href="/">← Volver a Jon Al Parfum</a>
-    </div>
+    <header class="topbar">
+      <div class="wrap topbar-inner">
+        <a class="topbar-back" href="/">← Jon Al Parfum</a>
+        <span class="topbar-brand">ATRIX Technologies</span>
+      </div>
+    </header>
+
+    <main>
+      <!-- Hero -->
+      <section class="hero" style="border-top: none">
+        <div class="wrap hero-grid">
+          <div>
+            <p class="eyebrow">Retail · Perfumería de lujo · 2026</p>
+            <h1>Jon Al Parfum</h1>
+            <p class="hero-lead">
+              Tienda digital de perfumes originales: catálogo curado, asesoría personalizada
+              y envíos a toda la República desde Nuevo Laredo.
+            </p>
+            <div class="meta-row">
+              <span class="pill pill-gold">E-commerce / vitrina</span>
+              <span class="pill">UI/UX</span>
+              <span class="pill">Branding web</span>
+              <span class="pill">SEO local</span>
+              <span class="pill">Catálogo</span>
+              <span class="pill">Conversión WhatsApp</span>
+            </div>
+            <p style="font-size: 0.82rem; color: var(--muted); margin-bottom: 1.5rem">
+              Nuevo Laredo, Tamaulipas · Envíos a todo México<br />
+              Next.js · Vercel · Supabase · SEO · WhatsApp
+            </p>
+            <div class="hero-actions">
+              <a class="btn btn-primary" href="https://www.jonalparfum.com/" target="_blank" rel="noopener noreferrer">
+                Ver sitio en vivo ↗
+              </a>
+              <a class="btn btn-outline" href="https://atrixnld.com/proyectos/jonal-parfum" target="_blank" rel="noopener noreferrer">
+                Ver en ATRIX ↗
+              </a>
+              <a class="btn btn-outline" href="https://atrixnld.com#contacto" target="_blank" rel="noopener noreferrer">
+                Quiero algo así
+              </a>
+            </div>
+          </div>
+
+          <aside class="hero-card">
+            <p class="hero-card-label">Proyecto en producción</p>
+            <p class="hero-card-url">www.jonalparfum.com</p>
+            <div class="stats">
+              <div class="stat">
+                <div class="stat-value">100%</div>
+                <div class="stat-label">Fragancias originales</div>
+              </div>
+              <div class="stat">
+                <div class="stat-value">MX</div>
+                <div class="stat-label">Envíos nacionales</div>
+              </div>
+              <div class="stat">
+                <div class="stat-value">24h</div>
+                <div class="stat-label">Respuesta a consultas</div>
+              </div>
+              <div class="stat">
+                <div class="stat-value">1</div>
+                <div class="stat-label">Marca digital premium</div>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <!-- About -->
+      <section>
+        <div class="wrap">
+          <p class="section-label">De qué trató el proyecto</p>
+          <h2 class="section-title">Una plataforma digital completa</h2>
+          <p class="section-text">
+            Jon Al Parfum necesitaba una vitrina digital a la altura de su propuesta: perfumes
+            originales de casas prestigiosas, elegancia fronteriza y confianza para clientes en
+            Nuevo Laredo y en todo México.
+          </p>
+          <p class="section-text">
+            ATRIX Technologies diseñó y desarrolló el sitio
+            <a href="https://www.jonalparfum.com/" style="color: var(--gold-light)">www.jonalparfum.com</a>:
+            narrativa de lujo, catálogo destacado, consejo del día, beneficios claros (originalidad,
+            envío, asesoría) y rutas de contacto por WhatsApp, formulario y correo.
+          </p>
+          <p class="section-text">
+            El resultado es una presencia online lista para convertir interés en pedidos: estética
+            premium, mensajes claros y operación comercial enfocada en fragancias auténticas.
+          </p>
+
+          <div class="two-col">
+            <div>
+              <h3 class="display" style="font-size: 1.35rem; margin-bottom: 0.75rem">Impacto</h3>
+              <ul class="list-check">
+                <li>Presencia digital alineada a retail de lujo</li>
+                <li>Canal claro para consultas y pedidos en todo México</li>
+                <li>Marca lista para crecer catálogo y campañas</li>
+              </ul>
+            </div>
+            <div>
+              <h3 class="display" style="font-size: 1.35rem; margin-bottom: 0.75rem">Por qué elegir esto</h3>
+              <ul class="list-check">
+                <li>Tu marca de lujo también puede verse premium en la web — y vender con claridad</li>
+                <li>ATRIX conecta diseño, catálogo y WhatsApp para pasar de curiosidad a pedido</li>
+                <li>Ideal para retail especializado con presencia nacional y trato personal</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Modules -->
+      <section>
+        <div class="wrap">
+          <p class="section-label">Módulos entregados</p>
+          <h2 class="section-title">Lo que el cliente puede usar hoy</h2>
+          <p class="section-text">No un mockup — funcionalidad real en producción.</p>
+
+          <div class="grid-3">
+            <article class="card">
+              <p class="card-num">01</p>
+              <h3>Hero de marca</h3>
+              <p>Propuesta de lujo olfativo, envíos nacionales y confianza desde el primer viewport.</p>
+            </article>
+            <article class="card">
+              <p class="card-num">02</p>
+              <h3>Historia</h3>
+              <p>Elegancia desde la frontera: autenticidad, criterio y atención personalizada.</p>
+            </article>
+            <article class="card">
+              <p class="card-num">03</p>
+              <h3>Destacados</h3>
+              <p>Selección exclusiva de fragancias con camino a la colección completa.</p>
+            </article>
+            <article class="card">
+              <p class="card-num">04</p>
+              <h3>Confianza</h3>
+              <p>Originalidad, envío nacional y asesoría — argumentos de compra claros.</p>
+            </article>
+            <article class="card">
+              <p class="card-num">05</p>
+              <h3>Contacto</h3>
+              <p>WhatsApp, formulario, correo y cobertura de envíos.</p>
+            </article>
+            <article class="card">
+              <p class="card-num">06</p>
+              <h3>FAQ</h3>
+              <p>Respuestas sobre originalidad, tiempos de entrega y pedidos especiales.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- Built -->
+      <section>
+        <div class="wrap">
+          <p class="section-label">Todo lo que se construyó</p>
+          <h2 class="section-title">Del concepto de marca a la operación diaria</h2>
+
+          <div class="grid-2">
+            <article class="card">
+              <p class="card-num">01</p>
+              <h3>Landing premium</h3>
+              <p>Hero, historia, destacados, por qué elegirnos, contacto y FAQ en un solo flujo.</p>
+            </article>
+            <article class="card">
+              <p class="card-num">02</p>
+              <h3>Identidad digital</h3>
+              <p>Sistema visual alineado a perfumería de lujo y marca Jon Al Parfum.</p>
+            </article>
+            <article class="card">
+              <p class="card-num">03</p>
+              <h3>Catálogo vitrina</h3>
+              <p>Tienda con filtros, categorías, subcategorías y detalle de producto.</p>
+            </article>
+            <article class="card">
+              <p class="card-num">04</p>
+              <h3>SEO y metadatos</h3>
+              <p>Títulos, descripciones, Open Graph, sitemap y datos estructurados listos para compartir.</p>
+            </article>
+            <article class="card">
+              <p class="card-num">05</p>
+              <h3>Contacto comercial</h3>
+              <p>WhatsApp, correo, ubicación y formulario para pedidos y consultas.</p>
+            </article>
+            <article class="card">
+              <p class="card-num">06</p>
+              <h3>Panel administrativo</h3>
+              <p>Gestión de productos, categorías, pedidos, usuarios y reportes PDF desde un panel privado.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- Approach -->
+      <section>
+        <div class="wrap">
+          <p class="section-label">Enfoque ATRIX</p>
+          <h2 class="section-title">Criterio visual con implementación real</h2>
+
+          <div class="grid-3">
+            <article class="card">
+              <h3>Lujo accesible</h3>
+              <p>Tipografía, ritmo y contraste para que la marca se sienta exclusiva sin perder claridad en móvil.</p>
+            </article>
+            <article class="card">
+              <h3>Catálogo que vende</h3>
+              <p>Destacados, colección y pruebas de confianza: originalidad, envío y atención personal.</p>
+            </article>
+            <article class="card">
+              <h3>Conversión cercana</h3>
+              <p>WhatsApp, formulario y FAQ orientados a resolver dudas y cerrar pedidos.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- Tech -->
+      <section>
+        <div class="wrap">
+          <p class="section-label">Tecnologías</p>
+          <h2 class="section-title">Stack elegido para rendimiento, mantenimiento y escala</h2>
+
+          <div class="tech-list">
+            <div class="tech-item">
+              <span class="tech-name">Next.js</span>
+              <span class="tech-desc">Sitio público rápido, SSR y SEO-friendly</span>
+            </div>
+            <div class="tech-item">
+              <span class="tech-name">React</span>
+              <span class="tech-desc">UI de catálogo, contacto y experiencia móvil</span>
+            </div>
+            <div class="tech-item">
+              <span class="tech-name">Vercel</span>
+              <span class="tech-desc">Hosting, HTTPS y despliegue continuo</span>
+            </div>
+            <div class="tech-item">
+              <span class="tech-name">Supabase</span>
+              <span class="tech-desc">Base de datos PostgreSQL e imágenes de producto</span>
+            </div>
+            <div class="tech-item">
+              <span class="tech-name">Stripe</span>
+              <span class="tech-desc">Checkout seguro y pagos en línea</span>
+            </div>
+            <div class="tech-item">
+              <span class="tech-name">SEO / Open Graph</span>
+              <span class="tech-desc">Metadatos y preview al compartir en redes</span>
+            </div>
+            <div class="tech-item">
+              <span class="tech-name">WhatsApp Business</span>
+              <span class="tech-desc">Canal principal de asesoría y pedidos</span>
+            </div>
+            <div class="tech-item">
+              <span class="tech-name">Prisma</span>
+              <span class="tech-desc">Modelo de datos y operación del catálogo</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Process -->
+      <section>
+        <div class="wrap">
+          <p class="section-label">Cómo lo construimos</p>
+          <h2 class="section-title">Proceso de punta a punta</h2>
+
+          <div class="steps">
+            <article class="step">
+              <p class="step-num">01</p>
+              <h3>Descubrimiento</h3>
+              <p>Definimos tono de lujo, catálogo, envíos y rutas de conversión.</p>
+            </article>
+            <article class="step">
+              <p class="step-num">02</p>
+              <h3>Diseño</h3>
+              <p>Identidad digital, jerarquía tipográfica y vitrina de fragancias.</p>
+            </article>
+            <article class="step">
+              <p class="step-num">03</p>
+              <h3>Desarrollo</h3>
+              <p>Landing, tienda, contacto, FAQ, panel admin y assets de producto.</p>
+            </article>
+            <article class="step">
+              <p class="step-num">04</p>
+              <h3>Lanzamiento</h3>
+              <p>Producción en jonalparfum.com, SEO y canales de venta activos.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- Profile -->
+      <section>
+        <div class="wrap">
+          <p class="section-label">Conoce al responsable</p>
+          <h2 class="section-title">Ing. Néstor J. Resendiz</h2>
+
+          <div class="profile">
+            <div class="profile-badge">NJ</div>
+            <div>
+              <p style="font-size: 0.82rem; color: var(--gold-light); margin-bottom: 0.25rem">
+                Dirección técnica · Ingeniero de Tecnologías de la Información
+              </p>
+              <p style="font-size: 0.78rem; color: var(--muted); margin-bottom: 0.5rem">
+                ATRIX Technologies
+              </p>
+              <div class="profile-tags">
+                <span>Ingeniería</span>
+                <span>E-commerce</span>
+                <span>Full stack</span>
+              </div>
+              <p style="font-size: 0.92rem; color: var(--muted); margin-bottom: 0.75rem">
+                Diseño y desarrollo de la plataforma Jon Al Parfum: experiencia de marca,
+                catálogo y canales de conversión para retail de lujo en Nuevo Laredo.
+              </p>
+              <p style="font-size: 0.88rem; color: rgba(245, 240, 232, 0.5)">
+                Enfoque: sitio en producción, visualmente premium y listo para asesorar y
+                vender fragancias originales con envío nacional.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- CTA -->
+      <section class="cta">
+        <div class="wrap">
+          <div class="divider"></div>
+          <h2 class="section-title">¿Quieres un proyecto similar?</h2>
+          <p class="cta-text">
+            ATRIX Technologies desarrolla e-commerce, vitrinas digitales y plataformas
+            a medida para marcas que buscan vender con claridad y verse premium en la web.
+          </p>
+
+          <ul class="bullets-grid">
+            <li>Sitio premium en www.jonalparfum.com con narrativa de lujo olfativo</li>
+            <li>Catálogo destacado y colección curada de fragancias originales</li>
+            <li>Envíos a toda la República Mexicana desde Nuevo Laredo</li>
+            <li>Asesoría por WhatsApp, formulario y correo</li>
+            <li>SEO local y Open Graph para compartir la marca</li>
+            <li>Panel administrativo para operar catálogo y pedidos</li>
+          </ul>
+
+          <div class="cta-actions">
+            <a class="btn btn-primary" href="https://www.jonalparfum.com/" target="_blank" rel="noopener noreferrer">
+              Ver Jon Al Parfum en vivo ↗
+            </a>
+            <a class="btn btn-outline" href="https://atrixnld.com#contacto" target="_blank" rel="noopener noreferrer">
+              Cotizar un proyecto similar
+            </a>
+            <a class="btn btn-outline" href="https://atrixnld.com" target="_blank" rel="noopener noreferrer">
+              Más casos ATRIX
+            </a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="wrap">
+        <p>
+          Sitio desarrollado por
+          <a href="https://atrixnld.com" target="_blank" rel="noopener noreferrer">ATRIX Technologies</a>
+          ·
+          <a href="/">Volver a Jon Al Parfum</a>
+        </p>
+      </div>
+    </footer>
   </body>
 </html>
