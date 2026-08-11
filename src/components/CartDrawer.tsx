@@ -6,8 +6,25 @@ import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import { useCart } from "@/context/CartContext";
 import { formatPrice } from "@/lib/product-utils";
+import { STRIPE_MIN_MXN } from "@/lib/stripe-limits";
 import ProductImage from "@/components/ProductImage";
+import TransferCheckoutModal from "@/components/TransferCheckoutModal";
 import { lockScroll, unlockScroll } from "@/lib/scroll-lock";
+
+type BankAccount = {
+  id: string;
+  bankName: string;
+  accountHolder: string;
+  accountNumber: string | null;
+  clabe: string | null;
+  notes: string | null;
+};
+
+type TransferSession = {
+  orderId: string;
+  total: number;
+  bankAccounts: BankAccount[];
+};
 
 export default function CartDrawer() {
   const { data: session } = useSession();
@@ -23,7 +40,12 @@ export default function CartDrawer() {
     clearCart,
   } = useCart();
   const [checkingOut, setCheckingOut] = useState(false);
+  const [transferLoading, setTransferLoading] = useState(false);
   const [error, setError] = useState("");
+  const [transferSession, setTransferSession] = useState<TransferSession | null>(
+    null
+  );
+  const [transferSuccess, setTransferSuccess] = useState(false);
 
   useEffect(() => {
     closeCart();
@@ -35,9 +57,16 @@ export default function CartDrawer() {
     return () => unlockScroll();
   }, [isOpen]);
 
-  if (!isOpen) return null;
+  const cartPayload = {
+    items: items.map(({ product, quantity }) => ({
+      productId: product.id,
+      quantity,
+    })),
+  };
 
-  const handleCheckout = async () => {
+  const belowStripeMinimum = totalPrice > 0 && totalPrice < STRIPE_MIN_MXN;
+
+  const handleStripeCheckout = async () => {
     if (!session) {
       closeCart();
       router.push("/login?callbackUrl=/tienda");
@@ -50,12 +79,7 @@ export default function CartDrawer() {
     const res = await fetch("/api/checkout", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        items: items.map(({ product, quantity }) => ({
-          productId: product.id,
-          quantity,
-        })),
-      }),
+      body: JSON.stringify(cartPayload),
     });
 
     const data = await res.json();
@@ -68,8 +92,57 @@ export default function CartDrawer() {
     }
   };
 
+  const handleTransferCheckout = async () => {
+    if (!session) {
+      closeCart();
+      router.push("/login?callbackUrl=/tienda");
+      return;
+    }
+
+    setTransferLoading(true);
+    setError("");
+
+    const res = await fetch("/api/checkout/transfer", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(cartPayload),
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+      setTransferSession({
+        orderId: data.orderId,
+        total: data.total,
+        bankAccounts: data.bankAccounts,
+      });
+    } else {
+      setError(data.error || "Error al iniciar transferencia");
+    }
+
+    setTransferLoading(false);
+  };
+
+  const handleTransferSuccess = () => {
+    setTransferSession(null);
+    setTransferSuccess(true);
+    clearCart();
+  };
+
+  if (!isOpen) return null;
+
   return (
     <>
+      {transferSession && (
+        <TransferCheckoutModal
+          orderId={transferSession.orderId}
+          total={transferSession.total}
+          bankAccounts={transferSession.bankAccounts}
+          onClose={() => setTransferSession(null)}
+          onSuccess={handleTransferSuccess}
+        />
+      )}
+
       <div
         className="fixed inset-0 bg-black/40 z-50 transition-opacity"
         onClick={closeCart}
@@ -93,7 +166,25 @@ export default function CartDrawer() {
           </button>
         </div>
 
-        {items.length === 0 ? (
+        {transferSuccess ? (
+          <div className="flex-1 flex flex-col items-center justify-center p-6 text-center">
+            <p className="text-gold font-display text-lg mb-2">
+              Comprobante enviado
+            </p>
+            <p className="text-cream/60 text-sm mb-6">
+              Revisaremos tu transferencia y te confirmaremos por correo.
+            </p>
+            <button
+              onClick={() => {
+                setTransferSuccess(false);
+                closeCart();
+              }}
+              className="text-sm uppercase tracking-wider text-gold hover:text-gold-light transition-colors"
+            >
+              Continuar comprando
+            </button>
+          </div>
+        ) : items.length === 0 ? (
           <div className="flex-1 flex flex-col items-center justify-center p-6 text-center">
             <p className="text-cream/50 mb-4">Tu carrito está vacío</p>
             <button
@@ -146,7 +237,7 @@ export default function CartDrawer() {
               ))}
             </ul>
 
-            <div className="border-t border-gold/10 p-6 space-y-4">
+            <div className="border-t border-gold/10 p-6 space-y-3">
               {error && (
                 <p className="text-red-400 text-sm text-center bg-red-950/50 border border-red-900/50 py-2 rounded">
                   {error}
@@ -156,16 +247,29 @@ export default function CartDrawer() {
                 <span>Total</span>
                 <span className="font-medium">{formatPrice(totalPrice)}</span>
               </div>
+              {belowStripeMinimum && (
+                <p className="text-amber-400/90 text-xs text-center">
+                  Tarjeta requiere mínimo {formatPrice(STRIPE_MIN_MXN)} (Stripe).
+                  Puedes pagar por transferencia.
+                </p>
+              )}
               <button
-                onClick={handleCheckout}
-                disabled={checkingOut}
+                onClick={handleStripeCheckout}
+                disabled={checkingOut || transferLoading || belowStripeMinimum}
                 className="w-full bg-gold text-luxury-black py-4 text-sm uppercase tracking-widest hover:bg-gold-light transition-colors disabled:opacity-50 font-medium"
               >
                 {checkingOut
                   ? "Redirigiendo..."
                   : session
-                    ? "Pagar con Stripe"
+                    ? "Pagar con tarjeta"
                     : "Iniciar sesión para pagar"}
+              </button>
+              <button
+                onClick={handleTransferCheckout}
+                disabled={checkingOut || transferLoading}
+                className="w-full border border-gold/30 text-cream py-4 text-sm uppercase tracking-widest hover:border-gold hover:text-gold transition-colors disabled:opacity-50"
+              >
+                {transferLoading ? "Preparando..." : "Hacer transferencia"}
               </button>
               {!session && (
                 <p className="text-xs text-center text-cream/40">

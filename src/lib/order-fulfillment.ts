@@ -81,6 +81,83 @@ export async function restoreOrderStock(orderId: string) {
   });
 }
 
+export async function approvePaymentProof(orderId: string, note?: string) {
+  return prisma.$transaction(async (tx) => {
+    const order = await tx.order.findUnique({
+      where: { id: orderId },
+      include: { items: true },
+    });
+
+    if (!order) throw new Error("Pedido no encontrado");
+    if (order.paymentMethod !== "BANK_TRANSFER") {
+      throw new Error("Este pedido no es por transferencia");
+    }
+    if (order.paymentProofStatus !== "PENDING_REVIEW") {
+      throw new Error("El comprobante no está pendiente de revisión");
+    }
+    if (!order.paymentProofUrl) {
+      throw new Error("No hay comprobante adjunto");
+    }
+    if (order.status !== "PENDING") {
+      throw new Error("El pedido ya fue procesado");
+    }
+
+    for (const item of order.items) {
+      const product = await tx.product.findUnique({
+        where: { id: item.productId },
+        select: { stock: true, name: true },
+      });
+
+      if (!product || product.stock < item.quantity) {
+        throw new Error(
+          `Stock insuficiente para ${product?.name ?? "un producto"}`
+        );
+      }
+    }
+
+    await tx.order.update({
+      where: { id: orderId },
+      data: {
+        status: "PAID",
+        paymentProofStatus: "APPROVED",
+        paymentProofNote: note ?? null,
+      },
+    });
+
+    for (const item of order.items) {
+      await tx.product.update({
+        where: { id: item.productId },
+        data: { stock: { decrement: item.quantity } },
+      });
+    }
+
+    return tx.order.findUnique({
+      where: { id: orderId },
+      include: { items: true, user: { select: { email: true, name: true } } },
+    });
+  });
+}
+
+export async function rejectPaymentProof(orderId: string, note?: string) {
+  const order = await prisma.order.findUnique({ where: { id: orderId } });
+
+  if (!order) throw new Error("Pedido no encontrado");
+  if (order.paymentMethod !== "BANK_TRANSFER") {
+    throw new Error("Este pedido no es por transferencia");
+  }
+  if (order.paymentProofStatus !== "PENDING_REVIEW") {
+    throw new Error("El comprobante no está pendiente de revisión");
+  }
+
+  return prisma.order.update({
+    where: { id: orderId },
+    data: {
+      paymentProofStatus: "REJECTED",
+      paymentProofNote: note ?? null,
+    },
+  });
+}
+
 export async function updateOrderStatus(
   orderId: string,
   nextStatus: OrderStatus

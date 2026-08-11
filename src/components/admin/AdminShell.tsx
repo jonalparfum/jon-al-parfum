@@ -25,7 +25,10 @@ const links = [
   { href: "/admin/productos", label: "Productos" },
   { href: "/admin/catalogos", label: "Categorías" },
   { href: "/admin/pedidos", label: "Pedidos" },
+  { href: "/admin/comprobantes", label: "Comprobantes" },
+  { href: "/admin/cuentas-bancarias", label: "Cuentas bancarias" },
   { href: "/admin/usuarios", label: "Usuarios" },
+  { href: "/admin/accesos", label: "Accesos" },
   { href: "/admin/perfil", label: "Mi perfil" },
 ];
 

@@ -2,6 +2,8 @@ import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 import { requireAuth, unauthorized, parseJsonBody } from "@/lib/api-auth";
 import { stripe, isStripeConfigured } from "@/lib/stripe";
+import { STRIPE_MIN_MXN } from "@/lib/stripe-limits";
+import { prepareCheckoutItems } from "@/lib/checkout-items";
 
 type CheckoutBody = {
   items: { productId: string; quantity: number }[];
@@ -71,11 +73,21 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  if (total < STRIPE_MIN_MXN) {
+    return NextResponse.json(
+      {
+        error: `El monto mínimo para pagar con tarjeta es ${STRIPE_MIN_MXN} MXN (límite de Stripe). Tu carrito suma ${total} MXN.`,
+      },
+      { status: 400 }
+    );
+  }
+
   const order = await prisma.order.create({
     data: {
       userId: session.user.id,
       total,
       status: "PENDING",
+      paymentMethod: "STRIPE",
       shippingEmail: session.user.email || undefined,
       items: { create: orderItems },
     },

@@ -1,6 +1,7 @@
 import "server-only";
 
 import { prisma } from "@/lib/prisma";
+import { STRIPE_MIN_MXN } from "@/lib/stripe-limits";
 import { OrderStatus } from "@prisma/client";
 
 export async function validateSubcategoryForCategory(
@@ -26,8 +27,8 @@ export function validateProductPricing(
   price: number | undefined,
   stock: number | undefined
 ): string | null {
-  if (price !== undefined && (!Number.isFinite(price) || price <= 0)) {
-    return "El precio debe ser mayor a 0";
+  if (price !== undefined && (!Number.isFinite(price) || price < STRIPE_MIN_MXN)) {
+    return `El precio mínimo es ${STRIPE_MIN_MXN} MXN (límite de Stripe para pagos con tarjeta)`;
   }
   if (stock !== undefined && (!Number.isInteger(stock) || stock < 0)) {
     return "El stock no puede ser negativo";

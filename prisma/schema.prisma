@@ -22,6 +22,17 @@ enum OrderStatus {
   CANCELLED
 }
 
+enum PaymentMethod {
+  STRIPE
+  BANK_TRANSFER
+}
+
+enum PaymentProofStatus {
+  PENDING_REVIEW
+  APPROVED
+  REJECTED
+}
+
 model User {
   id           String   @id @default(cuid())
   name         String?
@@ -85,20 +96,39 @@ model Product {
   updatedAt     DateTime     @updatedAt
 }
 
+model BankAccount {
+  id            String   @id @default(cuid())
+  bankName      String
+  accountHolder String
+  accountNumber String?
+  clabe         String?
+  notes         String?
+  active        Boolean  @default(true)
+  orders        Order[]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
 model Order {
-  id              String      @id @default(cuid())
-  userId          String
-  user            User        @relation(fields: [userId], references: [id])
-  status          OrderStatus @default(PENDING)
-  total           Float
-  stripeSessionId String?     @unique
-  stripePaymentId String?
-  shippingName    String?
-  shippingEmail   String?
-  shippingAddress String?
-  items           OrderItem[]
-  createdAt       DateTime    @default(now())
-  updatedAt       DateTime    @updatedAt
+  id                 String              @id @default(cuid())
+  userId             String
+  user               User                @relation(fields: [userId], references: [id])
+  status             OrderStatus         @default(PENDING)
+  total              Float
+  paymentMethod      PaymentMethod       @default(STRIPE)
+  paymentProofUrl    String?
+  paymentProofStatus PaymentProofStatus?
+  paymentProofNote   String?
+  bankAccountId      String?
+  bankAccount        BankAccount?        @relation(fields: [bankAccountId], references: [id], onDelete: SetNull)
+  stripeSessionId    String?             @unique
+  stripePaymentId    String?
+  shippingName       String?
+  shippingEmail      String?
+  shippingAddress    String?
+  items              OrderItem[]
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
 }
 
 model OrderItem {

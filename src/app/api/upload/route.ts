@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin, unauthorized } from "@/lib/api-auth";
-import { uploadProductImage } from "@/lib/upload-product-image";
+import { uploadProductImage } from "@/lib/file-upload";
 
 export async function POST(request: NextRequest) {
   const session = await requireAdmin();

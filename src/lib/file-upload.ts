@@ -38,15 +38,15 @@ function inferSupabaseUrlFromDatabase(): string | null {
   }
 }
 
-export async function uploadProductImage(
+export async function uploadFile(
   file: File,
-  filename: string
+  objectPath: string,
+  localSubdir: string
 ): Promise<{ url: string; storage: "supabase" | "local" }> {
   const supabase = getSupabaseAdmin();
 
   if (supabase) {
     const bytes = await file.arrayBuffer();
-    const objectPath = `products/${filename}`;
 
     const { error } = await supabase.storage
       .from(BUCKET)
@@ -65,18 +65,33 @@ export async function uploadProductImage(
 
   if (process.env.VERCEL) {
     throw new Error(
-      "Configura SUPABASE_SERVICE_ROLE_KEY en Vercel para subir imágenes"
+      "Configura SUPABASE_SERVICE_ROLE_KEY en Vercel para subir archivos"
     );
   }
 
   const { writeFile, mkdir } = await import("fs/promises");
   const path = await import("path");
 
-  const uploadDir = path.join(process.cwd(), "public", "uploads", "products");
+  const uploadDir = path.join(process.cwd(), "public", "uploads", localSubdir);
   await mkdir(uploadDir, { recursive: true });
 
+  const filename = objectPath.split("/").pop()!;
   const bytes = await file.arrayBuffer();
   await writeFile(path.join(uploadDir, filename), Buffer.from(bytes));
 
-  return { url: `/uploads/products/${filename}`, storage: "local" };
+  return { url: `/uploads/${localSubdir}/${filename}`, storage: "local" };
+}
+
+export async function uploadProductImage(
+  file: File,
+  filename: string
+): Promise<{ url: string; storage: "supabase" | "local" }> {
+  return uploadFile(file, `products/${filename}`, "products");
+}
+
+export async function uploadPaymentProof(
+  file: File,
+  filename: string
+): Promise<{ url: string; storage: "supabase" | "local" }> {
+  return uploadFile(file, `payment-proofs/${filename}`, "payment-proofs");
 }

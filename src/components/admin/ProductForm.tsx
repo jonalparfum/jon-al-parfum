@@ -20,6 +20,7 @@ import {
   prepareProductPayload,
   type ProductFormPayload,
 } from "@/lib/product-utils";
+import { STRIPE_MIN_MXN } from "@/lib/stripe-limits";
 
 type Category = { id: string; name: string; slug: string };
 type Subcategory = { id: string; name: string; categoryId: string };
@@ -293,7 +294,7 @@ export default function ProductForm({
 
       <FormSection
         title="Precio e inventario"
-        description="Precios en pesos mexicanos (MXN) y unidades disponibles."
+        description={`Precios en pesos mexicanos (MXN). Mínimo ${STRIPE_MIN_MXN} MXN por producto (límite de Stripe para pagos con tarjeta).`}
       >
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
           <div>
@@ -301,6 +302,7 @@ export default function ProductForm({
             <input
               type="number"
               step="0.01"
+              min={STRIPE_MIN_MXN}
               required
               value={form.price}
               onChange={(e) => {
@@ -309,6 +311,9 @@ export default function ProductForm({
               }}
               className={adminInput}
             />
+            <p className={`${adminMuted} mt-2 text-xs`}>
+              Mínimo {STRIPE_MIN_MXN} MXN para que el cliente pueda pagar con tarjeta.
+            </p>
           </div>
           <div>
             <label className={adminLabel}>Precio original (MXN)</label>
