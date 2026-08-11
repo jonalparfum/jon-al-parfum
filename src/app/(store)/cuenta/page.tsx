@@ -26,6 +26,13 @@ const statusLabels: Record<string, string> = {
   CANCELLED: "Cancelado",
 };
 
+const adminLinks = [
+  { href: "/admin", label: "Resumen", desc: "Pedidos recientes y stock bajo" },
+  { href: "/admin/productos", label: "Productos", desc: "Agregar, editar precios e imágenes" },
+  { href: "/admin/catalogos", label: "Categorías", desc: "Categorías y subcategorías" },
+  { href: "/admin/pedidos", label: "Pedidos", desc: "Estado de envíos y pagos" },
+];
+
 export default function AccountPage() {
   const { data: session } = useSession();
   const [orders, setOrders] = useState<Order[]>([]);
@@ -36,38 +43,60 @@ export default function AccountPage() {
       .then(setOrders);
   }, []);
 
+  const isAdmin = session?.user?.role === "ADMIN";
+
   return (
     <div className="max-w-3xl mx-auto px-4 py-12">
-      <h1 className="font-serif text-3xl mb-2">Mi cuenta</h1>
-      <p className="text-charcoal/60 mb-8">
-        {session?.user?.name || session?.user?.email}
-      </p>
+      <h1 className="font-display text-3xl mb-2 text-cream">Mi cuenta</h1>
+      <p className="text-cream/50 mb-8">{session?.user?.name || session?.user?.email}</p>
 
-      <div className="flex gap-4 mb-8">
-        {session?.user?.role === "ADMIN" && (
+      {isAdmin && (
+        <section className="mb-10 bg-luxury-panel border border-gold/15 p-6 md:p-8 gold-border-glow">
+          <p className="text-[10px] uppercase tracking-[0.35em] text-gold/70 mb-2">
+            Administración
+          </p>
+          <h2 className="font-display text-2xl text-cream mb-4">Panel de control</h2>
+          <p className="text-sm text-cream/60 mb-6">
+            Gestiona productos, categorías, subcategorías, precios y pedidos de Jon Al Parfum.
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
+            {adminLinks.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="block border border-gold/15 bg-luxury-black/50 px-4 py-4 hover:border-gold/40 hover:bg-luxury-black transition-colors"
+              >
+                <p className="text-sm font-medium text-gold mb-1">{link.label}</p>
+                <p className="text-xs text-cream/50">{link.desc}</p>
+              </Link>
+            ))}
+          </div>
           <Link
             href="/admin"
-            className="text-sm text-gold hover:text-charcoal border border-gold px-4 py-2"
+            className="inline-flex btn-luxury-primary text-[10px]"
           >
-            Panel de administración
+            Ir al panel admin
           </Link>
-        )}
+        </section>
+      )}
+
+      <div className="flex gap-4 mb-8">
         <button
           onClick={() => signOut({ callbackUrl: "/" })}
-          className="text-sm text-charcoal/60 hover:text-charcoal"
+          className="text-sm text-cream/50 hover:text-gold transition-colors"
         >
           Cerrar sesión
         </button>
       </div>
 
-      <h2 className="font-serif text-xl mb-4">Mis pedidos</h2>
+      <h2 className="font-display text-xl mb-4 text-cream">Mis pedidos</h2>
 
       {orders.length === 0 ? (
-        <div className="text-center py-12 bg-cream rounded-lg">
-          <p className="text-charcoal/60 mb-4">Aún no has realizado ningún pedido.</p>
+        <div className="text-center py-12 bg-luxury-panel/40 border border-gold/10 rounded-lg">
+          <p className="text-cream/60 mb-4">Aún no has realizado ningún pedido.</p>
           <Link
             href="/tienda"
-            className="text-sm uppercase tracking-wider text-gold hover:text-charcoal"
+            className="text-sm uppercase tracking-wider text-gold hover:text-gold-light"
           >
             Explorar tienda
           </Link>
@@ -77,24 +106,24 @@ export default function AccountPage() {
           {orders.map((order) => (
             <div
               key={order.id}
-              className="bg-white border border-gold/10 rounded-lg p-6"
+              className="bg-luxury-panel/40 border border-gold/10 p-6"
             >
               <div className="flex justify-between items-start mb-3">
                 <div>
-                  <p className="text-sm text-charcoal/60">
-                    {new Date(order.createdAt).toLocaleDateString("es-ES", {
+                  <p className="text-sm text-cream/50">
+                    {new Date(order.createdAt).toLocaleDateString("es-MX", {
                       day: "numeric",
                       month: "long",
                       year: "numeric",
                     })}
                   </p>
-                  <p className="font-medium mt-1">
+                  <p className="font-medium mt-1 text-cream">
                     {statusLabels[order.status] || order.status}
                   </p>
                 </div>
-                <span className="font-semibold">{formatPrice(order.total)}</span>
+                <span className="font-semibold text-gold">{formatPrice(order.total)}</span>
               </div>
-              <ul className="text-sm text-charcoal/70 space-y-1">
+              <ul className="text-sm text-cream/70 space-y-1">
                 {order.items.map((item, i) => (
                   <li key={i}>
                     {item.product.name} × {item.quantity}

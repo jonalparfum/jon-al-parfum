@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 
 type Category = { id: string; name: string; slug: string };
+type Subcategory = { id: string; name: string; categoryId: string };
 
 type ProductFormData = {
   name: string;
@@ -22,6 +23,7 @@ type ProductFormData = {
   stock: number;
   active: boolean;
   categoryId: string;
+  subcategoryId?: string;
 };
 
 type ProductFormProps = {
@@ -63,9 +65,32 @@ export default function ProductForm({
     stock: initial?.stock ?? 100,
     active: initial?.active ?? true,
     categoryId: initial?.categoryId || categories[0]?.id || "",
+    subcategoryId: initial?.subcategoryId || "",
   });
+  const [subcategories, setSubcategories] = useState<Subcategory[]>([]);
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (!form.categoryId) {
+      setSubcategories([]);
+      return;
+    }
+    fetch(`/api/admin/subcategories?categoryId=${form.categoryId}`)
+      .then((r) => r.json())
+      .then((data: Subcategory[]) => setSubcategories(data))
+      .catch(() => setSubcategories([]));
+  }, [form.categoryId]);
+
+  useEffect(() => {
+    if (
+      form.subcategoryId &&
+      !subcategories.some((sub) => sub.id === form.subcategoryId)
+    ) {
+      update("subcategoryId", "");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [subcategories]);
 
   const update = (field: keyof ProductFormData, value: unknown) => {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -138,7 +163,7 @@ export default function ProductForm({
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div>
-          <label className="block text-sm font-medium mb-1">Precio (€) *</label>
+          <label className="block text-sm font-medium mb-1">Precio (MXN) *</label>
           <input
             type="number"
             step="0.01"
@@ -149,7 +174,7 @@ export default function ProductForm({
           />
         </div>
         <div>
-          <label className="block text-sm font-medium mb-1">Precio original</label>
+          <label className="block text-sm font-medium mb-1">Precio original (MXN)</label>
           <input
             type="number"
             step="0.01"
@@ -174,13 +199,26 @@ export default function ProductForm({
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div>
-          <label className="block text-sm font-medium mb-1">Catálogo *</label>
+          <label className="block text-sm font-medium mb-1">Marca</label>
+          <input
+            type="text"
+            value={form.brand}
+            onChange={(e) => update("brand", e.target.value)}
+            className="w-full border border-gray-200 rounded px-3 py-2 text-sm"
+            placeholder="Ej: Dior, Tom Ford…"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium mb-1">Categoría *</label>
           <select
             required
             value={form.categoryId}
-            onChange={(e) => update("categoryId", e.target.value)}
+            onChange={(e) => {
+              update("categoryId", e.target.value);
+              update("subcategoryId", "");
+            }}
             className="w-full border border-gray-200 rounded px-3 py-2 text-sm"
           >
             {categories.map((cat) => (
@@ -190,6 +228,26 @@ export default function ProductForm({
             ))}
           </select>
         </div>
+        <div>
+          <label className="block text-sm font-medium mb-1">Subcategoría</label>
+          <select
+            value={form.subcategoryId || ""}
+            onChange={(e) =>
+              update("subcategoryId", e.target.value || undefined)
+            }
+            className="w-full border border-gray-200 rounded px-3 py-2 text-sm"
+          >
+            <option value="">Sin subcategoría</option>
+            {subcategories.map((sub) => (
+              <option key={sub.id} value={sub.id}>
+                {sub.name}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
           <label className="block text-sm font-medium mb-1">Tamaño</label>
           <input

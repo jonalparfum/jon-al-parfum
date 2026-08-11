@@ -47,8 +47,8 @@ export function slugify(text: string): string {
 }
 
 export function formatPrice(price: number): string {
-  return new Intl.NumberFormat("es-ES", {
+  return new Intl.NumberFormat("es-MX", {
     style: "currency",
-    currency: "EUR",
+    currency: "MXN",
   }).format(price);
 }

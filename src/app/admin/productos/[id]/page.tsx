@@ -25,6 +25,7 @@ type Product = {
   stock: number;
   active: boolean;
   categoryId: string;
+  subcategoryId: string | null;
 };
 
 export default function EditProductPage({
@@ -91,6 +92,7 @@ export default function EditProductPage({
           stock: product.stock,
           active: product.active,
           categoryId: product.categoryId,
+          subcategoryId: product.subcategoryId ?? undefined,
         }}
         onSubmit={handleSubmit}
       />

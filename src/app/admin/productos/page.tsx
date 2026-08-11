@@ -14,6 +14,7 @@ type Product = {
   isNew: boolean;
   image: string;
   category: { name: string };
+  subcategory: { name: string } | null;
 };
 
 export default function AdminProductsPage() {
@@ -54,7 +55,8 @@ export default function AdminProductsPage() {
           <thead className="bg-gray-50 border-b">
             <tr>
               <th className="text-left p-4 font-medium">Producto</th>
-              <th className="text-left p-4 font-medium">Catálogo</th>
+              <th className="text-left p-4 font-medium">Categoría</th>
+              <th className="text-left p-4 font-medium">Subcategoría</th>
               <th className="text-left p-4 font-medium">Precio</th>
               <th className="text-left p-4 font-medium">Stock</th>
               <th className="text-left p-4 font-medium">Estado</th>
@@ -94,6 +96,9 @@ export default function AdminProductsPage() {
                   </div>
                 </td>
                 <td className="p-4 text-gray-600">{product.category.name}</td>
+                <td className="p-4 text-gray-500">
+                  {product.subcategory?.name || "—"}
+                </td>
                 <td className="p-4">{formatPrice(product.price)}</td>
                 <td className="p-4">
                   <span

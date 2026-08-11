@@ -26,6 +26,7 @@ type ProductBody = {
   stock?: number;
   active?: boolean;
   categoryId?: string;
+  subcategoryId?: string | null;
 };
 
 export async function GET(_request: NextRequest, { params }: RouteParams) {
@@ -35,7 +36,7 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
   const { id } = await params;
   const product = await prisma.product.findUnique({
     where: { id },
-    include: { category: true },
+    include: { category: true, subcategory: true },
   });
 
   if (!product) {
@@ -84,8 +85,11 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       ...(body.stock !== undefined && { stock: body.stock }),
       ...(body.active !== undefined && { active: body.active }),
       ...(body.categoryId !== undefined && { categoryId: body.categoryId }),
+      ...(body.subcategoryId !== undefined && {
+        subcategoryId: body.subcategoryId,
+      }),
     },
-    include: { category: true },
+    include: { category: true, subcategory: true },
   });
 
   return NextResponse.json(product);

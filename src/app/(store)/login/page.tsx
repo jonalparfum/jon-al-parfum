@@ -30,7 +30,13 @@ function LoginForm() {
       setError("Email o contraseña incorrectos");
       setLoading(false);
     } else {
-      router.push(callbackUrl);
+      const sessionRes = await fetch("/api/auth/session");
+      const session = await sessionRes.json();
+      if (session?.user?.role === "ADMIN") {
+        router.push("/admin");
+      } else {
+        router.push(callbackUrl);
+      }
       router.refresh();
     }
   };

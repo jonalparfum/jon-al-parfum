@@ -44,7 +44,7 @@ export default async function AdminLayout({
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
           {[
             { label: "Productos", value: stats[0] },
-            { label: "Catálogos", value: stats[1] },
+            { label: "Categorías", value: stats[1] },
             { label: "Pedidos", value: stats[2] },
             { label: "Usuarios", value: stats[3] },
           ].map((stat) => (

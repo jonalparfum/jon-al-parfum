@@ -106,6 +106,14 @@ export default function Header() {
           </nav>
 
           <div className="flex items-center gap-2 md:gap-3">
+            {session?.user?.role === "ADMIN" && (
+              <Link
+                href="/admin"
+                className="hidden sm:inline-flex text-[10px] uppercase tracking-[0.2em] text-luxury-black bg-gold hover:bg-gold-light px-3 py-1.5 font-medium transition-colors"
+              >
+                Admin
+              </Link>
+            )}
             {session ? (
               <Link
                 href="/cuenta"
@@ -190,6 +198,15 @@ export default function Header() {
                 {link.label}
               </Link>
             ))}
+            {session?.user?.role === "ADMIN" && (
+              <Link
+                href="/admin"
+                onClick={() => setMenuOpen(false)}
+                className="block py-3 text-xs uppercase tracking-[0.2em] text-gold font-medium"
+              >
+                Panel Admin
+              </Link>
+            )}
             <Link
               href={session ? "/cuenta" : "/login"}
               onClick={() => setMenuOpen(false)}

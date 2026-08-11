@@ -24,6 +24,7 @@ type ProductBody = {
   stock?: number;
   active?: boolean;
   categoryId: string;
+  subcategoryId?: string | null;
 };
 
 export async function GET() {
@@ -31,7 +32,7 @@ export async function GET() {
   if (!session) return unauthorized();
 
   const products = await prisma.product.findMany({
-    include: { category: true },
+    include: { category: true, subcategory: true },
     orderBy: { createdAt: "desc" },
   });
 
@@ -70,8 +71,9 @@ export async function POST(request: NextRequest) {
       stock: body.stock ?? 100,
       active: body.active ?? true,
       categoryId: body.categoryId,
+      subcategoryId: body.subcategoryId || null,
     },
-    include: { category: true },
+    include: { category: true, subcategory: true },
   });
 
   return NextResponse.json(product, { status: 201 });
