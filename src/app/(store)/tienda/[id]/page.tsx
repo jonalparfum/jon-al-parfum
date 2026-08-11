@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getProductFromDb } from "@/lib/products";
 import AddToCartButton, { ProductPrice } from "@/components/AddToCartButton";
-import ProductImage from "@/components/ProductImage";
+import ProductGallery from "@/components/ProductGallery";
 
 export const dynamic = "force-dynamic";
 
@@ -33,12 +33,10 @@ export default async function ProductPage({ params }: PageProps) {
       </nav>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16">
-        <ProductImage
-          src={product.image}
+        <ProductGallery
+          images={product.images?.length ? product.images : [product.image]}
           alt={product.name}
           category={product.category}
-          className="aspect-[3/4] max-h-[600px] rounded-sm"
-          priority
         />
 
         <div className="flex flex-col justify-center">
