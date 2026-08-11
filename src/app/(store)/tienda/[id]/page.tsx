@@ -4,6 +4,8 @@ import { getProductFromDb } from "@/lib/products";
 import AddToCartButton, { ProductPrice } from "@/components/AddToCartButton";
 import ProductImage from "@/components/ProductImage";
 
+export const dynamic = "force-dynamic";
+
 type PageProps = {
   params: Promise<{ id: string }>;
 };
