@@ -1,13 +1,17 @@
-import NextAuth from "next-auth";
-import { authConfig } from "@/lib/auth.config";
+import { getToken } from "next-auth/jwt";
 import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 
-const { auth } = NextAuth(authConfig);
-
-export default auth((req) => {
+export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
-  const isLoggedIn = !!req.auth?.user;
-  const role = req.auth?.user?.role;
+
+  const token = await getToken({
+    req,
+    secret: process.env.AUTH_SECRET,
+  });
+
+  const isLoggedIn = !!token;
+  const role = token?.role as string | undefined;
 
   if (pathname.startsWith("/admin")) {
     if (!isLoggedIn) {
@@ -27,7 +31,7 @@ export default auth((req) => {
   }
 
   return NextResponse.next();
-});
+}
 
 export const config = {
   matcher: ["/admin", "/admin/:path*", "/cuenta", "/cuenta/:path*"],
