@@ -1,8 +1,11 @@
 "use client";
 
 import { useEffect, useRef, useState, FormEvent } from "react";
-import { WHATSAPP_NUMBER, CONTACT_EMAIL } from "@/lib/contact";
-import EmailLink from "@/components/EmailLink";
+import {
+  WHATSAPP_NUMBER,
+  CONTACT_EMAIL,
+} from "@/lib/contact";
+import ContactChannels from "@/components/ContactChannels";
 
 type FormState = "idle" | "loading" | "success" | "error";
 
@@ -96,11 +99,9 @@ export default function ContactSection() {
               disponibilidad y pedidos especiales con envío a todo México.
             </p>
 
-            <div className="mb-8">
-              <EmailLink className="text-cream/80 text-sm" />
-            </div>
+            <ContactChannels className="mb-8" />
 
-            <div className="space-y-5 text-sm">
+            <div className="space-y-3 text-sm">
               <div className="flex items-start gap-4 p-4 border border-gold/10 bg-luxury-panel/30">
                 <span className="text-gold mt-0.5">◆</span>
                 <div>

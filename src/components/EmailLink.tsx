@@ -1,5 +1,5 @@
-import GmailIcon from "@/components/GmailIcon";
 import { CONTACT_EMAIL } from "@/lib/contact";
+import { GmailIcon } from "@/components/SocialIcons";
 
 type EmailLinkProps = {
   className?: string;
@@ -16,7 +16,7 @@ export default function EmailLink({
       className={`inline-flex items-center gap-2.5 hover:text-gold transition-colors duration-300 ${className}`}
     >
       {showIcon && (
-        <span className="flex-shrink-0 w-8 h-8 rounded-full bg-white/95 flex items-center justify-center shadow-sm">
+        <span className="flex-shrink-0 w-8 h-8 rounded-full border border-gold/25 flex items-center justify-center text-gold">
           <GmailIcon className="w-4 h-4" />
         </span>
       )}
