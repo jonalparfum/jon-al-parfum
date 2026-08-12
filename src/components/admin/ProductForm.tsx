@@ -74,7 +74,7 @@ export default function ProductForm({
     slug: initial?.slug || "",
     brand: initial?.brand || "Jon Al Parfum",
     description: initial?.description || "",
-    price: initial?.price || 0,
+    price: initial?.price || STRIPE_MIN_MXN,
     originalPrice: initial?.originalPrice,
     image: initial?.image || initial?.images?.[0] || "",
     images:
@@ -240,9 +240,20 @@ export default function ProductForm({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!Number.isFinite(form.price) || form.price < STRIPE_MIN_MXN) {
+      showToast(
+        `El precio mínimo es ${STRIPE_MIN_MXN} MXN (límite de Stripe)`,
+        "error"
+      );
+      return;
+    }
+
     setSaving(true);
     try {
       await onSubmit(prepareProductPayload(form));
+    } catch {
+      // El padre ya muestra el error (toast o modal).
     } finally {
       setSaving(false);
     }

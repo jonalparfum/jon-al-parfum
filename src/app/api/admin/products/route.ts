@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
+import { Prisma } from "@prisma/client";
 import {
   requireAdmin,
   unauthorized,
@@ -111,6 +112,15 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(product, { status: 201 });
   } catch (error) {
     console.error("Error creating product:", error);
+    if (
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      error.code === "P2002"
+    ) {
+      return NextResponse.json(
+        { error: "Ya existe un producto con ese nombre o slug" },
+        { status: 409 }
+      );
+    }
     return NextResponse.json(
       { error: "No se pudo crear el producto" },
       { status: 500 }

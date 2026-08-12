@@ -35,13 +35,13 @@ export default function NewProductPage() {
 
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));
-      showToast(
-        (err as { error?: string }).error || "Error al crear producto",
-        "error"
-      );
+      const message =
+        (err as { error?: string }).error || "Error al crear producto";
+      showActionModal(message, "error");
       throw new Error("create failed");
     }
 
+    showToast("Producto agregado");
     showActionModal("Producto agregado", "success", () => {
       router.replace("/admin/productos");
     });
