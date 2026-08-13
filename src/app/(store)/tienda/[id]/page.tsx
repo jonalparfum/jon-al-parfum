@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getProductFromDb } from "@/lib/products";
-import AddToCartButton, { ProductPrice } from "@/components/AddToCartButton";
+import ProductPurchasePanel from "@/components/ProductPurchasePanel";
 import ProductGallery from "@/components/ProductGallery";
 import JsonLd from "@/components/JsonLd";
 import {
@@ -101,13 +101,7 @@ export default async function ProductPage({ params }: PageProps) {
             {product.description}
           </p>
 
-          <ProductPrice
-            price={product.price}
-            originalPrice={product.originalPrice}
-            size={product.size}
-          />
-
-          <AddToCartButton product={product} />
+          <ProductPurchasePanel product={product} />
 
           <div className="border-t border-gold/10 pt-8">
             <h2 className="font-display text-xl text-cream mb-4">Notas olfativas</h2>

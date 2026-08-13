@@ -12,7 +12,7 @@ import {
 } from "@/lib/shipping";
 
 type CheckoutBody = {
-  items: { productId: string; quantity: number }[];
+  items: { productId: string; quantity: number; variantId?: string }[];
   shipping?: ShippingInput;
 };
 
@@ -32,47 +32,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "El carrito está vacío" }, { status: 400 });
   }
 
-  for (const item of body.items) {
-    if (
-      !Number.isInteger(item.quantity) ||
-      item.quantity < 1 ||
-      item.quantity > 99
-    ) {
-      return NextResponse.json(
-        { error: "Cantidad inválida en el carrito" },
-        { status: 400 }
-      );
-    }
-  }
-
-  const productIds = body.items.map((i) => i.productId);
-  const products = await prisma.product.findMany({
-    where: { id: { in: productIds }, active: true },
-  });
-
-  if (products.length !== body.items.length) {
-    return NextResponse.json(
-      { error: "Algunos productos ya no están disponibles" },
-      { status: 400 }
-    );
-  }
-
-  let total = 0;
-  let orderItems: { productId: string; quantity: number; price: number }[];
-
+  let prepared;
   try {
-    orderItems = body.items.map((item) => {
-      const product = products.find((p) => p.id === item.productId)!;
-      if (product.stock < item.quantity) {
-        throw new Error(`Stock insuficiente para ${product.name}`);
-      }
-      total += product.price * item.quantity;
-      return {
-        productId: product.id,
-        quantity: item.quantity,
-        price: product.price,
-      };
-    });
+    prepared = await prepareCheckoutItems(body.items);
   } catch (err) {
     return NextResponse.json(
       { error: err instanceof Error ? err.message : "Error en el checkout" },
@@ -80,10 +42,10 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  if (total < STRIPE_MIN_MXN) {
+  if (prepared.total < STRIPE_MIN_MXN) {
     return NextResponse.json(
       {
-        error: `El monto mínimo para pagar con tarjeta es ${STRIPE_MIN_MXN} MXN (límite de Stripe). Tu carrito suma ${total} MXN.`,
+        error: `El monto mínimo para pagar con tarjeta es ${STRIPE_MIN_MXN} MXN (límite de Stripe). Tu carrito suma ${prepared.total} MXN.`,
       },
       { status: 400 }
     );
@@ -102,29 +64,32 @@ export async function POST(request: NextRequest) {
   const order = await prisma.order.create({
     data: {
       userId: session.user.id,
-      total,
+      total: prepared.total,
       status: "PENDING",
       paymentMethod: "STRIPE",
       ...shippingFields,
-      items: { create: orderItems },
+      items: { create: prepared.orderItems },
     },
   });
 
-  const lineItems = body.items.map((item) => {
-    const product = products.find((p) => p.id === item.productId)!;
+  const lineItems = prepared.orderItems.map((item) => {
+    const product = prepared.products.find((p) => p.id === item.productId)!;
     const imageUrl = product.image.startsWith("http")
       ? product.image
       : `${process.env.NEXT_PUBLIC_APP_URL}${product.image}`;
+    const label = item.variantLabel
+      ? `${product.name} (${item.variantLabel})`
+      : product.name;
 
     return {
       price_data: {
         currency: "mxn",
         product_data: {
-          name: product.name,
+          name: label,
           description: product.description.slice(0, 200),
           images: [imageUrl],
         },
-        unit_amount: Math.round(product.price * 100),
+        unit_amount: Math.round(item.price * 100),
       },
       quantity: item.quantity,
     };

@@ -10,7 +10,7 @@ import {
 } from "@/lib/shipping";
 
 type CheckoutBody = {
-  items: { productId: string; quantity: number }[];
+  items: { productId: string; quantity: number; variantId?: string }[];
   shipping?: ShippingInput;
 };
 

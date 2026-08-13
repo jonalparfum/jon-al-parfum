@@ -16,6 +16,15 @@ import {
 
 type Category = { id: string; name: string; slug: string };
 
+type ProductVariant = {
+  id: string;
+  label: string;
+  price: number;
+  stock: number;
+  sortOrder: number;
+  active: boolean;
+};
+
 type Product = {
   id: string;
   name: string;
@@ -36,6 +45,7 @@ type Product = {
   active: boolean;
   categoryId: string;
   subcategoryId: string | null;
+  variants?: ProductVariant[];
   updatedAt?: string;
 };
 
@@ -157,6 +167,15 @@ export default function EditProductPage({
           active: product.active,
           categoryId: product.categoryId,
           subcategoryId: product.subcategoryId ?? undefined,
+          useVariants: Boolean(product.variants?.length),
+          variants: product.variants?.map((v) => ({
+            id: v.id,
+            label: v.label,
+            price: v.price,
+            stock: v.stock,
+            sortOrder: v.sortOrder,
+            active: v.active,
+          })),
         }}
         onSubmit={handleSubmit}
         mode="edit"

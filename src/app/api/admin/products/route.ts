@@ -11,6 +11,12 @@ import {
   validateProductPricing,
   validateSubcategoryForCategory,
 } from "@/lib/product-validation";
+import {
+  validateProductVariants,
+  summarizeVariants,
+  type ProductVariantInput,
+} from "@/lib/product-variants";
+import { replaceProductVariants } from "@/lib/product-variant-db";
 
 type ProductBody = {
   name: string;
@@ -31,6 +37,14 @@ type ProductBody = {
   active?: boolean;
   categoryId: string;
   subcategoryId?: string | null;
+  useVariants?: boolean;
+  variants?: ProductVariantInput[];
+};
+
+const productInclude = {
+  category: true,
+  subcategory: true,
+  variants: { orderBy: [{ sortOrder: "asc" as const }, { label: "asc" as const }] },
 };
 
 export async function GET() {
@@ -38,7 +52,7 @@ export async function GET() {
   if (!session) return unauthorized();
 
   const products = await prisma.product.findMany({
-    include: { category: true, subcategory: true },
+    include: productInclude,
     orderBy: { createdAt: "desc" },
   });
 
@@ -62,9 +76,18 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const pricingError = validateProductPricing(body.price, body.stock);
-  if (pricingError) {
-    return NextResponse.json({ error: pricingError }, { status: 400 });
+  const useVariants = Boolean(body.useVariants && body.variants?.length);
+
+  if (useVariants) {
+    const variantError = validateProductVariants(body.variants!);
+    if (variantError) {
+      return NextResponse.json({ error: variantError }, { status: 400 });
+    }
+  } else {
+    const pricingError = validateProductPricing(body.price, body.stock);
+    if (pricingError) {
+      return NextResponse.json({ error: pricingError }, { status: 400 });
+    }
   }
 
   const subError = await validateSubcategoryForCategory(
@@ -84,6 +107,8 @@ export async function POST(request: NextRequest) {
   const primaryImage =
     images[0] || body.image || "/uploads/products/placeholder.jpg";
 
+  const summary = useVariants ? summarizeVariants(body.variants!) : null;
+
   try {
     const product = await prisma.product.create({
       data: {
@@ -91,23 +116,32 @@ export async function POST(request: NextRequest) {
         slug,
         brand: body.brand || "Jon Al Parfum",
         description: body.description,
-        price: body.price,
+        price: summary?.price ?? body.price,
         originalPrice: body.originalPrice ?? null,
         image: primaryImage,
         images: serializeImages(images),
-        size: body.size || "100ml",
+        size: summary?.size ?? body.size ?? "100ml",
         notesTop: serializeNotes(body.notesTop || []),
         notesHeart: serializeNotes(body.notesHeart || []),
         notesBase: serializeNotes(body.notesBase || []),
         featured: body.featured ?? false,
         isNew: body.isNew ?? false,
-        stock: body.stock ?? 100,
+        stock: summary?.stock ?? body.stock ?? 100,
         active: body.active ?? true,
         categoryId: body.categoryId,
         subcategoryId: body.subcategoryId || null,
       },
-      include: { category: true, subcategory: true },
+      include: productInclude,
     });
+
+    if (useVariants) {
+      await replaceProductVariants(product.id, body.variants!);
+      const refreshed = await prisma.product.findUnique({
+        where: { id: product.id },
+        include: productInclude,
+      });
+      return NextResponse.json(refreshed, { status: 201 });
+    }
 
     return NextResponse.json(product, { status: 201 });
   } catch (error) {

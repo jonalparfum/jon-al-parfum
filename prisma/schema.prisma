@@ -115,9 +115,24 @@ model Product {
   category      Category     @relation(fields: [categoryId], references: [id])
   subcategoryId String?
   subcategory   Subcategory? @relation(fields: [subcategoryId], references: [id], onDelete: SetNull)
+  variants      ProductVariant[]
   orderItems    OrderItem[]
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
+}
+
+model ProductVariant {
+  id        String  @id @default(cuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  label     String
+  price     Float
+  stock     Int     @default(0)
+  sortOrder Int     @default(0)
+  active    Boolean @default(true)
+
+  @@unique([productId, label])
+  @@index([productId])
 }
 
 model BankAccount {
@@ -163,13 +178,15 @@ model Order {
 }
 
 model OrderItem {
-  id        String  @id @default(cuid())
-  orderId   String
-  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  productId String
-  product   Product @relation(fields: [productId], references: [id])
-  quantity  Int
-  price     Float
+  id           String  @id @default(cuid())
+  orderId      String
+  order        Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId    String
+  product      Product @relation(fields: [productId], references: [id])
+  variantId    String?
+  variantLabel String?
+  quantity     Int
+  price        Float
 }
 
 model RateLimitEntry {

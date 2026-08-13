@@ -1,6 +1,11 @@
 import { prisma } from "@/lib/prisma";
 import type { OrderStatus } from "@prisma/client";
 import { isUselessShippingAddress } from "@/lib/shipping";
+import {
+  assertOrderItemsInStock,
+  decrementOrderItemStock,
+  restoreOrderItemStock,
+} from "@/lib/order-stock";
 
 function isUselessStripeAddressString(value: string): boolean {
   return isUselessShippingAddress(value);
@@ -28,18 +33,7 @@ export async function markOrderPaid(
       return order;
     }
 
-    for (const item of order.items) {
-      const product = await tx.product.findUnique({
-        where: { id: item.productId },
-        select: { stock: true, name: true },
-      });
-
-      if (!product || product.stock < item.quantity) {
-        throw new Error(
-          `Stock insuficiente para ${product?.name ?? "un producto"}`
-        );
-      }
-    }
+    await assertOrderItemsInStock(tx, order.items);
 
     const hasFormShipping = Boolean(
       order.shippingStreet?.trim() ||
@@ -71,10 +65,7 @@ export async function markOrderPaid(
     });
 
     for (const item of order.items) {
-      await tx.product.update({
-        where: { id: item.productId },
-        data: { stock: { decrement: item.quantity } },
-      });
+      await decrementOrderItemStock(tx, item);
     }
 
     return tx.order.findUnique({
@@ -97,10 +88,7 @@ export async function restoreOrderStock(orderId: string) {
     }
 
     for (const item of order.items) {
-      await tx.product.update({
-        where: { id: item.productId },
-        data: { stock: { increment: item.quantity } },
-      });
+      await restoreOrderItemStock(tx, item);
     }
 
     return order;
@@ -128,18 +116,7 @@ export async function approvePaymentProof(orderId: string, note?: string) {
       throw new Error("El pedido ya fue procesado");
     }
 
-    for (const item of order.items) {
-      const product = await tx.product.findUnique({
-        where: { id: item.productId },
-        select: { stock: true, name: true },
-      });
-
-      if (!product || product.stock < item.quantity) {
-        throw new Error(
-          `Stock insuficiente para ${product?.name ?? "un producto"}`
-        );
-      }
-    }
+    await assertOrderItemsInStock(tx, order.items);
 
     await tx.order.update({
       where: { id: orderId },
@@ -151,10 +128,7 @@ export async function approvePaymentProof(orderId: string, note?: string) {
     });
 
     for (const item of order.items) {
-      await tx.product.update({
-        where: { id: item.productId },
-        data: { stock: { decrement: item.quantity } },
-      });
+      await decrementOrderItemStock(tx, item);
     }
 
     return tx.order.findUnique({
@@ -264,10 +238,7 @@ export async function deleteOrder(orderId: string) {
 
     if (STOCK_RESERVED_STATUSES.includes(order.status)) {
       for (const item of order.items) {
-        await tx.product.update({
-          where: { id: item.productId },
-          data: { stock: { increment: item.quantity } },
-        });
+        await restoreOrderItemStock(tx, item);
       }
     }
 

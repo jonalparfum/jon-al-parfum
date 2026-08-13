@@ -5,6 +5,7 @@ import { useSession } from "next-auth/react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import { useCart } from "@/context/CartContext";
+import { cartItemKey } from "@/types";
 import { formatPrice } from "@/lib/product-utils";
 import { STRIPE_MIN_MXN } from "@/lib/stripe-limits";
 import ProductImage from "@/components/ProductImage";
@@ -63,9 +64,10 @@ export default function CartDrawer() {
   }, [isOpen]);
 
   const cartPayload = {
-    items: items.map(({ product, quantity }) => ({
+    items: items.map(({ product, quantity, variantId }) => ({
       productId: product.id,
       quantity,
+      ...(variantId ? { variantId } : {}),
     })),
   };
 
@@ -247,36 +249,40 @@ export default function CartDrawer() {
         ) : (
           <>
             <ul className="flex-1 overflow-y-auto p-6 space-y-6">
-              {items.map(({ product, quantity }) => (
-                <li key={product.id} className="flex gap-4">
+              {items.map((item) => {
+                const key = cartItemKey(item);
+                return (
+                <li key={key} className="flex gap-4">
                   <ProductImage
-                    src={product.image}
-                    alt={product.name}
-                    category={product.category}
+                    src={item.product.image}
+                    alt={item.product.name}
+                    category={item.product.category}
                     className="w-20 h-24 flex-shrink-0 rounded-sm"
                   />
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-display text-sm truncate">{product.name}</h3>
-                    <p className="text-xs text-cream/50 mt-0.5">{product.size}</p>
-                    <p className="text-sm font-medium mt-1">{formatPrice(product.price)}</p>
+                    <h3 className="font-display text-sm truncate">{item.product.name}</h3>
+                    <p className="text-xs text-cream/50 mt-0.5">
+                      {item.variantLabel ?? item.product.size}
+                    </p>
+                    <p className="text-sm font-medium mt-1">{formatPrice(item.unitPrice)}</p>
                     <div className="flex items-center gap-3 mt-2">
                       <button
-                        onClick={() => updateQuantity(product.id, quantity - 1)}
+                        onClick={() => updateQuantity(key, item.quantity - 1)}
                         className="w-7 h-7 border border-gold/20 flex items-center justify-center hover:border-gold transition-colors"
                         aria-label="Reducir cantidad"
                       >
                         −
                       </button>
-                      <span className="text-sm w-4 text-center">{quantity}</span>
+                      <span className="text-sm w-4 text-center">{item.quantity}</span>
                       <button
-                        onClick={() => updateQuantity(product.id, quantity + 1)}
+                        onClick={() => updateQuantity(key, item.quantity + 1)}
                         className="w-7 h-7 border border-gold/20 flex items-center justify-center hover:border-gold transition-colors"
                         aria-label="Aumentar cantidad"
                       >
                         +
                       </button>
                       <button
-                        onClick={() => removeItem(product.id)}
+                        onClick={() => removeItem(key)}
                         className="ml-auto text-xs text-cream/40 hover:text-red-400 transition-colors"
                       >
                         Eliminar
@@ -284,7 +290,8 @@ export default function CartDrawer() {
                     </div>
                   </div>
                 </li>
-              ))}
+              );
+              })}
             </ul>
 
             <div className="border-t border-gold/10 p-6 space-y-3">

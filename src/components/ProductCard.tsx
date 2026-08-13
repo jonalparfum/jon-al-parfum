@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Product } from "@/types";
 import { formatPrice } from "@/lib/product-utils";
+import { productFromPrice, productHasStock } from "@/lib/product-variants";
 import { useCart } from "@/context/CartContext";
 import ProductImage from "@/components/ProductImage";
 
@@ -12,9 +13,14 @@ type ProductCardProps = {
 
 export default function ProductCard({ product }: ProductCardProps) {
   const { addItem, openCart } = useCart();
+  const inStock = productHasStock(product.stock, product.variants);
+  const hasVariants = Boolean(product.variants?.length);
+  const { amount, fromPrice } = productFromPrice(product.price, product.variants);
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
+    if (!inStock) return;
+    if (hasVariants) return;
     addItem(product);
     openCart();
   };
@@ -36,9 +42,14 @@ export default function ProductCard({ product }: ProductCardProps) {
               Nuevo
             </span>
           )}
-          {product.originalPrice && (
+          {product.originalPrice && !hasVariants && (
             <span className="absolute top-2 right-2 sm:top-3 sm:right-3 bg-red-900/90 text-cream text-[8px] sm:text-[10px] uppercase tracking-[0.12em] sm:tracking-[0.15em] px-1.5 sm:px-2.5 py-0.5 sm:py-1 z-10">
               Oferta
+            </span>
+          )}
+          {!inStock && (
+            <span className="absolute bottom-2 right-2 sm:bottom-3 sm:right-3 bg-black/75 text-cream text-[8px] sm:text-[10px] uppercase tracking-[0.14em] px-2 sm:px-3 py-1 sm:py-1.5 z-10 border border-gold/20">
+              Agotado
             </span>
           )}
         </div>
@@ -50,26 +61,42 @@ export default function ProductCard({ product }: ProductCardProps) {
           <h3 className="font-display text-sm sm:text-lg text-cream group-hover:text-gold transition-colors duration-300 line-clamp-2">
             {product.name}
           </h3>
-          <p className="text-xs sm:text-sm text-cream/40 mt-0.5 sm:mt-1">{product.size}</p>
+          <p className="text-xs sm:text-sm text-cream/40 mt-0.5 sm:mt-1">
+            {hasVariants
+              ? product.variants!.map((v) => v.label).join(" · ")
+              : product.size}
+          </p>
 
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0 mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-gold/10">
             <div>
+              {fromPrice && (
+                <span className="text-[10px] uppercase tracking-wider text-cream/40 mr-1">
+                  Desde
+                </span>
+              )}
               <span className="font-medium text-cream text-sm sm:text-base">
-                {formatPrice(product.price)}
+                {formatPrice(amount)}
               </span>
-              {product.originalPrice && (
+              {product.originalPrice && !hasVariants && (
                 <span className="ml-1 sm:ml-2 text-xs sm:text-sm text-cream/30 line-through">
                   {formatPrice(product.originalPrice)}
                 </span>
               )}
             </div>
-            <button
-              onClick={handleAddToCart}
-              className="text-[8px] sm:text-[10px] uppercase tracking-[0.12em] sm:tracking-[0.15em] text-gold border border-gold/40 hover:bg-gold hover:text-luxury-black px-2 sm:px-3 py-1 sm:py-1.5 transition-all duration-300 w-full sm:w-auto text-center"
-              aria-label={`Añadir ${product.name} al carrito`}
-            >
-              Añadir
-            </button>
+            {hasVariants ? (
+              <span className="text-[8px] sm:text-[10px] uppercase tracking-[0.12em] sm:tracking-[0.15em] text-gold/80 border border-gold/20 px-2 sm:px-3 py-1 sm:py-1.5 w-full sm:w-auto text-center">
+                Ver tamaños
+              </span>
+            ) : (
+              <button
+                onClick={handleAddToCart}
+                disabled={!inStock}
+                className="text-[8px] sm:text-[10px] uppercase tracking-[0.12em] sm:tracking-[0.15em] text-gold border border-gold/40 hover:bg-gold hover:text-luxury-black px-2 sm:px-3 py-1 sm:py-1.5 transition-all duration-300 w-full sm:w-auto text-center disabled:opacity-40 disabled:cursor-not-allowed"
+                aria-label={`Añadir ${product.name} al carrito`}
+              >
+                {inStock ? "Añadir" : "Agotado"}
+              </button>
+            )}
           </div>
         </div>
       </article>

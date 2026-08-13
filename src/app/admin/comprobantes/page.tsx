@@ -31,6 +31,7 @@ type PaymentProofOrder = {
   items: {
     quantity: number;
     price: number;
+    variantLabel?: string | null;
     product: { name: string };
   }[];
 };
@@ -171,7 +172,9 @@ export default function AdminPaymentProofsPage() {
                 <ul className="text-sm text-charcoal/80 space-y-1 mt-1">
                   {selected.items.map((item, i) => (
                     <li key={i}>
-                      {item.product.name} × {item.quantity} —{" "}
+                      {item.product.name}
+                      {item.variantLabel ? ` (${item.variantLabel})` : ""} ×{" "}
+                      {item.quantity} —{" "}
                       {formatPrice(item.price * item.quantity)}
                     </li>
                   ))}

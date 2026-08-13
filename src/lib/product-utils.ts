@@ -1,7 +1,26 @@
-import { Product as PrismaProduct, Category } from "@prisma/client";
-import { Product } from "@/types";
+import {
+  Product as PrismaProduct,
+  Category,
+  ProductVariant,
+} from "@prisma/client";
+import { Product, ProductVariant as ProductVariantDTO } from "@/types";
+import { productFromPrice } from "@/lib/product-variants";
 
-export type ProductWithCategory = PrismaProduct & { category: Category };
+export type ProductWithCategory = PrismaProduct & {
+  category: Category;
+  variants?: ProductVariant[];
+};
+
+function toVariantDTO(variant: ProductVariant): ProductVariantDTO {
+  return {
+    id: variant.id,
+    label: variant.label,
+    price: variant.price,
+    stock: variant.stock,
+    sortOrder: variant.sortOrder,
+    active: variant.active,
+  };
+}
 
 export function parseNotes(json: string): string[] {
   try {
@@ -40,12 +59,19 @@ export function resolveProductImages(image: string, imagesJson?: string | null) 
 
 export function toProductDTO(product: ProductWithCategory): Product {
   const images = resolveProductImages(product.image, product.images);
+  const variants = (product.variants ?? [])
+    .filter((v) => v.active)
+    .sort((a, b) => a.sortOrder - b.sortOrder || a.label.localeCompare(b.label, "es"))
+    .map(toVariantDTO);
+  const variantList = variants.length > 0 ? variants : undefined;
+  const { amount } = productFromPrice(product.price, variantList);
+
   return {
     id: product.id,
     name: product.name,
     brand: product.brand,
     description: product.description,
-    price: product.price,
+    price: variantList ? amount : product.price,
     originalPrice: product.originalPrice ?? undefined,
     image: images[0] || product.image,
     images,
@@ -56,6 +82,8 @@ export function toProductDTO(product: ProductWithCategory): Product {
       base: parseNotes(product.notesBase),
     },
     size: product.size,
+    stock: product.stock,
+    variants: variantList,
     featured: product.featured,
     new: product.isNew,
   };
@@ -96,6 +124,15 @@ export type ProductFormPayload = {
   active: boolean;
   categoryId: string;
   subcategoryId?: string;
+  useVariants?: boolean;
+  variants?: Array<{
+    id?: string;
+    label: string;
+    price: number;
+    stock: number;
+    sortOrder?: number;
+    active?: boolean;
+  }>;
 };
 
 export function prepareProductPayload(form: ProductFormPayload) {

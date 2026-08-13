@@ -42,6 +42,7 @@ type Order = {
   items: {
     quantity: number;
     price: number;
+    variantLabel?: string | null;
     product: { name: string; image: string };
   }[];
 };
@@ -333,7 +334,9 @@ export default function AdminOrdersPage() {
                     className="flex justify-between text-sm text-charcoal/70"
                   >
                     <span>
-                      {item.product.name} × {item.quantity}
+                      {item.product.name}
+                      {item.variantLabel ? ` (${item.variantLabel})` : ""} ×{" "}
+                      {item.quantity}
                     </span>
                     <span className="text-charcoal font-medium">
                       {formatPrice(item.price * item.quantity)}

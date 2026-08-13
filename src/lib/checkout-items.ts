@@ -1,10 +1,20 @@
 import { prisma } from "@/lib/prisma";
 
-export type CheckoutItem = { productId: string; quantity: number };
+export type CheckoutItem = {
+  productId: string;
+  quantity: number;
+  variantId?: string;
+};
 
 export type PreparedCheckout = {
   total: number;
-  orderItems: { productId: string; quantity: number; price: number }[];
+  orderItems: {
+    productId: string;
+    quantity: number;
+    price: number;
+    variantId?: string;
+    variantLabel?: string;
+  }[];
   products: Awaited<ReturnType<typeof prisma.product.findMany>>;
 };
 
@@ -25,21 +35,48 @@ export async function prepareCheckoutItems(
     }
   }
 
-  const productIds = items.map((i) => i.productId);
+  const productIds = [...new Set(items.map((i) => i.productId))];
   const products = await prisma.product.findMany({
     where: { id: { in: productIds }, active: true },
+    include: {
+      variants: { where: { active: true } },
+    },
   });
 
-  if (products.length !== items.length) {
+  if (products.length !== productIds.length) {
     throw new Error("Algunos productos ya no están disponibles");
   }
 
   let total = 0;
   const orderItems = items.map((item) => {
     const product = products.find((p) => p.id === item.productId)!;
+
+    if (item.variantId) {
+      const variant = product.variants.find((v) => v.id === item.variantId);
+      if (!variant) {
+        throw new Error(`Tamaño no disponible para ${product.name}`);
+      }
+      if (variant.stock < item.quantity) {
+        throw new Error(`Stock insuficiente para ${product.name} (${variant.label})`);
+      }
+      total += variant.price * item.quantity;
+      return {
+        productId: product.id,
+        quantity: item.quantity,
+        price: variant.price,
+        variantId: variant.id,
+        variantLabel: variant.label,
+      };
+    }
+
+    if (product.variants.length > 0) {
+      throw new Error(`Selecciona un tamaño para ${product.name}`);
+    }
+
     if (product.stock < item.quantity) {
       throw new Error(`Stock insuficiente para ${product.name}`);
     }
+
     total += product.price * item.quantity;
     return {
       productId: product.id,

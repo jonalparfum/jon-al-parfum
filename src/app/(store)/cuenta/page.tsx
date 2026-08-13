@@ -34,6 +34,7 @@ type Order = {
   items: {
     quantity: number;
     price: number;
+    variantLabel?: string | null;
     product: { name: string; slug: string };
   }[];
 };
@@ -294,7 +295,9 @@ export default function AccountPage() {
                 <ul className="text-sm text-cream/70 space-y-1">
                   {order.items.map((item, i) => (
                     <li key={i}>
-                      {item.product.name} × {item.quantity}
+                      {item.product.name}
+                      {item.variantLabel ? ` (${item.variantLabel})` : ""} ×{" "}
+                      {item.quantity}
                     </li>
                   ))}
                 </ul>

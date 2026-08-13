@@ -21,6 +21,7 @@ import {
   type ProductFormPayload,
 } from "@/lib/product-utils";
 import { STRIPE_MIN_MXN } from "@/lib/stripe-limits";
+import { validateProductVariants } from "@/lib/product-variants";
 
 type Category = { id: string; name: string; slug: string };
 type Subcategory = { id: string; name: string; categoryId: string };
@@ -93,6 +94,15 @@ export default function ProductForm({
     active: initial?.active ?? true,
     categoryId: initial?.categoryId || categories[0]?.id || "",
     subcategoryId: initial?.subcategoryId || "",
+    useVariants: initial?.useVariants ?? Boolean(initial?.variants?.length),
+    variants:
+      initial?.variants?.length
+        ? initial.variants
+        : [
+            { label: "3ml", price: STRIPE_MIN_MXN, stock: 0 },
+            { label: "5ml", price: STRIPE_MIN_MXN, stock: 0 },
+            { label: "10ml", price: STRIPE_MIN_MXN, stock: 0 },
+          ],
   });
   const [subcategories, setSubcategories] = useState<Subcategory[]>([]);
   const [uploading, setUploading] = useState(false);
@@ -241,7 +251,13 @@ export default function ProductForm({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!Number.isFinite(form.price) || form.price < STRIPE_MIN_MXN) {
+    if (form.useVariants) {
+      const variantError = validateProductVariants(form.variants ?? []);
+      if (variantError) {
+        showToast(variantError, "error");
+        return;
+      }
+    } else if (!Number.isFinite(form.price) || form.price < STRIPE_MIN_MXN) {
       showToast(
         `El precio mínimo es ${STRIPE_MIN_MXN} MXN (límite de Stripe)`,
         "error"
@@ -257,6 +273,53 @@ export default function ProductForm({
     } finally {
       setSaving(false);
     }
+  };
+
+  const updateVariant = (
+    index: number,
+    field: "label" | "price" | "stock",
+    value: string
+  ) => {
+    setForm((prev) => {
+      const variants = [...(prev.variants ?? [])];
+      const current = variants[index];
+      if (!current) return prev;
+
+      if (field === "label") {
+        variants[index] = { ...current, label: value };
+      } else if (field === "price") {
+        const val = parseFloat(value);
+        variants[index] = {
+          ...current,
+          price: Number.isFinite(val) ? val : 0,
+        };
+      } else {
+        const val = parseInt(value, 10);
+        variants[index] = {
+          ...current,
+          stock: Number.isFinite(val) ? val : 0,
+        };
+      }
+
+      return { ...prev, variants };
+    });
+  };
+
+  const addVariant = () => {
+    setForm((prev) => ({
+      ...prev,
+      variants: [
+        ...(prev.variants ?? []),
+        { label: "", price: STRIPE_MIN_MXN, stock: 0 },
+      ],
+    }));
+  };
+
+  const removeVariant = (index: number) => {
+    setForm((prev) => ({
+      ...prev,
+      variants: (prev.variants ?? []).filter((_, i) => i !== index),
+    }));
   };
 
   const checkboxClass =
@@ -305,61 +368,134 @@ export default function ProductForm({
 
       <FormSection
         title="Precio e inventario"
-        description={`Precios en pesos mexicanos (MXN). Mínimo ${STRIPE_MIN_MXN} MXN por producto (límite de Stripe para pagos con tarjeta).`}
+        description={`Precios en pesos mexicanos (MXN). Mínimo ${STRIPE_MIN_MXN} MXN por presentación (límite de Stripe para pagos con tarjeta).`}
       >
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
-          <div>
-            <label className={adminLabel}>Precio (MXN) *</label>
-            <input
-              type="number"
-              step="0.01"
-              min={STRIPE_MIN_MXN}
-              required
-              value={form.price}
-              onChange={(e) => {
-                const val = parseFloat(e.target.value);
-                update("price", Number.isFinite(val) ? val : 0);
-              }}
-              className={adminInput}
-            />
-            <p className={`${adminMuted} mt-2 text-xs`}>
-              Mínimo {STRIPE_MIN_MXN} MXN para que el cliente pueda pagar con tarjeta.
-            </p>
+        <label className="flex items-center gap-2.5 text-sm text-charcoal/80 cursor-pointer mb-5">
+          <input
+            type="checkbox"
+            checked={Boolean(form.useVariants)}
+            onChange={(e) => update("useVariants", e.target.checked)}
+            className={checkboxClass}
+          />
+          Varios tamaños (3ml, 5ml, 10ml…) con precio y stock individual
+        </label>
+
+        {form.useVariants ? (
+          <div className="space-y-3">
+            {(form.variants ?? []).map((variant, index) => (
+              <div
+                key={index}
+                className="grid grid-cols-1 sm:grid-cols-[1fr_120px_100px_auto] gap-3 items-end p-4 rounded-lg border border-stone-200 bg-stone-50/50"
+              >
+                <div>
+                  <label className={adminLabel}>Tamaño</label>
+                  <input
+                    type="text"
+                    required
+                    value={variant.label}
+                    onChange={(e) =>
+                      updateVariant(index, "label", e.target.value)
+                    }
+                    className={adminInput}
+                    placeholder="Ej: 5ml"
+                  />
+                </div>
+                <div>
+                  <label className={adminLabel}>Precio (MXN)</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    min={STRIPE_MIN_MXN}
+                    required
+                    value={variant.price}
+                    onChange={(e) =>
+                      updateVariant(index, "price", e.target.value)
+                    }
+                    className={adminInput}
+                  />
+                </div>
+                <div>
+                  <label className={adminLabel}>Stock</label>
+                  <input
+                    type="number"
+                    min={0}
+                    required
+                    value={variant.stock}
+                    onChange={(e) =>
+                      updateVariant(index, "stock", e.target.value)
+                    }
+                    className={adminInput}
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={() => removeVariant(index)}
+                  disabled={(form.variants?.length ?? 0) <= 1}
+                  className={`${adminLinkDanger} pb-2.5 disabled:opacity-30`}
+                >
+                  Quitar
+                </button>
+              </div>
+            ))}
+            <button type="button" onClick={addVariant} className={adminBtnGhost}>
+              + Agregar tamaño
+            </button>
           </div>
-          <div>
-            <label className={adminLabel}>Precio original (MXN)</label>
-            <input
-              type="number"
-              step="0.01"
-              value={form.originalPrice || ""}
-              onChange={(e) =>
-                update(
-                  "originalPrice",
-                  e.target.value
-                    ? (() => {
-                        const val = parseFloat(e.target.value);
-                        return Number.isFinite(val) ? val : undefined;
-                      })()
-                    : undefined
-                )
-              }
-              className={adminInput}
-              placeholder="Para ofertas"
-            />
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+            <div>
+              <label className={adminLabel}>Precio (MXN) *</label>
+              <input
+                type="number"
+                step="0.01"
+                min={STRIPE_MIN_MXN}
+                required
+                value={form.price}
+                onChange={(e) => {
+                  const val = parseFloat(e.target.value);
+                  update("price", Number.isFinite(val) ? val : 0);
+                }}
+                className={adminInput}
+              />
+              <p className={`${adminMuted} mt-2 text-xs`}>
+                Mínimo {STRIPE_MIN_MXN} MXN para que el cliente pueda pagar con tarjeta.
+              </p>
+            </div>
+            <div>
+              <label className={adminLabel}>Precio original (MXN)</label>
+              <input
+                type="number"
+                step="0.01"
+                value={form.originalPrice || ""}
+                onChange={(e) =>
+                  update(
+                    "originalPrice",
+                    e.target.value
+                      ? (() => {
+                          const val = parseFloat(e.target.value);
+                          return Number.isFinite(val) ? val : undefined;
+                        })()
+                      : undefined
+                  )
+                }
+                className={adminInput}
+                placeholder="Para ofertas"
+              />
+            </div>
+            <div>
+              <label className={adminLabel}>Stock</label>
+              <input
+                type="number"
+                value={form.stock}
+                onChange={(e) => {
+                  const val = parseInt(e.target.value, 10);
+                  update("stock", Number.isFinite(val) ? val : 0);
+                }}
+                className={adminInput}
+              />
+            </div>
           </div>
-          <div>
-            <label className={adminLabel}>Stock</label>
-            <input
-              type="number"
-              value={form.stock}
-              onChange={(e) => {
-                const val = parseInt(e.target.value, 10);
-                update("stock", Number.isFinite(val) ? val : 0);
-              }}
-              className={adminInput}
-            />
-          </div>
-        </div>
+        )}
       </FormSection>
 
       <FormSection
@@ -436,12 +572,16 @@ export default function ProductForm({
         </div>
 
         <div className="mt-5 max-w-xs">
-          <label className={adminLabel}>Tamaño</label>
+          <label className={adminLabel}>
+            {form.useVariants ? "Tamaño (referencia)" : "Tamaño"}
+          </label>
           <input
             type="text"
             value={form.size}
             onChange={(e) => update("size", e.target.value)}
             className={adminInput}
+            disabled={Boolean(form.useVariants)}
+            placeholder={form.useVariants ? "Se genera desde los tamaños" : "100ml"}
           />
         </div>
       </FormSection>

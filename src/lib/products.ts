@@ -82,7 +82,14 @@ export async function getProductsFromDb(options?: {
   if (sort === "bestsellers") {
     const products = await prisma.product.findMany({
       where,
-      include: { category: true, subcategory: true },
+      include: {
+        category: true,
+        subcategory: true,
+        variants: {
+          where: { active: true },
+          orderBy: [{ sortOrder: "asc" }, { label: "asc" }],
+        },
+      },
     });
     const sorted = await sortByBestSellers(products);
     return sorted.map(toProductDTO);
@@ -97,7 +104,14 @@ export async function getProductsFromDb(options?: {
 
   const products = await prisma.product.findMany({
     where,
-    include: { category: true, subcategory: true },
+    include: {
+      category: true,
+      subcategory: true,
+      variants: {
+        where: { active: true },
+        orderBy: [{ sortOrder: "asc" }, { label: "asc" }],
+      },
+    },
     orderBy,
   });
 
@@ -114,7 +128,10 @@ export async function getProductFromDb(idOrSlug: string): Promise<Product | null
       active: true,
       OR: [{ id: idOrSlug }, { slug: idOrSlug }],
     },
-    include: { category: true },
+    include: {
+      category: true,
+      variants: { where: { active: true }, orderBy: [{ sortOrder: "asc" }, { label: "asc" }] },
+    },
   });
 
   return product ? toProductDTO(product) : null;
